@@ -27,6 +27,6 @@ Additional Ideas:
 - multer
 
 ## Frontend 
-- vite.js
+- react (vite.js)
 - tailwind css
 - react-icons
