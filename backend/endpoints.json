@@ -1,0 +1,7 @@
+{
+  "GET /test": {
+    "description": "responds with a list of endpoints",
+    "format": "JSON",
+    "exampleResponse": { "success": true, "msg": "Hello World!", "data": null }
+  }
+}
