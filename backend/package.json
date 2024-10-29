@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon listen.js"
+    "start": "nodemon listen.js",
+    "setup-db": "psql -f ./db/file_sharing_db.sql",
+    "seed": "node db/run_seed.js"
   },
   "keywords": [],
   "author": "",
@@ -12,8 +14,11 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1",
+    "pg-format": "^1.0.4"
   },
   "devDependencies": {
     "jest": "^29.7.0",
