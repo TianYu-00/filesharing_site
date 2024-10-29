@@ -4,7 +4,18 @@ const {
   retrieveFile,
   retrieveDownloadLinks,
   deleteFile,
+  retrieveAllFilesInfo,
 } = require("../models/file.model");
+
+// For /
+exports.getAllFilesInfo = async (req, res, next) => {
+  try {
+    const files = await retrieveAllFilesInfo();
+    res.json({ success: true, msg: "Files data has been fetched", data: files });
+  } catch (err) {
+    res.status(400).json({ success: false, msg: err.message, data: null });
+  }
+};
 
 // For /upload
 exports.postFile = async (req, res, next) => {

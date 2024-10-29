@@ -4,6 +4,16 @@ const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
+// All files info in db
+exports.retrieveAllFilesInfo = async () => {
+  try {
+    const result = await db.query(`SELECT * FROM file_info;`);
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
 // File upload logic
 exports.uploadFile = async (req) => {
   checkUploadDirExist();
