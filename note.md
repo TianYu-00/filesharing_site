@@ -22,7 +22,17 @@ Additional Ideas:
 - Allow limited download
 - Allow folder structure
 
+## checking db
+```
+\psql
+\c database_name
+\dt
+\d table_name
+```
 
+```
+SELECT * FROM table_name;
+```
 
 ## Backend 
 - [express.js](https://expressjs.com/)
@@ -35,3 +45,5 @@ Additional Ideas:
 - [react (vite.js)](https://vite.dev/guide/)
 - [tailwind css](https://tailwindcss.com/docs/installation)
 - [react-icons](https://react-icons.github.io/react-icons/)
+
+## Database
