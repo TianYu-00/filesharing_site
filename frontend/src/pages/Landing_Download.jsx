@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchFileInfo, downloadFileByID } from "../api";
+import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useParams } from "react-router-dom";
 
 function Landing_Download() {
@@ -8,6 +9,7 @@ function Landing_Download() {
 
   useEffect(() => {
     fetchFile();
+    console.log(file);
   }, []);
 
   const fetchFile = async () => {
@@ -37,13 +39,46 @@ function Landing_Download() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="max-w-[1280px] mx-auto p-8 text-center text-white">
+      <div className="max-w-[1280px] mx-auto text-center text-white p-2 w-3/4">
+        <p className="text-2xl font-bold">File Is Ready</p>
+
         {file ? (
           <div>
-            <p>File ID: {file.id}</p>
-            <p>File Name: {file.originalname}</p>
-            <p>File Size: {file.size} bytes</p>
-            <button onClick={downloadFile} className="bg-slate-500 p-1 rounded">
+            <div className="table w-full mx-auto mt-10">
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File ID</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">{file.id}</div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File Name</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">{file.originalname}</div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File Size</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">{fileSizeFormatter(file.size)}</div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File type</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">{file.mimetype}</div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File Created Time</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">
+                  {fileDateFormatter(file.created_at)[0]}
+                </div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File Created Date</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">
+                  {fileDateFormatter(file.created_at)[1]}
+                </div>
+              </div>
+              <div className="table-row">
+                <div className="table-cell border border-gray-700 p-2 text-left">File Owner ID</div>
+                <div className="table-cell border border-gray-700 p-2 text-left">{file.user_id}</div>
+              </div>
+            </div>
+            <button onClick={downloadFile} className="bg-slate-500 p-2 rounded max-w-[200px] w-full mt-4">
               Download
             </button>
           </div>
