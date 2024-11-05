@@ -132,3 +132,20 @@ exports.deleteFile = async (file_id) => {
     throw new Error(err.message);
   }
 };
+
+// File get file info by download link
+exports.retrieveFileInfoByLink = async (downloadLink) => {
+  try {
+    const result = await db.query(
+      `SELECT file_info.* 
+       FROM file_info 
+       JOIN file_download_link ON file_info.id = file_download_link.file_id 
+       WHERE file_download_link.download_url = $1`,
+      [downloadLink]
+    );
+
+    return result.rows.length > 0 ? result.rows[0] : null;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};

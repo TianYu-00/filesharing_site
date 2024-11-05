@@ -5,6 +5,7 @@ const {
   retrieveDownloadLinks,
   deleteFile,
   retrieveAllFilesInfo,
+  retrieveFileInfoByLink,
 } = require("../models/file.model");
 
 // For /
@@ -65,6 +66,22 @@ exports.deleteFile = async (req, res, next) => {
     const file_id = req.params.file_id;
     await deleteFile(file_id);
     res.json({ success: true, msg: "File has been deleted", data: null });
+  } catch (err) {
+    res.status(400).json({ success: false, msg: err.message, data: null });
+  }
+};
+
+// /info-by-link/:download_link
+exports.getFileInfoByLink = async (req, res, next) => {
+  try {
+    const downloadLink = req.params.download_link;
+    const fileInfo = await retrieveFileInfoByLink(downloadLink);
+
+    if (!fileInfo) {
+      return res.status(404).json({ success: false, msg: "File not found", data: null });
+    }
+
+    res.json({ success: true, msg: "File information retrieved", data: fileInfo });
   } catch (err) {
     res.status(400).json({ success: false, msg: err.message, data: null });
   }

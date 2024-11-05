@@ -1,0 +1,88 @@
+import React, { useEffect, useState } from "react";
+import { uploadFile } from "../api";
+import { fileSizeFormatter } from "../components/File_Formatter";
+import { useNavigate } from "react-router-dom";
+
+// rfce snippet
+
+function Home() {
+  const navigate = useNavigate();
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
+
+  const handle_DownloadRedirect = () => {
+    navigate(`/files/download/${downloadLink}`);
+  };
+
+  const handle_FileChange = (event) => {
+    setUploadedFile(event.target.files[0]);
+    setUploadProgress(0);
+    setUploadStatus("");
+  };
+
+  const handle_FileUpload = async () => {
+    if (!uploadedFile) {
+      alert("Please choose a file to upload!");
+      return;
+    }
+
+    try {
+      const uploadResponse = await uploadFile(uploadedFile, (progressEvent) => {
+        const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(percentCount);
+      });
+
+      setUploadStatus("✓");
+      console.log("Server response:", uploadResponse);
+      setDownloadLink(uploadResponse.data.downloadLink.download_url);
+    } catch (error) {
+      setUploadStatus("Upload failed");
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(uploadedFile);
+  }, [uploadedFile]);
+
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div class="max-w-[1280px] mx-auto p-8 text-center text-white">
+        <h3>Upload Your File</h3>
+        <input type="file" onChange={handle_FileChange} />
+
+        <button onClick={handle_FileUpload} className="bg-slate-500 p-1 rounded">
+          Upload File
+        </button>
+
+        {uploadedFile && (
+          <div>
+            <p>File name: {uploadedFile.name}</p>
+            <p>File size: {fileSizeFormatter(uploadedFile.size)}</p>
+            <p>File type: {uploadedFile.type}</p>
+          </div>
+        )}
+
+        {uploadProgress > 0 && (
+          <div>
+            <p>Upload Progress: {uploadProgress}%</p>
+            <progress value={uploadProgress} max="100"></progress>
+            <p>{uploadStatus}</p>
+          </div>
+        )}
+
+        {downloadLink && (
+          <div>
+            <button onClick={handle_DownloadRedirect} className="bg-slate-500 p-1 rounded">
+              Redirect to Download
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Home;

@@ -21,3 +21,23 @@ export const uploadFile = async (file, onUploadProgress) => {
     throw error;
   }
 };
+
+export const fetchFileInfo = async (download_link) => {
+  try {
+    const response = await api.get(`/files/info-by-link/${download_link}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const downloadFileByID = async (file_id) => {
+  try {
+    const response = await api.get(`/files/download/${file_id}`, { responseType: "blob" });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
