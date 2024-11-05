@@ -45,33 +45,39 @@ function Home() {
   }, [uploadedFile]);
 
   return (
-    <div>
-      <h3>File Upload Test</h3>
-      <input type="file" onChange={handle_FileChange} />
+    <div className="flex items-center justify-center h-screen">
+      <div class="max-w-[1280px] mx-auto p-8 text-center text-white">
+        <h3>Upload Your File</h3>
+        <input type="file" onChange={handle_FileChange} />
 
-      <button onClick={handle_FileUpload}>Upload File</button>
+        <button onClick={handle_FileUpload} className="bg-slate-500 p-1 rounded">
+          Upload File
+        </button>
 
-      {uploadedFile && (
-        <div>
-          <p>File name: {uploadedFile.name}</p>
-          <p>File size: {fileSizeFormatter(uploadedFile.size)}</p>
-          <p>File type: {uploadedFile.type}</p>
-        </div>
-      )}
+        {uploadedFile && (
+          <div>
+            <p>File name: {uploadedFile.name}</p>
+            <p>File size: {fileSizeFormatter(uploadedFile.size)}</p>
+            <p>File type: {uploadedFile.type}</p>
+          </div>
+        )}
 
-      {uploadProgress > 0 && (
-        <div>
-          <p>Upload Progress: {uploadProgress}%</p>
-          <progress value={uploadProgress} max="100"></progress>
-          <p>{uploadStatus}</p>
-        </div>
-      )}
+        {uploadProgress > 0 && (
+          <div>
+            <p>Upload Progress: {uploadProgress}%</p>
+            <progress value={uploadProgress} max="100"></progress>
+            <p>{uploadStatus}</p>
+          </div>
+        )}
 
-      {downloadLink && (
-        <div>
-          <button onClick={handle_DownloadRedirect}>Redirect to Download</button>
-        </div>
-      )}
+        {downloadLink && (
+          <div>
+            <button onClick={handle_DownloadRedirect} className="bg-slate-500 p-1 rounded">
+              Redirect to Download
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

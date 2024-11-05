@@ -36,14 +36,16 @@ function Landing_Download() {
   };
 
   return (
-    <div>
-      <div>
+    <div className="flex items-center justify-center h-screen">
+      <div className="max-w-[1280px] mx-auto p-8 text-center text-white">
         {file ? (
           <div>
             <p>File ID: {file.id}</p>
-            <p>File Name Name: {file.originalname}</p>
+            <p>File Name: {file.originalname}</p>
             <p>File Size: {file.size} bytes</p>
-            <button onClick={downloadFile}>Download</button>
+            <button onClick={downloadFile} className="bg-slate-500 p-1 rounded">
+              Download
+            </button>
           </div>
         ) : (
           <p>Loading...</p>
