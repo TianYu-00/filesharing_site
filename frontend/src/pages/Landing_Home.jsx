@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { uploadFile } from "../api";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+  const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
+
+  const handle_DownloadRedirect = () => {
+    navigate(`/files/download/${downloadLink}`);
+  };
 
   const handle_FileChange = (event) => {
     setUploadedFile(event.target.files[0]);
@@ -26,6 +33,7 @@ function Home() {
 
       setUploadStatus("✓");
       console.log("Server response:", uploadResponse);
+      setDownloadLink(uploadResponse.data.downloadLink.download_url);
     } catch (error) {
       setUploadStatus("Upload failed");
       console.error(error);
@@ -56,6 +64,12 @@ function Home() {
           <p>Upload Progress: {uploadProgress}%</p>
           <progress value={uploadProgress} max="100"></progress>
           <p>{uploadStatus}</p>
+        </div>
+      )}
+
+      {downloadLink && (
+        <div>
+          <button onClick={handle_DownloadRedirect}>Redirect to Download</button>
         </div>
       )}
     </div>
