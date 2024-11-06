@@ -1,12 +1,14 @@
 import React from "react";
 import Landing_Home from "./pages/Landing_Home";
 import Landing_Download from "./pages/Landing_Download";
+import Header from "./components/Header";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Landing_Home />} />
         <Route path="/home" element={<Landing_Home />} />
