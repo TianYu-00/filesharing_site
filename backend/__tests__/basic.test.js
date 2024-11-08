@@ -1,4 +1,12 @@
-const { app, request } = require("../testIndex");
+const { app, request, db, seed } = require("../testIndex");
+
+afterAll(() => {
+  return db.end();
+});
+
+beforeEach(() => {
+  return seed();
+});
 
 describe("GET /test", () => {
   test("should return Hello World!", () => {

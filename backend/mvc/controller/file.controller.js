@@ -24,7 +24,7 @@ exports.postFile = async (req, res, next) => {
     const { file, fileId, downloadLink } = await uploadFile(req);
     res.json({ success: true, msg: "File has been uploaded", data: { file, downloadLink } });
   } catch (err) {
-    next(err);
+    res.status(400).json({ success: false, msg: err.message, data: null });
   }
 };
 

@@ -21,7 +21,6 @@ app.all("*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
   res.status(500).send({ success: false, msg: "INTERNAL SERVER ERROR", data: null });
 });
 
