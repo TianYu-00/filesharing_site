@@ -1,5 +1,6 @@
 import React from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
+import { Link } from "react-router-dom";
 
 function Landing_Register() {
   const handle_SignUp = (event) => {
@@ -15,6 +16,12 @@ function Landing_Register() {
         >
           <div className="flex flex-col">
             <p className="text-left font-bold text-3xl">Register</p>
+            <p className="text-left ">
+              Already have an account?{" "}
+              <Link to="/login" className="text-blue-500">
+                Log In
+              </Link>
+            </p>
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Username</label>
@@ -31,7 +38,11 @@ function Landing_Register() {
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Password</label>
-            <input className="border p-2 border-black rounded" type="password" autoComplete="current-password" />
+            <input className="border p-2 border-black rounded" type="password" autoComplete="new-password" />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-left font-semibold">Confirm Password</label>
+            <input className="border p-2 border-black rounded" type="password" autoComplete="new-password" />
           </div>
 
           <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">
