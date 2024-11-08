@@ -8,6 +8,8 @@ for databases maybe postgreSQL to handle the file metadata, and potentially user
 for the frontend im looking towards vite.js with tailwind css to quickly build and style the app.
 could use some icon packages. Had great experience with react-icons previously so i might continue using that.
 
+SHOULD i use firebase to easily handle login/registration? or JWT, bcrypt with Sendgrid (email sending service). Feel like firebase should be fine for my project scale.
+
 MVP (Minimum viable product):
 - Allow uploads
 - Allow downloads
