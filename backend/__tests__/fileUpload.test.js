@@ -1,7 +1,14 @@
-const request = require("supertest");
-const app = require("../app");
+const { app, request, db, seed } = require("../testIndex");
 const fs = require("fs");
 const path = require("path");
+
+afterAll(() => {
+  return db.end();
+});
+
+beforeEach(() => {
+  return seed();
+});
 
 describe("POST /api/files/upload", () => {
   const uploadsDir = path.join(__dirname, "..", "uploads");
@@ -15,7 +22,6 @@ describe("POST /api/files/upload", () => {
   });
 
   afterAll(() => {
-    fs.rmSync(uploadsDir, { recursive: true, force: true });
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
     }
@@ -26,7 +32,7 @@ describe("POST /api/files/upload", () => {
     expect(result.status).toBe(200);
     expect(result.body.success).toBe(true);
     expect(result.body.msg).toBe("File has been uploaded");
-    expect(result.body.data).toHaveProperty("filename");
+    expect(result.body.data).toHaveProperty("file.filename");
   });
 
   test("should return error when failed to upload file", async () => {

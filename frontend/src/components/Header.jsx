@@ -34,14 +34,22 @@ function Header() {
         <ul className="space-y-1 flex flex-col items-center pt-5">
           {/* Login */}
           <li className="w-full">
-            <Link to="#" className="hover:bg-neutral-700 w-full flex justify-center p-2" onClick={handle_MenuClick}>
+            <Link
+              to="/login"
+              className="hover:bg-neutral-700 w-full flex justify-center p-2"
+              onClick={handle_MenuClick}
+            >
               Login
             </Link>
           </li>
 
           {/* Register */}
           <li className="w-full">
-            <Link to="#" className="hover:bg-neutral-700 w-full flex justify-center p-2" onClick={handle_MenuClick}>
+            <Link
+              to="/register"
+              className="hover:bg-neutral-700 w-full flex justify-center p-2"
+              onClick={handle_MenuClick}
+            >
               Register
             </Link>
           </li>
