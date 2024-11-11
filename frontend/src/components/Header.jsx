@@ -14,7 +14,7 @@ function Header() {
     <div
       className={` w-screen absolute transition-all duration-700 ease-in-out ${
         isMenuClicked ? "max-h-screen" : "max-h-20"
-      } bg-neutral-900`}
+      } bg-neutral-900 z-50`}
     >
       <div className="flex items-center p-4">
         <div className="flex-shrink-0 hidden md:block">
@@ -51,6 +51,17 @@ function Header() {
               onClick={handle_MenuClick}
             >
               Register
+            </Link>
+          </li>
+
+          {/* Account Settings */}
+          <li className="w-full">
+            <Link
+              to="/account"
+              className="hover:bg-neutral-700 w-full flex justify-center p-2"
+              onClick={handle_MenuClick}
+            >
+              Account Settings
             </Link>
           </li>
 
