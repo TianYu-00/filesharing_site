@@ -16,6 +16,43 @@ app.get("/test", (req, res) => {
 app.use("/api", apiRouter);
 
 // Error Handling
+app.use((err, req, res, next) => {
+  // DUPLICATE_EMAIL
+  if (err.code === "DUPLICATE_EMAIL") {
+    res.status(409).send({
+      success: false,
+      msg: err.message || "Email address already in use. Please enter a different email.",
+      data: null,
+    });
+  }
+  // USER_NOT_FOUND
+  else if (err.code === "USER_NOT_FOUND") {
+    res.status(404).send({
+      success: false,
+      msg: err.message || "User not found",
+      data: null,
+    });
+  }
+  // INCORRECT_PASSWORD
+  else if (err.code === "INCORRECT_PASSWORD") {
+    res.status(401).send({
+      success: false,
+      msg: err.message || "Incorrect password",
+      data: null,
+    });
+  }
+  // 23505
+  else if (err.code === "23505") {
+    res.status(409).send({
+      success: false,
+      msg: "Data already exists.",
+      data: null,
+    });
+  } else {
+    next(err);
+  }
+});
+
 app.all("*", (req, res) => {
   res.status(404).send({ success: false, msg: "ROUTE NOT FOUND", data: null });
 });

@@ -5,7 +5,7 @@ exports.fetchAllUsers = async (req, res, next) => {
     const data = await getAllUsers();
     res.json({ success: true, msg: "Users has been fetched", data: data });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -15,7 +15,7 @@ exports.fetchUserById = async (req, res, next) => {
     const data = await getUser(user_id);
     res.json({ success: true, msg: "User has been fetched", data: data });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -25,7 +25,7 @@ exports.registerUser = async (req, res, next) => {
     const data = await postUser({ username, email, password });
     res.json({ success: true, msg: "User has been created", data: data });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -35,6 +35,6 @@ exports.loginUser = async (req, res, next) => {
     const data = await attemptLogin({ email, password });
     res.json({ success: true, msg: "Login approved", data: data });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
