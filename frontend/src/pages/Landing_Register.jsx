@@ -22,7 +22,8 @@ function Landing_Register() {
       console.log("Sign up button clicked!");
 
       if (password !== confirmPassword) {
-        console.log("password is not the same");
+        console.log("Password is not the same");
+        setMessage("Password is not the same");
         return;
       }
 
