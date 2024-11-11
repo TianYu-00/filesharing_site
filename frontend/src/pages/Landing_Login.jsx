@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../api";
+import { useUser } from "../context/UserContext";
 
 function Landing_Login() {
-  const handle_Login = (event) => {
-    event.preventDefault();
-    console.log("Login button clicked!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setUserInfo } = useUser();
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handle_Login = async (event) => {
+    try {
+      event.preventDefault();
+      setMessage("");
+      console.log("Login button clicked!");
+
+      const loginResponse = await loginUser(email, password);
+      if (loginResponse.success) {
+        setUserInfo(loginResponse.data);
+        navigate("/home");
+      }
+    } catch (error) {
+      console.log(error);
+      setMessage(error.response.data.msg || "Login failed. Please try again.");
+    }
   };
   return (
     <Page_BoilerPlate>
@@ -24,12 +44,23 @@ function Landing_Login() {
             </p>
           </div>
           <div className="flex flex-col">
-            <label className="text-left font-semibold">Username</label>
-            <input className="border p-2 border-black rounded" type="text" placeholder="tian" autoComplete="username" />
+            <label className="text-left font-semibold">Email</label>
+            <input
+              className="border p-2 border-black rounded"
+              type="email"
+              placeholder="123456789@dropboxer.com"
+              autoComplete="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Password</label>
-            <input className="border p-2 border-black rounded" type="password" autoComplete="current-password" />
+            <input
+              className="border p-2 border-black rounded"
+              type="password"
+              autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
           <div className="flex flex-row">
@@ -40,6 +71,10 @@ function Landing_Login() {
             <Link to="#" className="flex ml-auto text-blue-500">
               Forgot Login Info?
             </Link>
+          </div>
+
+          <div className="flex flex-col">
+            <p className="text-red-500">{message}</p>
           </div>
 
           <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">

@@ -1,6 +1,7 @@
 const db = require("./connection");
+const format = require("pg-format");
 
-function createTables() {
+function createTables({ users }) {
   return db
     .query("DROP TABLE IF EXISTS file_download_link;")
     .then(() => db.query("DROP TABLE IF EXISTS file_info;"))
@@ -8,6 +9,7 @@ function createTables() {
     .then(() => createUsersTable())
     .then(() => createFileInfoTable())
     .then(() => createFileDownloadLinksTable())
+    .then(() => insertUsers(users))
     .catch((err) => {
       console.error("Error creating tables:", err);
     });
@@ -16,7 +18,7 @@ function createTables() {
 function createUsersTable() {
   return db.query(`CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -48,6 +50,15 @@ function createFileDownloadLinksTable() {
     expires_at TIMESTAMP,
     password VARCHAR(255)
   );`);
+}
+
+function insertUsers(users) {
+  const query = format(
+    `INSERT INTO users (username, email, password) VALUES %L`,
+    users.map((user) => [user.username, user.email, user.password])
+  );
+
+  return db.query(query);
 }
 
 module.exports = createTables;

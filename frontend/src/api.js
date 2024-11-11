@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
   baseURL: "http://localhost:9090/api",
   headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
   },
 });
 
@@ -13,6 +13,9 @@ export const uploadFile = async (file, onUploadProgress) => {
 
   try {
     const response = await api.post("/files/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
       onUploadProgress: onUploadProgress,
     });
     return response.data;
@@ -35,6 +38,28 @@ export const fetchFileInfo = async (download_link) => {
 export const downloadFileByID = async (file_id) => {
   try {
     const response = await api.get(`/files/download/${file_id}`, { responseType: "blob" });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const registerUser = async (username, email, password) => {
+  const data = { username: username, email: email, password: password };
+  try {
+    const response = await api.post("/users/register", data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const loginUser = async (email, password) => {
+  const data = { email: email, password: password };
+  try {
+    const response = await api.post("/users/login", data);
     return response.data;
   } catch (error) {
     console.error(error);

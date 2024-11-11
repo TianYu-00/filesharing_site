@@ -9,6 +9,8 @@ if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
   throw new Error("PGDATABASE or DATABASE_URL not set");
 }
 
+// console.log("Connected to database:", process.env.PGDATABASE || process.env.DATABASE_URL);
+
 const config = {};
 if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;

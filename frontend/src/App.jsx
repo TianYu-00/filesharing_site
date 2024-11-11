@@ -6,19 +6,22 @@ import Landing_Login from "./pages/Landing_Login";
 import Header from "./components/Header";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Landing_Home />} />
-        <Route path="/home" element={<Landing_Home />} />
-        <Route path="/register" element={<Landing_Register />} />
-        <Route path="/login" element={<Landing_Login />} />
-        <Route path="/files/download/:file_id" element={<Landing_Download />} />
-      </Routes>
-    </BrowserRouter>
+    <UserProvider>
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Landing_Home />} />
+          <Route path="/home" element={<Landing_Home />} />
+          <Route path="/register" element={<Landing_Register />} />
+          <Route path="/login" element={<Landing_Login />} />
+          <Route path="/files/download/:file_id" element={<Landing_Download />} />
+        </Routes>
+      </BrowserRouter>
+    </UserProvider>
   );
 };
 
