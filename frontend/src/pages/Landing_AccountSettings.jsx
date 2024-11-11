@@ -9,20 +9,68 @@ import {
   BsFillLockFill,
 } from "react-icons/bs";
 
+import { editUser } from "../api";
+
 function Landing_AccountSettings() {
   const { user } = useUser();
   const [username, setUsername] = useState(user.username);
   const [email, setEmail] = useState(user.email);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const { setUserInfo } = useUser();
 
   useEffect(() => {
     console.log(user);
   }, [user]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Saving changes:", { username, email, currentPassword, newPassword });
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+
+    const changes = {};
+
+    if (username !== user.username) changes.username = username;
+
+    if (email !== user.email) {
+      if (!currentPassword) {
+        setMessage("Please enter your current password to change your email");
+        return;
+      }
+      changes.email = email;
+      changes.currentPassword = currentPassword;
+    }
+
+    if (newPassword) {
+      if (!currentPassword) {
+        setMessage("Please enter your current password to change your password");
+        return;
+      }
+      if (!newPassword) {
+        setMessage("Please enter a new password");
+        return;
+      }
+      changes.currentPassword = currentPassword;
+      changes.newPassword = newPassword;
+    }
+
+    if (Object.keys(changes).length === 0) {
+      setMessage("No changes detected");
+      return;
+    }
+
+    try {
+      console.log("Saving changes:", changes);
+      const changeResponse = await editUser(user.id, changes);
+      if (changeResponse.success) {
+        setMessage("Changes saved successfully!");
+        setUserInfo(changeResponse.data);
+        console.log(changeResponse);
+      }
+    } catch (err) {
+      console.log(err);
+      setMessage(err.response?.data?.msg || "Failed. Please try again");
+    }
   };
 
   return (
@@ -96,6 +144,10 @@ function Landing_AccountSettings() {
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-red-500">{message}</p>
             </div>
 
             {/* Save Button */}
