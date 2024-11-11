@@ -70,6 +70,14 @@ app.use((err, req, res, next) => {
       data: null,
     });
   }
+  // PASSWORD_REQUIRED
+  else if (err.code === "PASSWORD_REQUIRED") {
+    res.status(401).send({
+      success: false,
+      msg: err.message || "Password is required",
+      data: null,
+    });
+  }
   // 23505
   else if (err.code === "23505") {
     res.status(409).send({
