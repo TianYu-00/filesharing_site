@@ -7,7 +7,7 @@
     "start": "nodemon listen.js",
     "setup-db": "psql -f ./db/file_sharing_db.sql",
     "seed": "node db/run_seed.js",
-    "seed-prod": "NODE_ENV=production node db/run-seed.js"
+    "seed-prod": "NODE_ENV=production node db/run_seed.js"
   },
   "keywords": [],
   "author": "",
