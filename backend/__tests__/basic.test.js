@@ -1,11 +1,11 @@
-const { app, request, db, seed } = require("../testIndex");
+const { app, request, db, seed, data } = require("../testIndex");
 
 afterAll(() => {
   return db.end();
 });
 
 beforeEach(() => {
-  return seed();
+  return seed(data);
 });
 
 describe("GET /test", () => {

@@ -1,4 +1,4 @@
-const { app, request, db, seed } = require("../testIndex");
+const { app, request, db, seed, data } = require("../testIndex");
 const fs = require("fs");
 const path = require("path");
 
@@ -7,7 +7,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  return seed();
+  return seed(data);
 });
 
 describe("POST /api/files/upload", () => {
