@@ -9,6 +9,7 @@ import { Tooltip } from "react-tooltip";
 import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg } from "react-icons/bs";
 
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
+import { useUser } from "../context/UserContext";
 
 // rfce snippet
 
@@ -24,6 +25,13 @@ function Home() {
   const [downloadButtonToolTipContent, setDownloadButtonToolTipContent] = useState("Redirect to download page");
   const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy download link to clipboard");
   const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Reselect a file to upload");
+
+  //
+  const { user } = useUser();
+
+  useEffect(() => {
+    // console.log(user);
+  }, [user]);
 
   const handle_ReselectFile = async () => {
     window.location.replace(window.location.href);
@@ -75,11 +83,12 @@ function Home() {
   };
 
   useEffect(() => {
-    console.log(selectedFile);
+    // console.log(selectedFile);
   }, [selectedFile]);
 
   return (
     <Page_BoilerPlate>
+      {user && <p>Welcome, {user.username}</p>}
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
       {isUploadClicked &&

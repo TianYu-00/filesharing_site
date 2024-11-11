@@ -1,12 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../api";
+import { useUser } from "../context/UserContext";
 
 function Landing_Register() {
-  const handle_SignUp = (event) => {
-    event.preventDefault();
-    console.log("Sign up button clicked!");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { setUserInfo } = useUser();
+  const navigate = useNavigate();
+
+  //
+  const [message, setMessage] = useState("");
+
+  const handle_SignUp = async (event) => {
+    try {
+      event.preventDefault();
+      setMessage("");
+      console.log("Sign up button clicked!");
+
+      if (password !== confirmPassword) {
+        console.log("password is not the same");
+        return;
+      }
+
+      const registerResponse = await registerUser(username, email, confirmPassword);
+      // console.log(registerResponse.data);
+      if (registerResponse.success) {
+        setUserInfo(registerResponse.data);
+        navigate("/home");
+      }
+    } catch (error) {
+      console.log(error);
+      setMessage(error.response.data.msg || "Registration failed. Please try again.");
+    }
   };
+
   return (
     <Page_BoilerPlate>
       <div className="flex justify-center">
@@ -25,7 +56,13 @@ function Landing_Register() {
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Username</label>
-            <input className="border p-2 border-black rounded" type="text" placeholder="tian" autoComplete="username" />
+            <input
+              className="border p-2 border-black rounded"
+              type="text"
+              placeholder="tian"
+              autoComplete="username"
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Email</label>
@@ -34,15 +71,29 @@ function Landing_Register() {
               type="email"
               placeholder="123456789@dropboxer.com"
               autoComplete="email"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Password</label>
-            <input className="border p-2 border-black rounded" type="password" autoComplete="new-password" />
+            <input
+              className="border p-2 border-black rounded"
+              type="password"
+              autoComplete="new-password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           <div className="flex flex-col">
             <label className="text-left font-semibold">Confirm Password</label>
-            <input className="border p-2 border-black rounded" type="password" autoComplete="new-password" />
+            <input
+              className="border p-2 border-black rounded"
+              type="password"
+              autoComplete="new-password"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-red-500">{message}</p>
           </div>
 
           <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">
