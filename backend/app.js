@@ -17,6 +17,35 @@ app.use("/api", apiRouter);
 
 // Error Handling
 app.use((err, req, res, next) => {
+  // UPLOAD_ERROR
+  if (err.code === "UPLOAD_ERROR") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "File upload failed",
+      data: null,
+    });
+  }
+  // FILE_NOT_FOUND
+  else if (err.code === "FILE_NOT_FOUND") {
+    res.status(404).send({
+      success: false,
+      msg: err.message || "File not found",
+      data: null,
+    });
+  }
+  // DB_ERROR
+  else if (err.code === "DB_ERROR") {
+    res.status(500).send({
+      success: false,
+      msg: err.message || "Database error occurred",
+      data: null,
+    });
+  } else {
+    next(err);
+  }
+});
+
+app.use((err, req, res, next) => {
   // DUPLICATE_EMAIL
   if (err.code === "DUPLICATE_EMAIL") {
     res.status(409).send({

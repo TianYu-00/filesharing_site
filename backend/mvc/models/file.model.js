@@ -4,26 +4,24 @@ const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
-// All files info in db
 exports.retrieveAllFilesInfo = async () => {
   try {
     const result = await db.query(`SELECT * FROM file_info;`);
     return result.rows;
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving files from database" });
   }
 };
 
-// File upload logic
 exports.uploadFile = async (req) => {
   checkUploadDirExist();
   return new Promise((resolve, reject) => {
     upload.single("file")(req, {}, async (err) => {
       if (err) {
-        return reject(err);
+        return reject({ code: "UPLOAD_ERROR", message: "Error uploading file" });
       }
       if (!req.file) {
-        return reject(new Error("No file uploaded"));
+        return reject({ code: "UPLOAD_ERROR", message: "No file uploaded" });
       }
 
       const { fieldname, originalname, encoding, mimetype, destination, filename, path: filePath, size } = req.file;
@@ -32,60 +30,56 @@ exports.uploadFile = async (req) => {
       try {
         const result = await db.query(
           `
-                    INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id) 
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-                    RETURNING id
-                `,
+            INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+            RETURNING id
+          `,
           [fieldname, originalname, encoding, mimetype, destination, filename, filePath, size, userId]
         );
 
         const fileId = result.rows[0].id;
-
         const downloadLink = await createDownloadLink(fileId);
 
         resolve({ file: req.file, fileId, downloadLink });
       } catch (dbError) {
-        reject(new Error(dbError.message));
+        reject({ code: "DB_ERROR", message: "Error inserting file info into database" });
       }
     });
   });
 };
 
-// File create download link logic
 createDownloadLink = async (file_id) => {
   const downloadUrl = uuidv4() + "-id-" + file_id;
 
   try {
     const result = await db.query(
       `
-            INSERT INTO file_download_link (file_id, download_url) 
-            VALUES ($1, $2) 
-            RETURNING id, download_url
-            `,
+        INSERT INTO file_download_link (file_id, download_url) 
+        VALUES ($1, $2) 
+        RETURNING id, download_url
+      `,
       [file_id, downloadUrl]
     );
     return result.rows[0];
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({ code: "DB_ERROR", message: "Error creating download link" });
   }
 };
 
-// File get info logic
 exports.retrieveFileInfo = async (file_id) => {
   try {
     const result = await db.query(`SELECT * FROM file_info WHERE id = $1`, [file_id]);
 
     if (result.rows.length === 0) {
-      throw new Error("File not found");
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
     }
 
     return result.rows[0];
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving file info" });
   }
 };
 
-// File get file logic
 exports.retrieveFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
@@ -104,17 +98,15 @@ exports.retrieveFile = async (file_id, res) => {
   }
 };
 
-// File get download link logic
 exports.retrieveDownloadLinks = async (file_id) => {
   try {
     const result = await db.query(`SELECT * FROM file_download_link WHERE file_id = $1`, [file_id]);
     return result.rows;
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving download links" });
   }
 };
 
-// File delete logic
 exports.deleteFile = async (file_id) => {
   try {
     const fileInfo = await exports.retrieveFileInfo(file_id);
@@ -123,17 +115,16 @@ exports.deleteFile = async (file_id) => {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     } else {
-      throw new Error("File not found");
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
     }
 
     await db.query(`DELETE FROM file_info WHERE id = $1`, [file_id]);
     await db.query(`DELETE FROM file_download_link WHERE file_id = $1`, [file_id]);
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({ code: "DB_ERROR", message: "Error deleting file" });
   }
 };
 
-// File get file info by download link
 exports.retrieveFileInfoByLink = async (downloadLink) => {
   try {
     const result = await db.query(
@@ -146,6 +137,9 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
 
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (err) {
-    throw new Error(err.message);
+    return Promise.reject({
+      code: "DB_ERROR",
+      message: "Error retrieving file by download link",
+    });
   }
 };

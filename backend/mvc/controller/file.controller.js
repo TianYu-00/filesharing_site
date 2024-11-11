@@ -14,7 +14,7 @@ exports.getAllFilesInfo = async (req, res, next) => {
     const files = await retrieveAllFilesInfo();
     res.json({ success: true, msg: "Files data has been fetched", data: files });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -24,7 +24,7 @@ exports.postFile = async (req, res, next) => {
     const { file, fileId, downloadLink } = await uploadFile(req);
     res.json({ success: true, msg: "File has been uploaded", data: { file, downloadLink } });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -35,7 +35,7 @@ exports.getFileInfo = async (req, res, next) => {
     const file = await retrieveFileInfo(file_id);
     res.json({ success: true, msg: "File data has been fetched", data: file });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -45,7 +45,7 @@ exports.getFile = async (req, res, next) => {
     const file_id = req.params.file_id;
     await retrieveFile(file_id, res);
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -56,7 +56,7 @@ exports.getDownloadLinks = async (req, res, next) => {
     const links = await retrieveDownloadLinks(file_id);
     res.json({ success: true, msg: "Download link retrieved", data: links });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -67,7 +67,7 @@ exports.deleteFile = async (req, res, next) => {
     await deleteFile(file_id);
     res.json({ success: true, msg: "File has been deleted", data: null });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
 
@@ -83,6 +83,6 @@ exports.getFileInfoByLink = async (req, res, next) => {
 
     res.json({ success: true, msg: "File information retrieved", data: fileInfo });
   } catch (err) {
-    res.status(400).json({ success: false, msg: err.message, data: null });
+    next(err);
   }
 };
