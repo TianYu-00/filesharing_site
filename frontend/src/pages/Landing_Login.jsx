@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../api";
 import { useUser } from "../context/UserContext";
 
 function Landing_Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUserInfo } = useUser();
+  const { userLogin } = useUser();
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -17,16 +16,20 @@ function Landing_Login() {
       setMessage("");
       console.log("Login button clicked!");
 
-      const loginResponse = await loginUser(email, password);
+      const loginResponse = await userLogin(email, password);
+
       if (loginResponse.success) {
-        setUserInfo(loginResponse.data);
         navigate("/home");
+      } else {
+        const tmpMessage = loginResponse.response.data.msg;
+        setMessage(tmpMessage);
       }
     } catch (error) {
-      console.log(error);
-      setMessage(error.response.data.msg || "Login failed. Please try again.");
+      const tmpMessage = error.response?.data?.msg || "Sign in failed. Please try again.";
+      setMessage(tmpMessage);
     }
   };
+
   return (
     <Page_BoilerPlate>
       <div className="flex justify-center">
@@ -51,6 +54,7 @@ function Landing_Login() {
               placeholder="123456789@dropboxer.com"
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -60,6 +64,7 @@ function Landing_Login() {
               type="password"
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 

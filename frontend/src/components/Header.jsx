@@ -6,7 +6,7 @@ import { useUser } from "../context/UserContext";
 
 function Header() {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
-  const { user, clearUser } = useUser();
+  const { user, userLogout } = useUser();
 
   useEffect(() => {
     console.log(user);
@@ -90,7 +90,7 @@ function Header() {
                 className="hover:bg-neutral-700 w-full flex justify-center p-2"
                 onClick={() => {
                   handle_MenuClick();
-                  clearUser();
+                  userLogout();
                 }}
               >
                 Log out

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../api";
 import { useUser } from "../context/UserContext";
 
 function Landing_Register() {
@@ -9,7 +8,7 @@ function Landing_Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { setUserInfo } = useUser();
+  const { userRegister } = useUser();
   const navigate = useNavigate();
 
   //
@@ -27,15 +26,17 @@ function Landing_Register() {
         return;
       }
 
-      const registerResponse = await registerUser(username, email, confirmPassword);
-      // console.log(registerResponse.data);
+      const registerResponse = await userRegister(username, email, password);
+
       if (registerResponse.success) {
-        setUserInfo(registerResponse.data);
         navigate("/home");
+      } else {
+        const tmpMessage = registerResponse.response.data.msg;
+        setMessage(tmpMessage);
       }
     } catch (error) {
-      console.log(error);
-      setMessage(error.response.data.msg || "Registration failed. Please try again.");
+      const tmpMessage = error.response?.data?.msg || "Registration failed. Please try again.";
+      setMessage(tmpMessage);
     }
   };
 
@@ -63,6 +64,7 @@ function Landing_Register() {
               placeholder="tian"
               autoComplete="username"
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -73,6 +75,7 @@ function Landing_Register() {
               placeholder="123456789@dropboxer.com"
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -82,6 +85,7 @@ function Landing_Register() {
               type="password"
               autoComplete="new-password"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -91,6 +95,7 @@ function Landing_Register() {
               type="password"
               autoComplete="new-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
+              required
             />
           </div>
           <div className="flex flex-col">
