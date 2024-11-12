@@ -66,3 +66,14 @@ export const loginUser = async (email, password) => {
     throw error;
   }
 };
+
+export const editUser = async (user_id, { username, email, currentPassword, newPassword }) => {
+  const data = { username: username, email: email, currentPassword: currentPassword, newPassword: newPassword };
+  try {
+    const response = await api.patch(`/users/${user_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
