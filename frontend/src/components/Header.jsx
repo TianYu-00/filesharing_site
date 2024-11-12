@@ -27,7 +27,11 @@ function Header() {
           <img src={logo} className="h-10" alt="Logo" />
         </div>
         <div className="flex-grow flex items-center justify-end text-white ">
-          {user && <div className="mr-5"> Logged in as {user.username}</div>}
+          {user ? (
+            <div className="mr-5"> Logged in as {user.username}</div>
+          ) : (
+            <div className="mr-5"> Not logged in</div>
+          )}
           <button onClick={handle_MenuClick} className="hover:text-blue-500">
             <BsList size={30} />
           </button>
