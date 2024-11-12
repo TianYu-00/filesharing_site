@@ -56,7 +56,9 @@ function Home() {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      formData.append("user_id", user.id);
+      if (user && user.id) {
+        formData.append("user_id", user.id);
+      }
 
       setIsUploadClicked(true);
       const uploadResponse = await uploadFile(formData, (progressEvent) => {
