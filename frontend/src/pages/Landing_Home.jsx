@@ -88,7 +88,6 @@ function Home() {
 
   return (
     <Page_BoilerPlate>
-      {user && <p>Welcome, {user.username}</p>}
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
       {isUploadClicked &&
