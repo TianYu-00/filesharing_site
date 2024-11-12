@@ -11,12 +11,16 @@ could use some icon packages. Had great experience with react-icons previously s
 SHOULD i use firebase to easily handle login/registration? or JWT, bcrypt with Sendgrid (email sending service). Feel like firebase should be fine for my project scale.
 
 MVP (Minimum viable product):
-- Allow uploads
-- Allow downloads
-- Allow download links to be shared
+- Allow uploads ✅
+- Allow downloads ✅
+- Allow download links to be shared ✅
 
 Additional Ideas:
+- User account edit ✅
 - Registration/Login (JWT, bcrypt, need some look into)
+    - Bcrypt ✅
+    - JWT
+    - Sendgrid 
 - File auto delete after 24 hours if was uploaded by guest (not logged in)
 - Allow logged in users to manually delete files they uploaded
 - Allow logged in users to add password to their shared link
