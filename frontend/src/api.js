@@ -7,10 +7,7 @@ const api = axios.create({
   },
 });
 
-export const uploadFile = async (file, onUploadProgress) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
+export const uploadFile = async (formData, onUploadProgress) => {
   try {
     const response = await api.post("/files/upload", formData, {
       headers: {

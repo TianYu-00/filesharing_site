@@ -25,7 +25,7 @@ exports.uploadFile = async (req) => {
       }
 
       const { fieldname, originalname, encoding, mimetype, destination, filename, path: filePath, size } = req.file;
-      const userId = req.user ? req.user.id : null;
+      const userId = req.body.user_id || null;
 
       try {
         const result = await db.query(

@@ -54,8 +54,12 @@ function Home() {
     }
 
     try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("user_id", user.id);
+
       setIsUploadClicked(true);
-      const uploadResponse = await uploadFile(selectedFile, (progressEvent) => {
+      const uploadResponse = await uploadFile(formData, (progressEvent) => {
         const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCount);
       });
