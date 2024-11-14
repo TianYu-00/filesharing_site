@@ -5,6 +5,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 export const uploadFile = async (formData, onUploadProgress) => {
@@ -72,5 +73,15 @@ export const editUser = async (user_id, { username, email, currentPassword, newP
   } catch (error) {
     console.error(error);
     throw error;
+  }
+};
+
+export const verifyUser = async () => {
+  try {
+    const response = await api.get(`/authVerify`);
+    // console.log(response);
+    return response.data;
+  } catch (err) {
+    console.error(err);
   }
 };

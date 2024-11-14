@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
-import { registerUser, loginUser } from "../api";
+import { registerUser, loginUser, verifyUser } from "../api";
 
 const UserContext = createContext();
 
@@ -40,8 +40,17 @@ export const UserProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const userVerify = async () => {
+    const result = await verifyUser();
+    if (result.success) {
+      setUser(result.data);
+    } else {
+      console.log(result.msg);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUserInfo, userLogout, userRegister, userLogin }}>
+    <UserContext.Provider value={{ user, setUserInfo, userLogout, userRegister, userLogin, userVerify }}>
       {children}
     </UserContext.Provider>
   );
