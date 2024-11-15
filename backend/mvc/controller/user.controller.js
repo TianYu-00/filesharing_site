@@ -22,7 +22,7 @@ exports.fetchUserById = [
   async (req, res, next) => {
     try {
       const user_id = req.params.user_id;
-      const loggedInUserId = req.userData.id;
+      const loggedInUserId = req.userData.id.toString();
 
       if (user_id !== loggedInUserId && req.userData.role !== "admin") {
         return res.status(403).json({ success: false, msg: "Access denied" });
@@ -66,7 +66,7 @@ exports.editUserById = [
   async (req, res, next) => {
     try {
       const user_id = req.params.user_id;
-      const loggedInUserId = req.userData.id;
+      const loggedInUserId = req.userData.id.toString();
 
       if (user_id !== loggedInUserId && req.userData.role !== "admin") {
         return res.status(403).json({ success: false, msg: "Access denied" });
