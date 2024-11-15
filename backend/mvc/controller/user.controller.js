@@ -122,7 +122,7 @@ const signJWTAndCreateCookie = (res, userData, isRememberMe) => {
   let expiresInSecond;
   if (!isRememberMe) {
     // 1 hour = 3600 seconds
-    expiresInSecond = 15;
+    expiresInSecond = 3600;
   } else {
     // 30 days = 2592000 seconds
     expiresInSecond = 2592000;
