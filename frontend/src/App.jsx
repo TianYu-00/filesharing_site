@@ -4,6 +4,7 @@ import Landing_Download from "./pages/Landing_Download";
 import Landing_Register from "./pages/Landing_Register";
 import Landing_Login from "./pages/Landing_Login";
 import Landing_AccountSettings from "./pages/Landing_AccountSettings";
+import Landing_ForgotPassword from "./pages/Landing_ForgotPassword";
 import Header from "./components/Header";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/register" element={<Landing_Register />} />
           <Route path="/login" element={<Landing_Login />} />
           <Route path="/account" element={<Landing_AccountSettings />} />
+          <Route path="/password-reset" element={<Landing_ForgotPassword />} />
           <Route path="/files/download/:file_id" element={<Landing_Download />} />
         </Routes>
       </BrowserRouter>

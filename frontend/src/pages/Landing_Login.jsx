@@ -82,7 +82,7 @@ function Landing_Login() {
               />
               <span className="font-semibold select-none">Remember me</span>
             </label>
-            <Link to="#" className="flex ml-auto text-blue-500">
+            <Link to="/password-reset" className="flex ml-auto text-blue-500">
               Forgot Login Info?
             </Link>
           </div>
