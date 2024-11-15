@@ -98,6 +98,7 @@ function Landing_AccountSettings() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
+                autoComplete="username"
               />
               <BsFillPersonFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
@@ -110,6 +111,7 @@ function Landing_AccountSettings() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email"
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
+                autoComplete="email"
               />
               <BsEnvelopeFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
@@ -133,6 +135,7 @@ function Landing_AccountSettings() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="current password"
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
+                autoComplete="current-password"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
@@ -145,6 +148,7 @@ function Landing_AccountSettings() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="new password"
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
+                autoComplete="new-password"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
