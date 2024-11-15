@@ -41,7 +41,7 @@ exports.registerUser = async (req, res, next) => {
     const { username, email, password } = req.body;
     const data = await postUser({ username, email, password });
 
-    signJWTAndCreateCookie(res, data);
+    signJWTAndCreateCookie(res, data, false);
     res.json({ success: true, msg: "User has been created", data: data });
   } catch (err) {
     next(err);
@@ -50,10 +50,10 @@ exports.registerUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, isRememberMe } = req.body;
     const data = await attemptLogin({ email, password });
 
-    signJWTAndCreateCookie(res, data);
+    signJWTAndCreateCookie(res, data, isRememberMe);
 
     res.json({ success: true, msg: "Login approved", data: data });
   } catch (err) {
@@ -118,12 +118,20 @@ exports.logoutUser = async (req, res, next) => {
   }
 };
 
-const signJWTAndCreateCookie = (res, userData) => {
-  const token = jwt.sign({ userData: userData }, process.env.JWT_SECRET, { expiresIn: "1h" });
+const signJWTAndCreateCookie = (res, userData, isRememberMe) => {
+  let expiresInSecond;
+  if (!isRememberMe) {
+    // 1 hour = 3600 seconds
+    expiresInSecond = 15;
+  } else {
+    // 30 days = 2592000 seconds
+    expiresInSecond = 2592000;
+  }
+  const token = jwt.sign({ userData: userData }, process.env.JWT_SECRET, { expiresIn: expiresInSecond });
 
   res.cookie("userAuthToken", token, {
     httpOnly: true,
-    maxAge: 3600 * 1000,
+    maxAge: expiresInSecond * 1000,
     path: "/",
     sameSite: "None",
     secure: true,

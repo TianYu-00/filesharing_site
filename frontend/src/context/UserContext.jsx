@@ -21,9 +21,9 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const userLogin = async (email, password) => {
+  const userLogin = async (email, password, isRememberMe) => {
     try {
-      const response = await loginUser(email, password);
+      const response = await loginUser(email, password, isRememberMe);
       if (response.success) {
         setUserInfo(response.data);
       }

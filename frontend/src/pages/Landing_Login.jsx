@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext";
 function Landing_Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isRememberMe, setIsRememberMe] = useState(false);
   const { userLogin } = useUser();
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function Landing_Login() {
       setMessage("");
       console.log("Login button clicked!");
 
-      const loginResponse = await userLogin(email, password);
+      const loginResponse = await userLogin(email, password, isRememberMe);
 
       if (loginResponse.success) {
         navigate("/home");
@@ -70,7 +71,15 @@ function Landing_Login() {
 
           <div className="flex flex-row">
             <label className="flex items-center mr-auto">
-              <input type="checkbox" id="rememberMe" className="mr-2" />
+              <input
+                type="checkbox"
+                id="rememberMe"
+                className="mr-2"
+                checked={isRememberMe}
+                onChange={() => {
+                  setIsRememberMe(!isRememberMe);
+                }}
+              />
               <span className="font-semibold select-none">Remember me</span>
             </label>
             <Link to="#" className="flex ml-auto text-blue-500">
