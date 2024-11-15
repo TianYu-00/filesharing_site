@@ -7,5 +7,6 @@ userRouter.get("/:user_id", userController.fetchUserById);
 userRouter.post("/register", userController.registerUser);
 userRouter.post("/login", userController.loginUser);
 userRouter.patch("/:user_id", userController.editUserById);
+userRouter.post("/logout", userController.logoutUser);
 
 module.exports = userRouter;

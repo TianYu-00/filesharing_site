@@ -1,11 +1,17 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser"); // https://www.npmjs.com/package/cookie-parser
 const apiRouter = require("./routes/api-router");
+const { verifyToken } = require("./mvc/controller/user.controller");
 
 const app = express();
-
+const corsConfigOptions = {
+  origin: "http://127.0.0.1:5173",
+  credentials: true,
+};
 // Middlewares
-app.use(cors());
+app.use(cors(corsConfigOptions));
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes
@@ -14,6 +20,8 @@ app.get("/test", (req, res) => {
 });
 
 app.use("/api", apiRouter);
+
+app.get("/api/authVerify", verifyToken);
 
 // Error Handling
 app.use((err, req, res, next) => {

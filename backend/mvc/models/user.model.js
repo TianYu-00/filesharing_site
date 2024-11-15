@@ -29,10 +29,11 @@ exports.postUser = async ({ username, email, password }) => {
     const result = await db.query(
       `INSERT INTO users (username, email, password)
         VALUES ($1, $2, $3)
-        RETURNING *;
+        RETURNING id, username, email, created_at, role;
         `,
       [username, email, hashedPassword]
     );
+
     return result.rows[0];
   } catch (err) {
     if (err.code === "23505" && err.constraint === "users_email_key") {
@@ -99,7 +100,7 @@ exports.updateUser = async (user_id, { username, email, currentPassword, newPass
       UPDATE users
       SET username = $1, email = $2, password = $3
       WHERE id = $4
-      RETURNING id, username, email, created_at;
+      RETURNING id, username, email, created_at, role;
     `;
     const values = [updatedUsername, updatedEmail, updatedPassword, user_id];
     const result = await db.query(query, values);

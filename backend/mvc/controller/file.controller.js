@@ -8,15 +8,22 @@ const {
   retrieveFileInfoByLink,
 } = require("../models/file.model");
 
+const checkAdminRole = require("../../src/checkAdminRole");
+const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
+
 // For /
-exports.getAllFilesInfo = async (req, res, next) => {
-  try {
-    const files = await retrieveAllFilesInfo();
-    res.json({ success: true, msg: "Files data has been fetched", data: files });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.getAllFilesInfo = [
+  verifyUserAuthToken,
+  checkAdminRole,
+  async (req, res, next) => {
+    try {
+      const files = await retrieveAllFilesInfo();
+      res.json({ success: true, msg: "Files data has been fetched", data: files });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 // For /upload
 exports.postFile = async (req, res, next) => {
@@ -61,15 +68,30 @@ exports.getDownloadLinks = async (req, res, next) => {
 };
 
 // For /delete/:file_id
-exports.deleteFile = async (req, res, next) => {
-  try {
-    const file_id = req.params.file_id;
-    await deleteFile(file_id);
-    res.json({ success: true, msg: "File has been deleted", data: null });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.deleteFile = [
+  verifyUserAuthToken,
+  async (req, res, next) => {
+    try {
+      const file_id = req.params.file_id;
+      const user_id = req.userData.id;
+
+      const file = await getFileById(file_id);
+
+      if (!file) {
+        return res.status(404).json({ success: false, msg: "File not found", data: null });
+      }
+
+      if (file.user_id !== user_id && req.userData.role !== "admin") {
+        return res.status(403).json({ success: false, msg: "Access denied", data: null });
+      }
+
+      await deleteFile(file_id);
+      res.json({ success: true, msg: "File has been deleted", data: null });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 // /info-by-link/:download_link
 exports.getFileInfoByLink = async (req, res, next) => {
