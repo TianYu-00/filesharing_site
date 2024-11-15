@@ -89,7 +89,7 @@ exports.verifyToken = async (req, res, next) => {
     }
 
     const decoded = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      jwt.verify(token, process.env.JWT_USER_AUTH_SECRET, (err, decoded) => {
         if (err) {
           reject(err);
         } else {
@@ -127,7 +127,7 @@ const signJWTAndCreateCookie = (res, userData, isRememberMe) => {
     // 30 days = 2592000 seconds
     expiresInSecond = 2592000;
   }
-  const token = jwt.sign({ userData: userData }, process.env.JWT_SECRET, { expiresIn: expiresInSecond });
+  const token = jwt.sign({ userData: userData }, process.env.JWT_USER_AUTH_SECRET, { expiresIn: expiresInSecond });
 
   res.cookie("userAuthToken", token, {
     httpOnly: true,

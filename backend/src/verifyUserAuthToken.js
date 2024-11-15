@@ -8,7 +8,7 @@ const verifyUserAuthToken = async (req, res, next) => {
     }
 
     const decoded = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      jwt.verify(token, process.env.JWT_USER_AUTH_SECRET, (err, decoded) => {
         if (err) {
           reject(err);
         } else {
