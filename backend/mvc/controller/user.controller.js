@@ -24,6 +24,8 @@ exports.registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
     const data = await postUser({ username, email, password });
+
+    signJWTAndCreateCookie(res, data);
     res.json({ success: true, msg: "User has been created", data: data });
   } catch (err) {
     next(err);
@@ -35,22 +37,9 @@ exports.loginUser = async (req, res, next) => {
     const { email, password } = req.body;
     const data = await attemptLogin({ email, password });
 
-    // https://www.npmjs.com/package/jsonwebtoken
-    const token = jwt.sign({ userData: data }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    signJWTAndCreateCookie(res, data);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 3600 * 1000,
-      path: "/",
-      sameSite: "None",
-      secure: true,
-    });
-
-    res.json({
-      success: true,
-      msg: "Login approved",
-      data: data,
-    });
+    res.json({ success: true, msg: "Login approved", data: data });
   } catch (err) {
     next(err);
   }
@@ -71,8 +60,7 @@ exports.editUserById = async (req, res, next) => {
 
 exports.verifyToken = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-    // console.log(req.cookies.token);
+    const token = req.cookies.userAuthToken;
     if (!token) {
       return res.json({ success: false, msg: "Token Not Available", data: null });
     }
@@ -87,9 +75,20 @@ exports.verifyToken = async (req, res, next) => {
       });
     });
 
-    // console.log("Token Decoded:", decoded);
     res.json({ success: true, msg: "Verified successfully", data: decoded.userData });
   } catch (err) {
     next(err);
   }
+};
+
+const signJWTAndCreateCookie = (res, userData) => {
+  const token = jwt.sign({ userData: userData }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+  res.cookie("userAuthToken", token, {
+    httpOnly: true,
+    maxAge: 3600 * 1000,
+    path: "/",
+    sameSite: "None",
+    secure: true,
+  });
 };
