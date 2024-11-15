@@ -1,24 +1,40 @@
 const { getAllUsers, getUser, postUser, attemptLogin, updateUser } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
-exports.fetchAllUsers = async (req, res, next) => {
-  try {
-    const data = await getAllUsers();
-    res.json({ success: true, msg: "Users has been fetched", data: data });
-  } catch (err) {
-    next(err);
-  }
-};
+const checkAdminRole = require("../../src/checkAdminRole");
+const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
 
-exports.fetchUserById = async (req, res, next) => {
-  try {
-    const user_id = req.params.user_id;
-    const data = await getUser(user_id);
-    res.json({ success: true, msg: "User has been fetched", data: data });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.fetchAllUsers = [
+  verifyUserAuthToken,
+  checkAdminRole,
+  async (req, res, next) => {
+    try {
+      const data = await getAllUsers();
+      res.json({ success: true, msg: "Users have been fetched", data: data });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
+
+exports.fetchUserById = [
+  verifyUserAuthToken,
+  async (req, res, next) => {
+    try {
+      const user_id = req.params.user_id;
+      const loggedInUserId = req.userData.id;
+
+      if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+        return res.status(403).json({ success: false, msg: "Access denied" });
+      }
+
+      const data = await getUser(user_id);
+      res.json({ success: true, msg: "User has been fetched", data: data });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 exports.registerUser = async (req, res, next) => {
   try {
@@ -45,18 +61,25 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-exports.editUserById = async (req, res, next) => {
-  try {
-    console.log("1");
-    const user_id = req.params.user_id;
-    const body = req.body;
-    console.log(user_id, body);
-    const data = await updateUser(user_id, body);
-    res.json({ success: true, msg: "User has been updated", data: data });
-  } catch (err) {
-    next(err);
-  }
-};
+exports.editUserById = [
+  verifyUserAuthToken,
+  async (req, res, next) => {
+    try {
+      const user_id = req.params.user_id;
+      const loggedInUserId = req.userData.id;
+
+      if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+        return res.status(403).json({ success: false, msg: "Access denied" });
+      }
+
+      const body = req.body;
+      const data = await updateUser(user_id, body);
+      res.json({ success: true, msg: "User has been updated", data: data });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 exports.verifyToken = async (req, res, next) => {
   try {
@@ -82,13 +105,17 @@ exports.verifyToken = async (req, res, next) => {
 };
 
 exports.logoutUser = async (req, res, next) => {
-  res.clearCookie("userAuthToken", {
-    httpOnly: true,
-    path: "/",
-    sameSite: "None",
-    secure: true,
-  });
-  return res.status(200).json({ success: true, message: "Logged out successfully", data: null });
+  try {
+    res.clearCookie("userAuthToken", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "None",
+      secure: true,
+    });
+    return res.status(200).json({ success: true, message: "Logged out successfully", data: null });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const signJWTAndCreateCookie = (res, userData) => {
