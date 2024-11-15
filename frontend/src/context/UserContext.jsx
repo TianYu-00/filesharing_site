@@ -7,6 +7,7 @@ export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const userRegister = async (username, email, password) => {
     try {
@@ -41,16 +42,23 @@ export const UserProvider = ({ children }) => {
   };
 
   const userVerify = async () => {
-    const result = await verifyUser();
-    if (result.success) {
-      setUser(result.data);
-    } else {
-      console.log(result.msg);
+    try {
+      setIsLoadingUser(true);
+      const result = await verifyUser();
+      if (result.success) {
+        setUser(result.data);
+      } else {
+        console.log(result.msg);
+      }
+    } catch (error) {
+      console.log(error.message);
+    } finally {
+      setIsLoadingUser(false);
     }
   };
 
   return (
-    <UserContext.Provider value={{ user, setUserInfo, userLogout, userRegister, userLogin, userVerify }}>
+    <UserContext.Provider value={{ user, setUserInfo, userLogout, userRegister, userLogin, userVerify, isLoadingUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -6,7 +6,11 @@ import { useUser } from "../context/UserContext";
 
 function Header() {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
-  const { user, userLogout } = useUser();
+  const { user, userLogout, userVerify } = useUser();
+
+  useEffect(() => {
+    userVerify();
+  }, []);
 
   useEffect(() => {
     console.log(user);

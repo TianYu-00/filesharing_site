@@ -10,19 +10,30 @@ import {
 } from "react-icons/bs";
 
 import { editUser } from "../api";
+import { useNavigate } from "react-router-dom";
 
 function Landing_AccountSettings() {
-  const { user } = useUser();
-  const [username, setUsername] = useState(user.username);
-  const [email, setEmail] = useState(user.email);
+  const navigate = useNavigate();
+  const { user, isLoadingUser, setUserInfo } = useUser();
+
+  const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { setUserInfo } = useUser();
 
   useEffect(() => {
-    console.log(user);
+    if (user) {
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+    }
   }, [user]);
+
+  useEffect(() => {
+    if (!user && !isLoadingUser) {
+      setTimeout(() => navigate("/login"), 0);
+    }
+  }, [user, isLoadingUser]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -30,9 +41,8 @@ function Landing_AccountSettings() {
 
     const changes = {};
 
-    if (username !== user.username) changes.username = username;
-
-    if (email !== user.email) {
+    if (username !== user?.username) changes.username = username;
+    if (email !== user?.email) {
       if (!currentPassword) {
         setMessage("Please enter your current password to change your email");
         return;
@@ -46,10 +56,6 @@ function Landing_AccountSettings() {
         setMessage("Please enter your current password to change your password");
         return;
       }
-      if (!newPassword) {
-        setMessage("Please enter a new password");
-        return;
-      }
       changes.currentPassword = currentPassword;
       changes.newPassword = newPassword;
     }
@@ -60,15 +66,12 @@ function Landing_AccountSettings() {
     }
 
     try {
-      console.log("Saving changes:", changes);
       const changeResponse = await editUser(user.id, changes);
       if (changeResponse.success) {
         setMessage("Changes saved successfully!");
         setUserInfo(changeResponse.data);
-        console.log(changeResponse);
       }
     } catch (err) {
-      console.log(err);
       setMessage(err.response?.data?.msg || "Failed. Please try again");
     }
   };
@@ -81,9 +84,9 @@ function Landing_AccountSettings() {
           <p className="flex font-bold text-2xl">Edit Account</p>
 
           <form onSubmit={handleSubmit}>
-            {/* User ID*/}
+            {/* User ID */}
             <div className="relative mb-4">
-              <input type="text" disabled value={user.id} className="pl-8 pr-4 py-2 border rounded-md w-full" />
+              <input type="text" disabled value={user?.id || ""} className="pl-8 pr-4 py-2 border rounded-md w-full" />
               <BsPersonVcardFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
 
@@ -116,7 +119,7 @@ function Landing_AccountSettings() {
               <input
                 type="text"
                 disabled
-                value={dateFormatter(user.created_at)}
+                value={dateFormatter(user?.created_at) || ""}
                 className="pl-8 pr-4 py-2 border rounded-md w-full"
               />
               <BsCalendarDateFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -167,10 +170,3 @@ function dateFormatter(isoDateTime) {
 }
 
 export default Landing_AccountSettings;
-
-/*
-Edible:
-- username
-- email
-- password
-*/

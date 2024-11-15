@@ -27,11 +27,7 @@ function Home() {
   const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Reselect a file to upload");
 
   //
-  const { user, userVerify } = useUser();
-
-  useEffect(() => {
-    userVerify();
-  }, []);
+  const { user } = useUser();
 
   useEffect(() => {
     // console.log(user);
