@@ -81,6 +81,16 @@ exports.verifyToken = async (req, res, next) => {
   }
 };
 
+exports.logoutUser = async (req, res, next) => {
+  res.clearCookie("userAuthToken", {
+    httpOnly: true,
+    path: "/",
+    sameSite: "None",
+    secure: true,
+  });
+  return res.status(200).json({ success: true, message: "Logged out successfully", data: null });
+};
+
 const signJWTAndCreateCookie = (res, userData) => {
   const token = jwt.sign({ userData: userData }, process.env.JWT_SECRET, { expiresIn: "1h" });
 

@@ -85,3 +85,12 @@ export const verifyUser = async () => {
     console.error(err);
   }
 };
+
+export const logoutUser = async () => {
+  try {
+    const response = await api.post(`/users/logout`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};

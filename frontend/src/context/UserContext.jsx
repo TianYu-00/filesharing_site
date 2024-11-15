@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
-import { registerUser, loginUser, verifyUser } from "../api";
+import { registerUser, loginUser, verifyUser, logoutUser } from "../api";
 
 const UserContext = createContext();
 
@@ -34,7 +34,12 @@ export const UserProvider = ({ children }) => {
   };
 
   const userLogout = async () => {
-    setUser(null);
+    const response = await logoutUser();
+    if (response.success) {
+      setUserInfo(response.data);
+      setUser(null);
+    }
+    return response;
   };
 
   const setUserInfo = (userData) => {
