@@ -53,7 +53,7 @@ export const UserProvider = ({ children }) => {
       if (result.success) {
         setUser(result.data);
       } else {
-        console.log(result.msg);
+        // console.log(result.msg);
       }
     } catch (error) {
       console.log(error.message);

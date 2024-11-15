@@ -13,7 +13,9 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    console.log(user);
+    if (user) {
+      console.log(user);
+    }
   }, [user]);
 
   const handle_MenuClick = () => {
