@@ -1,5 +1,6 @@
-const { getAllUsers, getUser, postUser, attemptLogin, updateUser } = require("../models/user.model");
+const { getAllUsers, getUser, postUser, attemptLogin, updateUser, getUserByEmail } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../../src/sendEmail");
 
 const checkAdminRole = require("../../src/checkAdminRole");
 const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
@@ -41,7 +42,7 @@ exports.registerUser = async (req, res, next) => {
     const { username, email, password } = req.body;
     const data = await postUser({ username, email, password });
 
-    signJWTAndCreateCookie(res, data, false);
+    signUserAuthJWTAndCreateCookie(res, data, false);
     res.json({ success: true, msg: "User has been created", data: data });
   } catch (err) {
     next(err);
@@ -53,7 +54,7 @@ exports.loginUser = async (req, res, next) => {
     const { email, password, isRememberMe } = req.body;
     const data = await attemptLogin({ email, password });
 
-    signJWTAndCreateCookie(res, data, isRememberMe);
+    signUserAuthJWTAndCreateCookie(res, data, isRememberMe);
 
     res.json({ success: true, msg: "Login approved", data: data });
   } catch (err) {
@@ -81,7 +82,7 @@ exports.editUserById = [
   },
 ];
 
-exports.verifyToken = async (req, res, next) => {
+exports.validateUserAuthToken = async (req, res, next) => {
   try {
     const token = req.cookies.userAuthToken;
     if (!token) {
@@ -118,7 +119,7 @@ exports.logoutUser = async (req, res, next) => {
   }
 };
 
-const signJWTAndCreateCookie = (res, userData, isRememberMe) => {
+const signUserAuthJWTAndCreateCookie = (res, userData, isRememberMe) => {
   let expiresInSecond;
   if (!isRememberMe) {
     // 1 hour = 3600 seconds
@@ -136,4 +137,56 @@ const signJWTAndCreateCookie = (res, userData, isRememberMe) => {
     sameSite: "None",
     secure: true,
   });
+};
+
+exports.sendPasswordResetLink = async (req, res, next) => {
+  try {
+    const seconds = 300;
+    const { email } = req.body;
+    console.log(email);
+    const user = await getUserByEmail(email);
+
+    const token = jwt.sign({ email }, process.env.JWT_USER_AUTH_SECRET, { expiresIn: seconds });
+
+    const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${token}`;
+
+    console.log(resetLink);
+
+    const textContent = `
+    Hello,
+
+    We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
+
+    ${resetLink}
+
+    If you did not request a password reset, please ignore this email.
+
+    If you have any issues, feel free to contact our support team.
+
+    Thanks,
+    The DropBoxer Team
+  `;
+
+    const htmlContent = `
+      <html>
+        <body>
+          <h2>Password Reset Request</h2>
+          <p>Hello,</p>
+          <p>We received a request to reset the password for your DropBoxer account. If this was you, please click the link below to reset your password:</p>
+          <p><a href="${resetLink}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+          <p>If you did not request a password reset, please ignore this email.</p>
+          <p>If you have any issues, feel free to contact our support team.</p>
+          <br/>
+          <p>Thanks,</p>
+          <p>The DropBoxer Team</p>
+        </body>
+      </html>
+    `;
+
+    sendEmail(email, "DropBoxer Password Reset", textContent, htmlContent);
+
+    res.status(200).json({ success: true, message: "Password reset link sent successfully", data: null });
+  } catch (err) {
+    next(err);
+  }
 };

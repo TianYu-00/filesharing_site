@@ -110,3 +110,15 @@ exports.updateUser = async (user_id, { username, email, currentPassword, newPass
     return Promise.reject(err);
   }
 };
+
+exports.getUserByEmail = async (userEmail) => {
+  try {
+    const result = await db.query(`SELECT * FROM users WHERE email = $1`, [userEmail]);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "USER_NOT_FOUND", message: "User not found" });
+    }
+    return result.rows[0];
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};

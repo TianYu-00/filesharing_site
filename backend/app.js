@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser"); // https://www.npmjs.com/package/cookie-parser
 const apiRouter = require("./routes/api-router");
-const { verifyToken } = require("./mvc/controller/user.controller");
+const { validateUserAuthToken } = require("./mvc/controller/user.controller");
 
 const app = express();
 const corsConfigOptions = {
@@ -21,7 +21,7 @@ app.get("/test", (req, res) => {
 
 app.use("/api", apiRouter);
 
-app.get("/api/authVerify", verifyToken);
+app.get("/api/authVerify", validateUserAuthToken);
 
 // Error Handling
 app.use((err, req, res, next) => {

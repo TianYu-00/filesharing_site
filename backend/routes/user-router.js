@@ -8,5 +8,6 @@ userRouter.post("/register", userController.registerUser);
 userRouter.post("/login", userController.loginUser);
 userRouter.patch("/:user_id", userController.editUserById);
 userRouter.post("/logout", userController.logoutUser);
+userRouter.post("/send-password-reset-link", userController.sendPasswordResetLink);
 
 module.exports = userRouter;
