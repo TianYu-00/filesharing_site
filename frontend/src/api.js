@@ -94,3 +94,34 @@ export const logoutUser = async () => {
     console.error(err);
   }
 };
+
+export const sendPasswordResetLink = async (userEmail) => {
+  try {
+    const data = { email: userEmail };
+    const response = await api.post(`/users/send-password-reset-link`, data);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const verifyPasswordResetToken = async (token) => {
+  try {
+    const data = { token: token };
+    const response = await api.post(`/users/verify-password-reset-token`, data);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const changeUserPassword = async (email, password) => {
+  try {
+    const data = { email: email, password: password };
+    const response = await api.patch(`/reset-password`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

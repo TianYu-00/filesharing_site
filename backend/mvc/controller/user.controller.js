@@ -1,41 +1,39 @@
-const { getAllUsers, getUser, postUser, attemptLogin, updateUser, getUserByEmail } = require("../models/user.model");
+const {
+  getAllUsers,
+  getUser,
+  postUser,
+  attemptLogin,
+  updateUser,
+  getUserByEmail,
+  patchUserPasswordByEmail,
+} = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../../src/sendEmail");
 
-const checkAdminRole = require("../../src/checkAdminRole");
-const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
+exports.fetchAllUsers = async (req, res, next) => {
+  try {
+    const data = await getAllUsers();
+    res.json({ success: true, msg: "Users have been fetched", data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
-exports.fetchAllUsers = [
-  verifyUserAuthToken,
-  checkAdminRole,
-  async (req, res, next) => {
-    try {
-      const data = await getAllUsers();
-      res.json({ success: true, msg: "Users have been fetched", data: data });
-    } catch (err) {
-      next(err);
+exports.fetchUserById = async (req, res, next) => {
+  try {
+    const user_id = req.params.user_id;
+    const loggedInUserId = req.userData.id.toString();
+
+    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
-  },
-];
 
-exports.fetchUserById = [
-  verifyUserAuthToken,
-  async (req, res, next) => {
-    try {
-      const user_id = req.params.user_id;
-      const loggedInUserId = req.userData.id.toString();
-
-      if (user_id !== loggedInUserId && req.userData.role !== "admin") {
-        return res.status(403).json({ success: false, msg: "Access denied" });
-      }
-
-      const data = await getUser(user_id);
-      res.json({ success: true, msg: "User has been fetched", data: data });
-    } catch (err) {
-      next(err);
-    }
-  },
-];
+    const data = await getUser(user_id);
+    res.json({ success: true, msg: "User has been fetched", data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.registerUser = async (req, res, next) => {
   try {
@@ -62,25 +60,22 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-exports.editUserById = [
-  verifyUserAuthToken,
-  async (req, res, next) => {
-    try {
-      const user_id = req.params.user_id;
-      const loggedInUserId = req.userData.id.toString();
+exports.editUserById = async (req, res, next) => {
+  try {
+    const user_id = req.params.user_id;
+    const loggedInUserId = req.userData.id.toString();
 
-      if (user_id !== loggedInUserId && req.userData.role !== "admin") {
-        return res.status(403).json({ success: false, msg: "Access denied" });
-      }
-
-      const body = req.body;
-      const data = await updateUser(user_id, body);
-      res.json({ success: true, msg: "User has been updated", data: data });
-    } catch (err) {
-      next(err);
+    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
-  },
-];
+
+    const body = req.body;
+    const data = await updateUser(user_id, body);
+    res.json({ success: true, msg: "User has been updated", data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.validateUserAuthToken = async (req, res, next) => {
   try {
@@ -146,7 +141,7 @@ exports.sendPasswordResetLink = async (req, res, next) => {
     console.log(email);
     const user = await getUserByEmail(email);
 
-    const token = jwt.sign({ email }, process.env.JWT_USER_AUTH_SECRET, { expiresIn: seconds });
+    const token = jwt.sign({ email }, process.env.JWT_USER_PASSWORD_RESET_SECRET, { expiresIn: seconds });
 
     const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${token}`;
 
@@ -186,6 +181,34 @@ exports.sendPasswordResetLink = async (req, res, next) => {
     sendEmail(email, "DropBoxer Password Reset", textContent, htmlContent);
 
     res.status(200).json({ success: true, message: "Password reset link sent successfully", data: null });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verifyPasswordResetToken = async (req, res, next) => {
+  const { token } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
+    res
+      .status(200)
+      .json({ success: true, message: "Validated successfully", data: { email: decoded.email, isValid: true } });
+  } catch (error) {
+    res.status(400).json({ success: false, message: "Invalid", data: { email: null, isValid: false } });
+  }
+};
+
+exports.resetPasswordByEmail = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required." });
+    }
+
+    const user = await patchUserPasswordByEmail(email, password);
+
+    res.status(200).json({ success: true, message: "Password has been updated", data: null });
   } catch (err) {
     next(err);
   }

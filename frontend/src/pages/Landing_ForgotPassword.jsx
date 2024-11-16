@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
+import { sendPasswordResetLink } from "../api";
 
 function Landing_ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -8,6 +9,12 @@ function Landing_ForgotPassword() {
   const handle_ForgetPassword = async (event) => {
     try {
       event.preventDefault();
+      const response = await sendPasswordResetLink(email);
+      if (response.success) {
+        setMessage("Email has been sent");
+      } else {
+        setMessage("Failed to send the email");
+      }
     } catch (error) {
       const tmpMessage = "failed";
       setMessage(tmpMessage);
