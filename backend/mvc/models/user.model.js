@@ -110,3 +110,40 @@ exports.updateUser = async (user_id, { username, email, currentPassword, newPass
     return Promise.reject(err);
   }
 };
+
+exports.getUserByEmail = async (userEmail) => {
+  try {
+    const result = await db.query(`SELECT * FROM users WHERE email = $1`, [userEmail]);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "USER_NOT_FOUND", message: "User not found" });
+    }
+    return result.rows[0];
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
+
+exports.patchUserPasswordByEmail = async (userEmail, userNewPassword) => {
+  try {
+    const result = await db.query(`SELECT * FROM users WHERE email = $1`, [userEmail]);
+    const user = result.rows[0];
+    if (!user) {
+      return Promise.reject({ code: "USER_NOT_FOUND", message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(userNewPassword, 10);
+
+    const query = `
+      UPDATE users
+      SET password = $1
+      WHERE email = $2
+      RETURNING id, username, email, created_at, role;
+    `;
+    const values = [hashedPassword, userEmail];
+    const endResult = await db.query(query, values);
+
+    return endResult.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+  }
+};
