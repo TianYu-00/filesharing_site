@@ -108,7 +108,7 @@ exports.logoutUser = async (req, res, next) => {
       sameSite: "None",
       secure: true,
     });
-    return res.status(200).json({ success: true, message: "Logged out successfully", data: null });
+    return res.status(200).json({ success: true, msg: "Logged out successfully", data: null });
   } catch (err) {
     next(err);
   }
@@ -184,7 +184,7 @@ exports.sendPasswordResetLink = async (req, res, next) => {
 
     sendEmail(email, "DropBoxer Password Reset", textContent, htmlContent);
 
-    res.status(200).json({ success: true, message: "Password reset link sent successfully", data: null });
+    res.status(200).json({ success: true, msg: "Password reset link sent successfully", data: null });
   } catch (err) {
     next(err);
   }
@@ -197,9 +197,11 @@ exports.verifyPasswordResetToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
     res
       .status(200)
-      .json({ success: true, message: "Validated successfully", data: { email: decoded.email, isValid: true } });
+      .json({ success: true, msg: "Token validated successfully", data: { email: decoded.email, isValid: true } });
   } catch (error) {
-    res.status(400).json({ success: false, message: "Invalid", data: { email: null, isValid: false } });
+    res
+      .status(400)
+      .json({ success: false, msg: "Invalid token or token has expired", data: { email: null, isValid: false } });
   }
 };
 
@@ -207,12 +209,12 @@ exports.resetPasswordByEmail = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Email and password are required." });
+      return res.status(400).json({ success: false, msg: "Email and password are required." });
     }
 
     const user = await patchUserPasswordByEmail(email, password);
 
-    res.status(200).json({ success: true, message: "Password has been updated", data: null });
+    res.status(200).json({ success: true, msg: "Password has been updated", data: null });
   } catch (err) {
     next(err);
   }
