@@ -129,3 +129,13 @@ export const changeUserPassword = async (email, password) => {
     throw error;
   }
 };
+
+export const fetchFilesByUserId = async (user_id) => {
+  try {
+    const response = await api.get(`/users/${user_id}/files`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

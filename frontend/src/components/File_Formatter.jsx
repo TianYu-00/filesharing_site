@@ -14,3 +14,9 @@ export function fileDateFormatter(isoDateTime) {
     dateTime.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" }),
   ];
 }
+
+export function fileDateFormatter_DateOnly(isoDateTime) {
+  const dateTime = new Date(isoDateTime);
+
+  return [dateTime.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })];
+}
