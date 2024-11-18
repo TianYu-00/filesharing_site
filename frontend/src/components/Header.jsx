@@ -76,6 +76,19 @@ function Header() {
             </li>
           )}
 
+          {/* My Files */}
+          {user && (
+            <li className="w-full">
+              <Link
+                to="/my-files"
+                className="hover:bg-neutral-700 w-full flex justify-center p-2"
+                onClick={handle_MenuClick}
+              >
+                My Files
+              </Link>
+            </li>
+          )}
+
           {/* Account Settings */}
           {user && (
             <li className="w-full">

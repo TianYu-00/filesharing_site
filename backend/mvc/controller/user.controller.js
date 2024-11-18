@@ -6,6 +6,7 @@ const {
   updateUser,
   getUserByEmail,
   patchUserPasswordByEmail,
+  getAllFilesBelongToUserById,
 } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../../src/sendEmail");
@@ -226,6 +227,16 @@ exports.resetPasswordByEmail = async (req, res, next) => {
     const user = await patchUserPasswordByEmail(email, password);
 
     res.status(200).json({ success: true, msg: "Password has been updated", data: null });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.fetchAllFilesBelongToUserId = async (req, res, next) => {
+  try {
+    const user_id = req.params.user_id;
+    const data = await getAllFilesBelongToUserById(user_id);
+    res.json({ success: true, msg: "Files has been fetch", data: data });
   } catch (err) {
     next(err);
   }
