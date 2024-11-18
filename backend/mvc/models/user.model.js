@@ -147,3 +147,17 @@ exports.patchUserPasswordByEmail = async (userEmail, userNewPassword) => {
     return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };
+
+exports.getAllFilesBelongToUserById = async (user_id) => {
+  try {
+    const query = `
+    SELECT * FROM file_info
+    WHERE user_id = $1
+    `;
+
+    const result = await db.query(query, [user_id]);
+    return result.rows;
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
