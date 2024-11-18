@@ -2,7 +2,6 @@ const { upload, checkUploadDirExist } = require("../../config/multerConfig");
 const db = require("../../db/connection");
 const path = require("path");
 const fs = require("fs");
-const { v4: uuidv4 } = require("uuid");
 
 exports.retrieveAllFilesInfo = async () => {
   try {

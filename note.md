@@ -19,8 +19,8 @@ Additional Ideas:
 - User account edit ✅
 - Registration/Login (JWT, bcrypt, need some look into)
     - Bcrypt ✅
-    - JWT
-    - Sendgrid 
+    - JWT ✅
+    - Sendgrid ✅
 - File auto delete after 24 hours if was uploaded by guest (not logged in)
 - Allow logged in users to manually delete files they uploaded
 - Allow logged in users to add password to their shared link
