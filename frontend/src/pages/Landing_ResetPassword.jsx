@@ -29,7 +29,8 @@ function Landing_ResetPassword() {
             setMessage("Invalid or expired token.");
           }
         } catch (error) {
-          setMessage("Token verification failed.");
+          setIsTokenValid(false);
+          setMessage(error.response.data.msg);
         }
       }
     };
@@ -66,6 +67,22 @@ function Landing_ResetPassword() {
       setMessage(tmpMessage);
     }
   };
+
+  if (!isTokenValid) {
+    return (
+      <Page_BoilerPlate>
+        <div className="flex flex-col justify-center items-center">
+          <p className="text-red-500">{message}</p>
+          <button
+            className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
+            onClick={() => navigate("/")}
+          >
+            Return to home page
+          </button>
+        </div>
+      </Page_BoilerPlate>
+    );
+  }
 
   return (
     <Page_BoilerPlate>

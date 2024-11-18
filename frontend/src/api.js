@@ -81,8 +81,9 @@ export const verifyUser = async () => {
     const response = await api.get(`/authVerify`);
     // console.log(response);
     return response.data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -90,8 +91,9 @@ export const logoutUser = async () => {
   try {
     const response = await api.post(`/users/logout`);
     return response.data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -100,8 +102,9 @@ export const sendPasswordResetLink = async (userEmail) => {
     const data = { email: userEmail };
     const response = await api.post(`/users/send-password-reset-link`, data);
     return response.data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -110,8 +113,9 @@ export const verifyPasswordResetToken = async (token) => {
     const data = { token: token };
     const response = await api.post(`/users/verify-password-reset-token`, data);
     return response.data;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
