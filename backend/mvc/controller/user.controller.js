@@ -9,6 +9,7 @@ const {
 } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../../src/sendEmail");
+const rateLimit = require("express-rate-limit");
 
 exports.fetchAllUsers = async (req, res, next) => {
   try {
@@ -134,61 +135,71 @@ const signUserAuthJWTAndCreateCookie = (res, userData, isRememberMe) => {
   });
 };
 
-exports.sendPasswordResetLink = async (req, res, next) => {
-  try {
-    const seconds = 300;
-    const { email } = req.body;
-    console.log(email);
-    const user = await getUserByEmail(email);
-    console.log(user);
+const passwordResetRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 1,
+  message: "Too many password reset requests from this IP, please try again after a minute.",
+  handler: (req, res) => {
+    return res.status(429).json({
+      success: false,
+      msg: "Too many password reset requests. Please wait and try again after a minute.",
+      data: null,
+    });
+  },
+});
 
-    const token = jwt.sign({ email }, process.env.JWT_USER_PASSWORD_RESET_SECRET, { expiresIn: seconds });
+exports.sendPasswordResetLink = [
+  passwordResetRateLimiter,
+  async (req, res, next) => {
+    try {
+      // 300 = 5min
+      const seconds = 900;
+      const { email } = req.body;
+      // console.log(email);
+      const user = await getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ success: false, msg: "User not found", data: null });
+      }
+      // console.log(user);
 
-    const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${token}`;
+      const token = jwt.sign({ email }, process.env.JWT_USER_PASSWORD_RESET_SECRET, { expiresIn: seconds });
 
-    console.log(resetLink);
+      const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${token}`;
 
-    const textContent = `
+      // console.log(resetLink);
+
+      const textContent = `
     Hello,
-
+  
     We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
-
+  
     ${resetLink}
-
-    Link will expire in 5 minutes
-
+  
+    Link will expire in 15 minutes.
+  
     If you did not request a password reset, please ignore this email.
-
+  
+    Please note: This is an automated message. Do not reply to this email as it won't be monitored.
+  
     If you have any issues, feel free to contact our support team.
-
+  
     Thanks,
     The DropBoxer Team
   `;
 
-    const htmlContent = `
-      <html>
-        <body>
-          <h2>Password Reset Request</h2>
-          <p>Hello,</p>
-          <p>We received a request to reset the password for your DropBoxer account. If this was you, please click the button below to reset your password:</p>
-          <p><a href="${resetLink}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
-          <p>Link will expire in 5 minutes.</p>
-          <p>If you did not request a password reset, please ignore this email.</p>
-          <p>If you have any issues, feel free to contact our support team.</p>
-          <br/>
-          <p>Thanks,</p>
-          <p>The DropBoxer Team</p>
-        </body>
-      </html>
-    `;
+      const response = await sendEmail(email, "DropBoxer Password Reset", textContent);
+      // console.log(response);
 
-    sendEmail(email, "DropBoxer Password Reset", textContent, htmlContent);
-
-    res.status(200).json({ success: true, msg: "Password reset link sent successfully", data: null });
-  } catch (err) {
-    next(err);
-  }
-};
+      if (response.success) {
+        res.status(200).json({ success: true, msg: response.message, data: null });
+      } else {
+        res.status(500).json({ success: false, msg: response.message, data: null });
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 exports.verifyPasswordResetToken = async (req, res, next) => {
   const { token } = req.body;

@@ -10,34 +10,55 @@ require("dotenv").config({
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (emailTo, emailSubject, emailText, emailHtml, isTest = false) => {
+const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTest = false, isAllowReplyTo = false) => {
   try {
     const msg = {
       to: emailTo,
-      from: process.env.SECRET_SENDER_EMAIL,
+      from: `DropBoxer <${process.env.SECRET_SENDER_EMAIL}>`,
       subject: emailSubject,
       text: emailText,
-      html: emailHtml,
       mail_settings: {
         sandbox_mode: {
           enable: isTest,
         },
       },
     };
+
+    if (emailHtml) {
+      msg.html = emailHtml;
+    }
+
+    if (isAllowReplyTo) {
+      msg.reply_to = process.env.SECRET_SENDER_REPLY_TO;
+    }
+
     const [response] = await sendGrid.send(msg);
+
+    let result = {
+      success: false,
+      message: "",
+      data: null,
+    };
+
     if (isTest) {
       if (response.statusCode === 200) {
         console.log("Sandbox Mode: Email successfully processed, but not sent.");
+        result = { success: true, message: "Email has been successfully processed in sandbox mode.", data: null };
       } else {
         console.log("Unexpected response in sandbox mode:", response.statusCode);
+        result = { success: false, message: "Failed to process email in sandbox mode.", data: null };
       }
     } else {
       if (response.statusCode === 202) {
         console.log("Email is accepted.");
+        result = { success: true, message: "Email has been sent.", data: null };
       } else {
         console.log("Unexpected response status:", response.statusCode);
+        result = { success: false, message: "Failed to send email.", data: null };
       }
     }
+
+    return result;
   } catch (error) {
     throw error;
   }

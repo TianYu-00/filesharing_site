@@ -10,14 +10,14 @@ function Landing_ForgotPassword() {
     try {
       event.preventDefault();
       const response = await sendPasswordResetLink(email);
+      console.log(response);
       if (response.success) {
-        setMessage("Email has been sent");
+        setMessage(response.msg);
       } else {
-        setMessage("Failed to send the email");
+        setMessage(response.msg);
       }
     } catch (error) {
-      const tmpMessage = "failed";
-      setMessage(tmpMessage);
+      setMessage(error.response.data.msg);
     }
   };
 
