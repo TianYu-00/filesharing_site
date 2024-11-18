@@ -10,12 +10,14 @@ import Header from "./components/Header";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
+import CookieBanner from "./components/CookieNotice";
 
 const App = () => {
   return (
     <UserProvider>
       <BrowserRouter>
         <Header />
+        <CookieBanner />
         <Routes>
           <Route path="/" element={<Landing_Home />} />
           <Route path="/home" element={<Landing_Home />} />
