@@ -18,6 +18,7 @@ exports.uploadFile = async (req) => {
   return new Promise((resolve, reject) => {
     upload.single("file")(req, {}, async (err) => {
       if (err) {
+        // console.log(err);
         return reject({ code: "UPLOAD_ERROR", message: "Error uploading file" });
       }
       if (!req.file) {
@@ -25,7 +26,7 @@ exports.uploadFile = async (req) => {
       }
 
       const { fieldname, originalname, encoding, mimetype, destination, filename, path: filePath, size } = req.file;
-      const userId = req.body.user_id || null;
+      const userId = req.userId || null;
 
       try {
         const result = await db.query(
