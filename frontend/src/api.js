@@ -149,3 +149,14 @@ export const deleteFileById = async (file_id) => {
     throw error;
   }
 };
+
+export const renameFileById = async (file_id, newFileName) => {
+  try {
+    const data = { newFileName: newFileName };
+    const response = await api.patch(`/files/rename/${file_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
