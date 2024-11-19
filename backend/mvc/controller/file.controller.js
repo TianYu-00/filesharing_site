@@ -7,6 +7,7 @@ const {
   retrieveAllFilesInfo,
   retrieveFileInfoByLink,
 } = require("../models/file.model");
+const jwt = require("jsonwebtoken");
 
 const checkAdminRole = require("../../src/checkAdminRole");
 const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
@@ -28,7 +29,24 @@ exports.getAllFilesInfo = [
 // For /upload
 exports.postFile = async (req, res, next) => {
   try {
+    const token = req.cookies.userAuthToken;
+
+    let userId = null;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_USER_AUTH_SECRET);
+
+        userId = decoded.userData?.id;
+      } catch (err) {
+        // console.log(err);
+        return res.status(401).json({ success: false, msg: "Invalid or expired token", data: null });
+      }
+    }
+    req.userId = userId;
+
     const { file, fileId, downloadLink } = await uploadFile(req);
+
     res.json({ success: true, msg: "File has been uploaded", data: { file, downloadLink } });
   } catch (err) {
     next(err);
