@@ -139,3 +139,13 @@ export const fetchFilesByUserId = async (user_id) => {
     throw error;
   }
 };
+
+export const deleteFileById = async (file_id) => {
+  try {
+    const response = await api.delete(`/files/delete/${file_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
