@@ -2,7 +2,7 @@ const { upload, checkUploadDirExist } = require("../../config/multerConfig");
 const db = require("../../db/connection");
 const path = require("path");
 const fs = require("fs");
-const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
 const { promisify } = require("util");
 
 exports.retrieveAllFilesInfo = async () => {
@@ -51,7 +51,7 @@ exports.uploadFile = async (req) => {
 };
 
 createDownloadLink = async (file_id) => {
-  const downloadUrl = uuidv4() + "-id-" + file_id;
+  const downloadUrl = `${file_id}-${Date.now()}-${crypto.randomBytes(16).toString("hex")}`;
 
   try {
     const result = await db.query(
