@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId, deleteFileById } from "../api";
+import { fetchFilesByUserId, deleteFileById, downloadFileByID } from "../api";
 import { fileSizeFormatter, fileDateFormatter_DateOnly } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
@@ -62,6 +62,34 @@ function Landing_MyFiles() {
     }
   };
 
+  const handle_FileDownload = async (id) => {
+    try {
+      const file = files.find((currentFile) => currentFile.id === id);
+      if (!file) {
+        console.error("File not found");
+        return;
+      }
+
+      const fileBlob = await downloadFileByID(file.id);
+      const url = URL.createObjectURL(new Blob([fileBlob]));
+
+      triggerDownload(url, file.originalname);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download file:", error);
+    }
+  };
+
+  const triggerDownload = (url, filename) => {
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = filename;
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
   return (
     <div className="pt-20">
       {/* MyFiles Landing Page */}
@@ -91,7 +119,12 @@ function Landing_MyFiles() {
                       </button>
                       {openFileMenu === file.id && (
                         <div className="absolute right-0 mt-8 bg-neutral-700 shadow-lg rounded z-10" ref={fileMenuRef}>
-                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Download</button>
+                          <button
+                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                            onClick={() => handle_FileDownload(file.id)}
+                          >
+                            Download
+                          </button>
                           <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Rename</button>
                           <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Manage Link</button>
                           <button
