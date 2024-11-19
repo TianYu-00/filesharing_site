@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId, deleteFileById, downloadFileByID } from "../api";
+import { fetchFilesByUserId, deleteFileById, downloadFileByID, renameFileById } from "../api";
 import { fileSizeFormatter, fileDateFormatter_DateOnly } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import Modal from "../components/Modal";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -11,6 +12,12 @@ function Landing_MyFiles() {
   const [files, setFiles] = useState([]);
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const fileMenuRef = useRef(null);
+
+  // rename
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [fileRenameString, setFileRenameString] = useState("");
+
+  const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
@@ -73,27 +80,101 @@ function Landing_MyFiles() {
       const fileBlob = await downloadFileByID(file.id);
       const url = URL.createObjectURL(new Blob([fileBlob]));
 
+      const triggerDownload = (url, filename) => {
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = filename;
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download file:", error);
+    } catch (err) {
+      console.error("Failed to download file:", err);
     }
   };
 
-  const triggerDownload = (url, filename) => {
-    const downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = filename;
+  const handle_OnClickFileRename = async (file) => {
+    setCurrentSelectedFile(file);
+    setIsRenameModalOpen(true);
+  };
 
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+  const handle_FileRename = async () => {
+    try {
+      if (!currentSelectedFile) {
+        console.error("Current selected file missing");
+      }
+
+      const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
+      if (!file) {
+        console.error("File not found");
+        return;
+      }
+
+      if (!fileRenameString) {
+        console.error("File name string missing");
+      }
+
+      const extractedFileExtension = currentSelectedFile.originalname.substring(
+        currentSelectedFile.originalname.lastIndexOf(".")
+      );
+
+      // console.log(fileRenameString + extractedFileExtension);
+      const newFileName = fileRenameString + extractedFileExtension;
+      const response = await renameFileById(currentSelectedFile.id, newFileName);
+      if (response.success) {
+        const updatedFiles = files.map((currentFile) => {
+          if (currentFile.id === currentSelectedFile.id) {
+            return { ...currentFile, originalname: newFileName };
+          }
+          return currentFile;
+        });
+
+        setFiles(updatedFiles);
+
+        setIsRenameModalOpen(false);
+        setFileRenameString("");
+        setCurrentSelectedFile(null);
+      } else {
+        console.error("Failed to rename file");
+      }
+    } catch (err) {
+      console.error("Failed to rename file", err);
+    }
   };
 
   return (
     <div className="pt-20">
       {/* MyFiles Landing Page */}
       {/* <div className="flex justify-center text-white">MyFiles Landing Page</div> */}
+      {isRenameModalOpen && (
+        <Modal
+          isOpen={isRenameModalOpen}
+          onClose={() => {
+            setIsRenameModalOpen(false);
+            setFileRenameString("");
+            setCurrentSelectedFile(null);
+          }}
+          modalTitle={`Rename: ${currentSelectedFile.originalname}`}
+        >
+          <input
+            className="p-1"
+            onChange={(e) => setFileRenameString(e.target.value)}
+            value={fileRenameString}
+            placeholder="enter new name here"
+          />
+          <button
+            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 p-1 rounded mx-4"
+            onClick={() => handle_FileRename()}
+          >
+            Update
+          </button>
+        </Modal>
+      )}
+
       <table className="table-auto w-full text-white text-left">
         <thead className="border-b-2 border-gray-500">
           <tr>
@@ -125,7 +206,12 @@ function Landing_MyFiles() {
                           >
                             Download
                           </button>
-                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Rename</button>
+                          <button
+                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                            onClick={() => handle_OnClickFileRename(file)}
+                          >
+                            Rename
+                          </button>
                           <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Manage Link</button>
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
@@ -163,3 +249,6 @@ export default Landing_MyFiles;
 // Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🔴
 
 // Delete - Delete file 🟢
+
+// NOTE: NEED TO ADD SOME USER VISUAL FEEDBACKS but for now, just work on my features.
+// prob should change err to error too for the new habit of using try catch snippets @.@

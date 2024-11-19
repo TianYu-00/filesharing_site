@@ -6,25 +6,19 @@ const {
   deleteFile,
   retrieveAllFilesInfo,
   retrieveFileInfoByLink,
+  updateFileNameById,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
-const checkAdminRole = require("../../src/checkAdminRole");
-const verifyUserAuthToken = require("../../src/verifyUserAuthToken");
-
 // For /
-exports.getAllFilesInfo = [
-  verifyUserAuthToken,
-  checkAdminRole,
-  async (req, res, next) => {
-    try {
-      const files = await retrieveAllFilesInfo();
-      res.json({ success: true, msg: "Files data has been fetched", data: files });
-    } catch (err) {
-      next(err);
-    }
-  },
-];
+exports.getAllFilesInfo = async (req, res, next) => {
+  try {
+    const files = await retrieveAllFilesInfo();
+    res.json({ success: true, msg: "Files data has been fetched", data: files });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // For /upload
 exports.postFile = async (req, res, next) => {
@@ -86,32 +80,29 @@ exports.getDownloadLinks = async (req, res, next) => {
 };
 
 // For /delete/:file_id
-exports.deleteFile = [
-  verifyUserAuthToken,
-  async (req, res, next) => {
-    try {
-      const file_id = req.params.file_id;
-      const user_id = req.userData.id;
+exports.deleteFile = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const user_id = req.userData.id;
 
-      const file = await retrieveFileInfo(file_id);
-      // console.log(file_id, user_id);
+    const file = await retrieveFileInfo(file_id);
+    // console.log(file_id, user_id);
 
-      if (!file) {
-        return res.status(404).json({ success: false, msg: "File not found", data: null });
-      }
-
-      if (file.user_id !== user_id && req.userData.role !== "admin") {
-        return res.status(403).json({ success: false, msg: "Access denied", data: null });
-      }
-
-      await deleteFile(file_id);
-      res.json({ success: true, msg: "File has been deleted", data: null });
-    } catch (err) {
-      console.log(err);
-      next(err);
+    if (!file) {
+      return res.status(404).json({ success: false, msg: "File not found", data: null });
     }
-  },
-];
+
+    if (file.user_id !== user_id && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied", data: null });
+    }
+
+    await deleteFile(file_id);
+    res.json({ success: true, msg: "File has been deleted", data: null });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
 
 // /info-by-link/:download_link
 exports.getFileInfoByLink = async (req, res, next) => {
@@ -127,4 +118,32 @@ exports.getFileInfoByLink = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.renameFileById = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+    // console.log(fileInfo, loggedInUserId);
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
+    const { newFileName } = req.body;
+    const data = await updateFileNameById(fileInfo, newFileName);
+
+    res.json({ success: true, msg: "Files changed successfully", data: data });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
+
+const getUserInfoFromCookie = async (req) => {
+  const token = req.cookies.userAuthToken;
+  const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
+  return decoded.userData;
 };
