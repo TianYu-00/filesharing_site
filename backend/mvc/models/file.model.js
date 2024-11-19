@@ -3,6 +3,7 @@ const db = require("../../db/connection");
 const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
+const { promisify } = require("util");
 
 exports.retrieveAllFilesInfo = async () => {
   try {
@@ -143,5 +144,33 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
       code: "DB_ERROR",
       message: "Error retrieving file by download link",
     });
+  }
+};
+
+exports.updateFileNameById = async (fileInfo, newFileName) => {
+  try {
+    const rename = promisify(fs.rename);
+
+    const newFileDirName = `${Date.now() + "-" + Math.round(Math.random() * 1e9)}-${newFileName}`;
+    const newPath = `${fileInfo.destination}/${newFileDirName}`;
+
+    await rename(fileInfo.path, newPath);
+
+    const query = `
+      UPDATE file_info
+      SET originalname = $1, filename = $2, path = $3
+      WHERE id = $4
+      RETURNING *;
+    `;
+    const values = [newFileName, newFileDirName, newPath, fileInfo.id];
+
+    const result = await db.query(query, values);
+
+    return result.rows[0];
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found on disk." });
+    }
+    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };
