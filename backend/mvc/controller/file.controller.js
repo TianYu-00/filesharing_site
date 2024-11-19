@@ -126,7 +126,7 @@ exports.renameFileById = async (req, res, next) => {
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
-    console.log(fileInfo, loggedInUserId);
+    // console.log(fileInfo, loggedInUserId);
 
     if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
       return res.status(403).json({ success: false, msg: "Access denied" });
