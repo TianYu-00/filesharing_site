@@ -115,6 +115,7 @@ exports.deleteFile = async (file_id) => {
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
+      // console.log("found file path");
     } else {
       return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
     }

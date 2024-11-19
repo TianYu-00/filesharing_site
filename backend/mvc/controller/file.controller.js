@@ -93,7 +93,8 @@ exports.deleteFile = [
       const file_id = req.params.file_id;
       const user_id = req.userData.id;
 
-      const file = await getFileById(file_id);
+      const file = await retrieveFileInfo(file_id);
+      // console.log(file_id, user_id);
 
       if (!file) {
         return res.status(404).json({ success: false, msg: "File not found", data: null });
@@ -106,6 +107,7 @@ exports.deleteFile = [
       await deleteFile(file_id);
       res.json({ success: true, msg: "File has been deleted", data: null });
     } catch (err) {
+      console.log(err);
       next(err);
     }
   },

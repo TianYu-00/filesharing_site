@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import Page_BoilerPlate from "../components/Page_BoilerPlate";
+import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId } from "../api";
+import { fetchFilesByUserId, deleteFileById } from "../api";
 import { fileSizeFormatter, fileDateFormatter_DateOnly } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +9,8 @@ function Landing_MyFiles() {
   const navigate = useNavigate();
   const { user, isLoadingUser } = useUser();
   const [files, setFiles] = useState([]);
+  const [openFileMenu, setOpenFileMenu] = useState(null);
+  const fileMenuRef = useRef(null);
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
@@ -28,6 +29,38 @@ function Landing_MyFiles() {
       getFiles();
     }
   }, [user]);
+
+  useEffect(() => {
+    const handle_OutOfContentClick = (event) => {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
+        setOpenFileMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handle_OutOfContentClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handle_OutOfContentClick);
+    };
+  }, []);
+
+  const toggleFileMenu = (id) => {
+    setOpenFileMenu(openFileMenu === id ? null : id);
+  };
+
+  const handle_FileDelete = async (id) => {
+    try {
+      const response = await deleteFileById(id);
+      if (response.success) {
+        setFiles(files.filter((file) => file.id !== id));
+        console.log("File has been removed");
+      } else {
+        console.log("Failed to remove file");
+      }
+    } catch (err) {
+      console.error("Error removing file:", err);
+    }
+  };
 
   return (
     <div className="pt-20">
@@ -52,9 +85,24 @@ function Landing_MyFiles() {
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
                   <td className="px-2 py-1 ">{fileDateFormatter_DateOnly(file.created_at)}</td>
                   <td className="px-2 py-1 ">
-                    <button className="p-2 rounded-full hover:bg-black">
-                      <BsThreeDotsVertical className="" size={17} />
-                    </button>
+                    <div className="relative flex justify-end">
+                      <button className="p-2 rounded-full hover:bg-black" onClick={() => toggleFileMenu(file.id)}>
+                        <BsThreeDotsVertical size={17} />
+                      </button>
+                      {openFileMenu === file.id && (
+                        <div className="absolute right-0 mt-8 bg-neutral-700 shadow-lg rounded z-10" ref={fileMenuRef}>
+                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Download</button>
+                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Rename</button>
+                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Manage Link</button>
+                          <button
+                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                            onClick={() => handle_FileDelete(file.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -70,17 +118,15 @@ function Landing_MyFiles() {
 
 export default Landing_MyFiles;
 
+// Notes:
 // Some things i want:
 // Original Name, Size, Created At, Dropdown menu
+// Now i need some notification or alerts of some sort to help with user feedbacks
 
-/*
- <tr>
-            <td className="px-4 py-2">File 1</td>
-            <td className="px-4 py-2">10 MB</td>
-            <td className="px-4 py-2">Today</td>
-            <td className="px-4 py-2">
-              <button className="bg-black p-1 rounded">Options</button>
-            </td>
-          </tr>
+// Download - Download the file directly 🔴
 
-*/
+// Rename - Rename the file (need to create api call for this: patch files/update/:file_id) 🔴
+
+// Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🔴
+
+// Delete - Delete file 🟢
