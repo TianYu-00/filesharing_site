@@ -51,7 +51,7 @@ exports.uploadFile = async (req) => {
   });
 };
 
-exports.createDownloadLink = async (file_id, expires_at = null, password = null) => {
+exports.createDownloadLink = async (file_id, expires_at = null, password = null, download_limit = null) => {
   const downloadUrl = `${file_id}-${Date.now()}-${crypto.randomBytes(16).toString("hex")}`;
 
   let tempPassword = password;
@@ -63,14 +63,15 @@ exports.createDownloadLink = async (file_id, expires_at = null, password = null)
   try {
     const result = await db.query(
       `
-        INSERT INTO file_download_link (file_id, download_url, expires_at, password) 
-        VALUES ($1, $2, $3, $4) 
-        RETURNING id, file_id, download_url, created_at, expires_at
-      `,
-      [file_id, downloadUrl, expires_at, tempPassword]
+        INSERT INTO file_download_link (file_id, download_url, expires_at, password, download_limit) 
+        VALUES ($1, $2, $3, $4, $5) 
+        RETURNING id, file_id, download_url, created_at, expires_at, download_count, download_limit
+      ;`,
+      [file_id, downloadUrl, expires_at, tempPassword, download_limit]
     );
     return result.rows[0];
   } catch (err) {
+    console.log(err);
     return Promise.reject({ code: "DB_ERROR", message: "Error creating download link" });
   }
 };

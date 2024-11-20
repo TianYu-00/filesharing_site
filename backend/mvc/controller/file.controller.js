@@ -160,8 +160,8 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
-    const { expires_at = null, password = null } = req.body;
-    const data = await createDownloadLink(file_id, expires_at, password);
+    const { expires_at = null, password = null, download_limit = null } = req.body;
+    const data = await createDownloadLink(file_id, expires_at, password, download_limit);
     res.json({ success: true, msg: "Download link created successfully", data: data });
   } catch (err) {
     console.error(err);

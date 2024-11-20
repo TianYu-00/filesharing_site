@@ -51,7 +51,9 @@ function createFileDownloadLinksTable() {
     download_url TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP,
-    password VARCHAR(255)
+    password VARCHAR(255),
+    download_count INTEGER DEFAULT 0,
+    download_limit INTEGER DEFAULT NULL 
   );`);
 }
 
