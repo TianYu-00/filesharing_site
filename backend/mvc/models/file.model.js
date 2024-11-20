@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const { promisify } = require("util");
+const bcrypt = require("bcrypt");
 
 exports.retrieveAllFilesInfo = async () => {
   try {
@@ -53,7 +54,7 @@ exports.uploadFile = async (req) => {
 exports.createDownloadLink = async (file_id, expires_at = null, password = null) => {
   const downloadUrl = `${file_id}-${Date.now()}-${crypto.randomBytes(16).toString("hex")}`;
 
-  const tempPassword = password;
+  let tempPassword = password;
 
   if (tempPassword) {
     tempPassword = await bcrypt.hash(password, 10);
