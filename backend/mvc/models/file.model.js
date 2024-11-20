@@ -111,7 +111,11 @@ exports.retrieveFile = async (file_id, res) => {
 exports.retrieveDownloadLinks = async (file_id) => {
   try {
     const result = await db.query(`SELECT * FROM file_download_link WHERE file_id = $1`, [file_id]);
-    return result.rows;
+    const filteredResults = result.rows.map((row) => {
+      const { password, ...otherValues } = row;
+      return otherValues;
+    });
+    return filteredResults;
   } catch (err) {
     return Promise.reject({ code: "DB_ERROR", message: "Error retrieving download links" });
   }
