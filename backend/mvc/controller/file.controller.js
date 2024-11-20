@@ -7,6 +7,7 @@ const {
   retrieveAllFilesInfo,
   retrieveFileInfoByLink,
   updateFileNameById,
+  createDownloadLink,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -146,4 +147,24 @@ const getUserInfoFromCookie = async (req) => {
   const token = req.cookies.userAuthToken;
   const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
   return decoded.userData;
+};
+
+exports.createDownloadLinkByFileId = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
+    const { expires_at = null, password = null } = req.body;
+    const data = await createDownloadLink(file_id, expires_at, password);
+    res.json({ success: true, msg: "Download link created successfully", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 };

@@ -65,7 +65,7 @@ exports.createDownloadLink = async (file_id, expires_at = null, password = null)
       `
         INSERT INTO file_download_link (file_id, download_url, expires_at, password) 
         VALUES ($1, $2, $3, $4) 
-        RETURNING id, download_url, expires_at
+        RETURNING id, file_id, download_url, created_at, expires_at
       `,
       [file_id, downloadUrl, expires_at, tempPassword]
     );
