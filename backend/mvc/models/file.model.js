@@ -40,7 +40,7 @@ exports.uploadFile = async (req) => {
         );
 
         const fileId = result.rows[0].id;
-        const downloadLink = await createDownloadLink(fileId);
+        const downloadLink = await exports.createDownloadLink(fileId);
 
         resolve({ file: req.file, fileId, downloadLink });
       } catch (dbError) {
@@ -50,17 +50,23 @@ exports.uploadFile = async (req) => {
   });
 };
 
-createDownloadLink = async (file_id) => {
+exports.createDownloadLink = async (file_id, expires_at = null, password = null) => {
   const downloadUrl = `${file_id}-${Date.now()}-${crypto.randomBytes(16).toString("hex")}`;
+
+  const tempPassword = password;
+
+  if (tempPassword) {
+    tempPassword = await bcrypt.hash(password, 10);
+  }
 
   try {
     const result = await db.query(
       `
-        INSERT INTO file_download_link (file_id, download_url) 
-        VALUES ($1, $2) 
-        RETURNING id, download_url
+        INSERT INTO file_download_link (file_id, download_url, expires_at, password) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id, download_url, expires_at
       `,
-      [file_id, downloadUrl]
+      [file_id, downloadUrl, expires_at, tempPassword]
     );
     return result.rows[0];
   } catch (err) {
