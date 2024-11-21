@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchFileInfo, downloadFileByID } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip"; // https://react-tooltip.com/docs/examples/styling
 
 import { BsLink45Deg } from "react-icons/bs";
@@ -11,21 +11,40 @@ import Page_BoilerPlate from "../components/Page_BoilerPlate";
 function Landing_Download() {
   const [file, setFile] = useState(null);
   const { file_id: download_link } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  const [isFileNotFound, setIsFileNotFound] = useState(true);
 
   //
   const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy file link to clipboard");
 
   useEffect(() => {
     fetchFile();
-    console.log(file);
   }, []);
+
+  useEffect(() => {
+    console.log(file);
+  }, [file]);
 
   const fetchFile = async () => {
     try {
+      setIsLoading(true);
+      setIsFileNotFound(true);
       const fetchedFileInfo = await fetchFileInfo(download_link);
-      setFile(fetchedFileInfo.data);
+      if (fetchedFileInfo.success) {
+        setIsLoading(false);
+        setIsFileNotFound(false);
+        setFile(fetchedFileInfo.data);
+      } else {
+        setIsFileNotFound(true);
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
+      setIsFileNotFound(true);
+      setErrorMessage(error.response.data.msg);
     }
   };
 
@@ -62,9 +81,29 @@ function Landing_Download() {
     setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
   };
 
+  if (isLoading) {
+    return <Page_BoilerPlate>Loading ...</Page_BoilerPlate>;
+  }
+
+  if (!isLoading && isFileNotFound) {
+    return (
+      <Page_BoilerPlate>
+        <div className="flex flex-col justify-center items-center">
+          <p className="text-red-500">{errorMessage}</p>
+          <button
+            className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
+            onClick={() => navigate("/")}
+          >
+            Return to home page
+          </button>
+        </div>
+      </Page_BoilerPlate>
+    );
+  }
+
   return (
     <Page_BoilerPlate>
-      {file ? (
+      {file && (
         <div>
           <div className="grid grid-cols-2 w-full mx-auto mt-6">
             <div className="border border-gray-700 p-2 text-left">File ID</div>
@@ -113,8 +152,6 @@ function Landing_Download() {
             Download
           </button>
         </div>
-      ) : (
-        <p>Loading...</p>
       )}
     </Page_BoilerPlate>
   );
