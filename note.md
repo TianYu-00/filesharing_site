@@ -16,17 +16,18 @@ MVP (Minimum viable product):
 - Allow download links to be shared ✅
 
 Additional Ideas:
-- User account edit ✅
-- Registration/Login (JWT, bcrypt, need some look into)
+- Registration/Login (JWT, Bcrypt, Sendgrid)
     - Bcrypt ✅
     - JWT ✅
     - Sendgrid ✅
+- User account edit ✅
+
+- Allow logged in users to manually delete files they uploaded ✅
+- Allow logged in users to add password to their shared link 🟠
+- Allow logged in users to add link expiration 🟠
+- Allow logged in users to add limited download 🟠
+
 - File auto delete after 24 hours if was uploaded by guest (not logged in)
-- Allow logged in users to manually delete files they uploaded
-- Allow logged in users to add password to their shared link
-- Allow link expiration setup
-- Allow limited download
-- Allow folder structure
 
 ## checking db
 ```
@@ -39,17 +40,3 @@ Additional Ideas:
 ```
 SELECT * FROM table_name;
 ```
-
-## Backend 
-- [express.js](https://expressjs.com/)
-- [cors](https://www.npmjs.com/package/cors)
-- [multer](https://www.npmjs.com/package/multer)
-- [jest](https://jestjs.io/docs/getting-started)
-- postgresql
-
-## Frontend 
-- [react (vite.js)](https://vite.dev/guide/)
-- [tailwind css](https://tailwindcss.com/docs/installation)
-- [react-icons](https://react-icons.github.io/react-icons/)
-
-## Database
