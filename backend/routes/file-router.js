@@ -18,5 +18,6 @@ fileRouter.post("/create-download-link/:file_id", verifyUserAuthToken, fileContr
 fileRouter.delete("/remove-download-link/:link_id", verifyUserAuthToken, fileController.removeDownloadLinkByLinkId);
 
 fileRouter.get("/download-link-info/:download_link", fileController.getDownloadLinkInfoByDownloadLink);
+fileRouter.patch("/increase-download-count/:link_id", fileController.updateDownloadLinkCount);
 
 module.exports = fileRouter;

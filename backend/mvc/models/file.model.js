@@ -247,3 +247,42 @@ exports.retrieveDownloadLinkInfo = async (downloadLink) => {
     return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
 };
+
+exports.patchDownloadLinkLimitCount = async (link_id) => {
+  try {
+    const query = `
+      SELECT download_count, download_limit
+      FROM file_download_link
+      WHERE id = $1;
+    `;
+    console.log(link_id);
+    const result = await db.query(query, [link_id]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const linkInfo = result.rows[0];
+    const currentDownloadCount = linkInfo.download_count;
+    const downloadLimit = linkInfo.download_limit;
+
+    if (downloadLimit && currentDownloadCount >= downloadLimit) {
+      return Promise.reject({
+        code: "LIMIT_EXCEEDED",
+        message: `Download limit of ${downloadLimit} has been reached.`,
+      });
+    }
+
+    const updateQuery = `
+      UPDATE file_download_link
+      SET download_count = download_count + 1
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const updateResult = await db.query(updateQuery, [link_id]);
+
+    return updateResult.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};

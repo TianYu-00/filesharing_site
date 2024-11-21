@@ -11,6 +11,7 @@ const {
   deleteDownloadLink,
   retrieveFileInfoByDownloadLinkId,
   retrieveDownloadLinkInfo,
+  patchDownloadLinkLimitCount,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -202,6 +203,17 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
     }
 
     res.json({ success: true, msg: "Download link info has been fetched", data: linkInfo });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.updateDownloadLinkCount = async (req, res, next) => {
+  try {
+    const link_id = req.params.link_id;
+    const data = await patchDownloadLinkLimitCount(link_id);
+    res.json({ success: true, msg: "Download link counter increased", data: data });
   } catch (err) {
     console.error(err);
     next(err);
