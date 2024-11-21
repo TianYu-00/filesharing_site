@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId, deleteFileById, downloadFileByID, renameFileById } from "../api";
-import { fileSizeFormatter, fileDateFormatter_DateOnly } from "../components/File_Formatter";
+import { fetchFilesByUserId, deleteFileById, downloadFileByID, renameFileById, getDownloadLinksByFileId } from "../api";
+import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
+import { BsLink45Deg } from "react-icons/bs";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ function Landing_MyFiles() {
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileRenameString, setFileRenameString] = useState("");
+
+  // manage link
+  const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
+  const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
 
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
@@ -146,10 +151,31 @@ function Landing_MyFiles() {
     }
   };
 
+  const handle_OnClickManageLink = async (file) => {
+    setCurrentSelectedFile(file);
+    setIsManageLinkModalOpen(true);
+    fetchDownloadLinks(file.id);
+  };
+
+  const fetchDownloadLinks = async (file_id) => {
+    // listOfDownloadLinks, setListOfDownloadLinks
+    try {
+      const response = await getDownloadLinksByFileId(file_id);
+      console.log(response.data);
+      setListOfDownloadLinks(response.data);
+    } catch (err) {
+      console.error("Failed to fetch download link", err);
+    }
+  };
+
+  //
+
   return (
     <div className="pt-20">
       {/* MyFiles Landing Page */}
       {/* <div className="flex justify-center text-white">MyFiles Landing Page</div> */}
+
+      {/* Rename Modal */}
       {isRenameModalOpen && (
         <Modal
           isOpen={isRenameModalOpen}
@@ -175,6 +201,80 @@ function Landing_MyFiles() {
         </Modal>
       )}
 
+      {/* Manage Links Modal */}
+      {isManageLinkModalOpen && (
+        <Modal
+          isOpen={isManageLinkModalOpen}
+          onClose={() => {
+            setIsManageLinkModalOpen(false);
+            setCurrentSelectedFile(null);
+          }}
+          modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+        >
+          <div className="overflow-auto max-w-lg">
+            <table className="table-auto w-full text-white text-left">
+              <thead className="border-b-2 border-gray-500">
+                <tr>
+                  <th className="px-2 py-2 w-1/4">Link</th>
+                  <th className="px-2 py-2 w-1/4">Expires</th>
+                  <th className="px-2 py-2 w-1/4">Limit</th>
+                  <th className="px-2 py-2 w-1/4">Password</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
+                  listOfDownloadLinks.map((currentLink) => (
+                    <tr key={currentLink.id} className="hover:bg-neutral-900 border-b border-gray-500">
+                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden max-w-[100px] truncate">
+                        <button
+                          className="mr-2"
+                          onClick={async () => {
+                            const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
+                            await navigator.clipboard.writeText(fullUrl);
+                          }}
+                        >
+                          <BsLink45Deg className="" size={20} />
+                        </button>
+                        {currentLink.download_url}
+                      </td>
+                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
+                        {fileDateFormatter(currentLink.expires_at)[2]}
+                      </td>
+                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
+                        {currentLink.download_count}/{currentLink.download_limit || "Null"}
+                      </td>
+                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
+                        {currentLink.password ? "Yes" : "No"}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <></>
+                )}
+              </tbody>
+            </table>
+
+            <div className="w-full border-b my-8"></div>
+
+            <form className="grid">
+              {/* Expires At */}
+              <label className="text-white">Expires At</label>
+              <input type="datetime-local" className="mb-2 p-1 rounded"></input>
+              {/* Download Limit  */}
+              <label className="text-white">Download Limit</label>
+              <input type="number" className="mb-2 p-1 rounded" autoComplete="off"></input>
+              {/* Password */}
+              <label className="text-white">Link Password</label>
+              <input type="password" className="mb-2 p-1 rounded" autoComplete="off"></input>
+
+              <div className="flex justify-end">
+                <button className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded">Create Link</button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+
       <table className="table-auto w-full text-white text-left">
         <thead className="border-b-2 border-gray-500">
           <tr>
@@ -192,7 +292,7 @@ function Landing_MyFiles() {
                 <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
                   <td className="px-2 py-1 ">{file.originalname}</td>
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
-                  <td className="px-2 py-1 ">{fileDateFormatter_DateOnly(file.created_at)}</td>
+                  <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                   <td className="px-2 py-1 ">
                     <div className="relative flex justify-end">
                       <button className="p-2 rounded-full hover:bg-black" onClick={() => toggleFileMenu(file.id)}>
@@ -212,7 +312,12 @@ function Landing_MyFiles() {
                           >
                             Rename
                           </button>
-                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Manage Link</button>
+                          <button
+                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                            onClick={() => handle_OnClickManageLink(file)}
+                          >
+                            Manage Link
+                          </button>
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
                             onClick={() => handle_FileDelete(file.id)}

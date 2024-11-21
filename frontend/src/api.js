@@ -160,3 +160,13 @@ export const renameFileById = async (file_id, newFileName) => {
     throw error;
   }
 };
+
+export const getDownloadLinksByFileId = async (file_id) => {
+  try {
+    const response = await api.get(`/files/download-link/${file_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

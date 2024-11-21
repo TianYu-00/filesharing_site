@@ -7,16 +7,15 @@ export function fileSizeFormatter(bytes) {
 }
 
 export function fileDateFormatter(isoDateTime) {
+  if (!isoDateTime) {
+    return ["Invalid Time", "Invalid Date", "Invalid Date"];
+  }
+
   const dateTime = new Date(isoDateTime);
 
   return [
     dateTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }),
     dateTime.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" }),
+    dateTime.toLocaleDateString("en-GB", { year: "numeric", month: "numeric", day: "numeric" }),
   ];
-}
-
-export function fileDateFormatter_DateOnly(isoDateTime) {
-  const dateTime = new Date(isoDateTime);
-
-  return [dateTime.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })];
 }
