@@ -7,6 +7,9 @@ const {
   retrieveAllFilesInfo,
   retrieveFileInfoByLink,
   updateFileNameById,
+  createDownloadLink,
+  deleteDownloadLink,
+  retrieveFileInfoByDownloadLinkId,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -146,4 +149,44 @@ const getUserInfoFromCookie = async (req) => {
   const token = req.cookies.userAuthToken;
   const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
   return decoded.userData;
+};
+
+exports.createDownloadLinkByFileId = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
+    const { expires_at = null, password = null, download_limit = null } = req.body;
+    const data = await createDownloadLink(file_id, expires_at, password, download_limit);
+    res.json({ success: true, msg: "Download link created successfully", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.removeDownloadLinkByLinkId = async (req, res, next) => {
+  try {
+    const link_id = req.params.link_id;
+
+    const { user_id } = await retrieveFileInfoByDownloadLinkId(link_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
+    const data = await deleteDownloadLink(link_id);
+    res.json({ success: true, msg: "Download link has been deleted", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 };

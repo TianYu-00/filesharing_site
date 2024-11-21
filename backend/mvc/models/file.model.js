@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 const { promisify } = require("util");
+const bcrypt = require("bcrypt");
 
 exports.retrieveAllFilesInfo = async () => {
   try {
@@ -40,7 +41,7 @@ exports.uploadFile = async (req) => {
         );
 
         const fileId = result.rows[0].id;
-        const downloadLink = await createDownloadLink(fileId);
+        const downloadLink = await exports.createDownloadLink(fileId);
 
         resolve({ file: req.file, fileId, downloadLink });
       } catch (dbError) {
@@ -50,20 +51,27 @@ exports.uploadFile = async (req) => {
   });
 };
 
-createDownloadLink = async (file_id) => {
+exports.createDownloadLink = async (file_id, expires_at = null, password = null, download_limit = null) => {
   const downloadUrl = `${file_id}-${Date.now()}-${crypto.randomBytes(16).toString("hex")}`;
+
+  let tempPassword = password;
+
+  if (tempPassword) {
+    tempPassword = await bcrypt.hash(password, 10);
+  }
 
   try {
     const result = await db.query(
       `
-        INSERT INTO file_download_link (file_id, download_url) 
-        VALUES ($1, $2) 
-        RETURNING id, download_url
-      `,
-      [file_id, downloadUrl]
+        INSERT INTO file_download_link (file_id, download_url, expires_at, password, download_limit) 
+        VALUES ($1, $2, $3, $4, $5) 
+        RETURNING id, file_id, download_url, created_at, expires_at, download_count, download_limit
+      ;`,
+      [file_id, downloadUrl, expires_at, tempPassword, download_limit]
     );
     return result.rows[0];
   } catch (err) {
+    console.log(err);
     return Promise.reject({ code: "DB_ERROR", message: "Error creating download link" });
   }
 };
@@ -103,7 +111,13 @@ exports.retrieveFile = async (file_id, res) => {
 exports.retrieveDownloadLinks = async (file_id) => {
   try {
     const result = await db.query(`SELECT * FROM file_download_link WHERE file_id = $1`, [file_id]);
-    return result.rows;
+    const filteredResults = result.rows.map((row) => {
+      return {
+        ...row,
+        password: !!row.password,
+      };
+    });
+    return filteredResults;
   } catch (err) {
     return Promise.reject({ code: "DB_ERROR", message: "Error retrieving download links" });
   }
@@ -171,6 +185,43 @@ exports.updateFileNameById = async (fileInfo, newFileName) => {
     if (err.code === "ENOENT") {
       return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found on disk." });
     }
+    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+  }
+};
+
+exports.retrieveFileInfoByDownloadLinkId = async (link_id) => {
+  try {
+    const linkResult = await db.query(`SELECT file_id FROM file_download_link WHERE id = $1`, [link_id]);
+
+    if (linkResult.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const file_id = linkResult.rows[0].file_id;
+
+    const fileInfoResult = await db.query(`SELECT * FROM file_info WHERE id = $1`, [file_id]);
+
+    if (fileInfoResult.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    return fileInfoResult.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
+
+exports.deleteDownloadLink = async (link_id) => {
+  try {
+    const query = `
+      DELETE FROM file_download_link
+      WHERE id = $1
+      RETURNING *;
+    `;
+    // console.log(query, link_id);
+    const result = await db.query(query, [link_id]);
+    return result.rows[0];
+  } catch (err) {
     return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };

@@ -1,10 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId, deleteFileById, downloadFileByID, renameFileById } from "../api";
-import { fileSizeFormatter, fileDateFormatter_DateOnly } from "../components/File_Formatter";
+import {
+  fetchFilesByUserId,
+  deleteFileById,
+  downloadFileByID,
+  renameFileById,
+  getDownloadLinksByFileId,
+  createDownloadLinkByFileId,
+  removeDownloadLinkByLinkId,
+} from "../api";
+import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
+import { BsFillTrashFill } from "react-icons/bs";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -16,6 +25,13 @@ function Landing_MyFiles() {
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileRenameString, setFileRenameString] = useState("");
+
+  // manage link
+  const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
+  const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
+  const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
+  const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
+  const [createLinkPassword, setCreateLinkPassword] = useState("");
 
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
@@ -146,10 +162,68 @@ function Landing_MyFiles() {
     }
   };
 
+  const handle_OnClickManageLink = async (file) => {
+    setCurrentSelectedFile(file);
+    setIsManageLinkModalOpen(true);
+    fetchDownloadLinks(file.id);
+  };
+
+  const fetchDownloadLinks = async (file_id) => {
+    // listOfDownloadLinks, setListOfDownloadLinks
+    try {
+      const response = await getDownloadLinksByFileId(file_id);
+      // console.log(response.data);
+      setListOfDownloadLinks(response.data);
+    } catch (err) {
+      console.error("Failed to fetch download link", err);
+    }
+  };
+
+  //
+
+  const handle_CreateDownloadLink = async (e, file_id) => {
+    e.preventDefault();
+    try {
+      const tempExpiresAt = createLinkExpiresAt || null;
+      const tempDownloadLimit = createLinkDownloadLimit || null;
+      const tempPassword = createLinkPassword || null;
+
+      const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
+      if (response.success) {
+        // console.log(response.data);
+        setCreateLinkExpiresAt("");
+        setCreateLinkDownloadLimit("");
+        setCreateLinkPassword("");
+        setListOfDownloadLinks((prevLinks) => [...prevLinks, response.data]);
+      } else {
+        console.error("Failed to create download link");
+      }
+    } catch (err) {
+      console.error("Failed to create download link", err);
+    }
+  };
+
+  const handle_DeleteDownloadLinkById = async (link_id) => {
+    try {
+      // console.log(link_id);
+      const response = await removeDownloadLinkByLinkId(link_id);
+      if (response.success) {
+        // console.log("Download Link removed");
+        setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
+      } else {
+        console.error("Failed to delete download link");
+      }
+    } catch (err) {
+      console.error("Failed to delete download link", err);
+    }
+  };
+
   return (
     <div className="pt-20">
       {/* MyFiles Landing Page */}
       {/* <div className="flex justify-center text-white">MyFiles Landing Page</div> */}
+
+      {/* Rename Modal */}
       {isRenameModalOpen && (
         <Modal
           isOpen={isRenameModalOpen}
@@ -175,6 +249,108 @@ function Landing_MyFiles() {
         </Modal>
       )}
 
+      {/* Manage Links Modal */}
+      {isManageLinkModalOpen && (
+        <Modal
+          isOpen={isManageLinkModalOpen}
+          onClose={() => {
+            setIsManageLinkModalOpen(false);
+            setCreateLinkExpiresAt("");
+            setCreateLinkDownloadLimit("");
+            setCreateLinkPassword("");
+            setCurrentSelectedFile(null);
+          }}
+          modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+        >
+          <div className="overflow-auto">
+            <div className="overflow-y-auto">
+              <div className="flex flex-col w-full text-white">
+                <div className="flex border-b-2 border-gray-500">
+                  <div className="px-2 py-2 w-1/4 ">Link</div>
+                  <div className="px-2 py-2 w-1/4 ">Expires</div>
+                  <div className="px-2 py-2 w-1/4 ">Limit</div>
+                  <div className="px-2 py-2 w-1/4 ">Password</div>
+                  <div className="px-2 py-2 w-8"></div>
+                </div>
+
+                <div className="max-h-[200px]">
+                  {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
+                    listOfDownloadLinks.map((currentLink) => (
+                      <div key={currentLink.id} className="flex hover:bg-neutral-900 border-b border-gray-500">
+                        <div
+                          className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer "
+                          onClick={async () => {
+                            const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
+                            await navigator.clipboard.writeText(fullUrl);
+                          }}
+                        >
+                          {currentLink.download_url}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
+                          {fileDateFormatter(currentLink.expires_at)[2]}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
+                          {currentLink.download_count}/{currentLink.download_limit || "Null"}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
+                          {currentLink.password ? "Yes" : "No"}
+                        </div>
+                        <div className="px-2 py-1 whitespace-nowrap overflow-hidden truncate text-red-500 font-bold w-8 ">
+                          <button className="" onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}>
+                            X
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full border-b my-8"></div>
+
+            <form className="grid">
+              {/* Expires At */}
+              <label className="text-white">Expires At</label>
+              <input
+                type="datetime-local"
+                className="mb-2 p-1 rounded"
+                value={createLinkExpiresAt}
+                onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
+              ></input>
+              {/* Download Limit  */}
+              <label className="text-white">Download Limit</label>
+              <input
+                type="number"
+                className="mb-2 p-1 rounded"
+                value={createLinkDownloadLimit}
+                onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
+              ></input>
+              {/* Password */}
+              <label className="text-white">Link Password</label>
+              <input
+                type="password"
+                className="mb-2 p-1 rounded"
+                autoComplete="new-password"
+                value={createLinkPassword}
+                onChange={(e) => setCreateLinkPassword(e.target.value)}
+              ></input>
+
+              <div className="flex justify-end">
+                <button
+                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded"
+                  onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
+                >
+                  Create Link
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+
       <table className="table-auto w-full text-white text-left">
         <thead className="border-b-2 border-gray-500">
           <tr>
@@ -192,7 +368,7 @@ function Landing_MyFiles() {
                 <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
                   <td className="px-2 py-1 ">{file.originalname}</td>
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
-                  <td className="px-2 py-1 ">{fileDateFormatter_DateOnly(file.created_at)}</td>
+                  <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                   <td className="px-2 py-1 ">
                     <div className="relative flex justify-end">
                       <button className="p-2 rounded-full hover:bg-black" onClick={() => toggleFileMenu(file.id)}>
@@ -212,7 +388,12 @@ function Landing_MyFiles() {
                           >
                             Rename
                           </button>
-                          <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Manage Link</button>
+                          <button
+                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                            onClick={() => handle_OnClickManageLink(file)}
+                          >
+                            Manage Link
+                          </button>
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
                             onClick={() => handle_FileDelete(file.id)}

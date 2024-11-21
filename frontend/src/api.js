@@ -160,3 +160,34 @@ export const renameFileById = async (file_id, newFileName) => {
     throw error;
   }
 };
+
+export const getDownloadLinksByFileId = async (file_id) => {
+  try {
+    const response = await api.get(`/files/download-link/${file_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const createDownloadLinkByFileId = async (file_id, expires_at, download_limit, password) => {
+  const data = { expires_at: expires_at, download_limit: download_limit, password: password };
+  try {
+    const response = await api.post(`/files/create-download-link/${file_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const removeDownloadLinkByLinkId = async (link_id) => {
+  try {
+    const response = await api.delete(`/files/remove-download-link/${link_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
