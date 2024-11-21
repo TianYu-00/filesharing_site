@@ -250,10 +250,11 @@ function Landing_MyFiles() {
             <div className="overflow-y-auto">
               <div className="flex flex-col w-full text-white">
                 <div className="flex border-b-2 border-gray-500">
-                  <div className="px-2 py-2 w-1/4">Link</div>
-                  <div className="px-2 py-2 w-1/4">Expires</div>
-                  <div className="px-2 py-2 w-1/4">Limit</div>
-                  <div className="px-2 py-2 w-1/4">Password</div>
+                  <div className="px-2 py-2 w-1/4 ">Link</div>
+                  <div className="px-2 py-2 w-1/4 ">Expires</div>
+                  <div className="px-2 py-2 w-1/4 ">Limit</div>
+                  <div className="px-2 py-2 w-1/4 ">Password</div>
+                  <div className="px-2 py-2 w-8"></div>
                 </div>
 
                 <div className="max-h-[200px]">
@@ -261,7 +262,7 @@ function Landing_MyFiles() {
                     listOfDownloadLinks.map((currentLink) => (
                       <div key={currentLink.id} className="flex hover:bg-neutral-900 border-b border-gray-500">
                         <div
-                          className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer w-1/4"
+                          className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer "
                           onClick={async () => {
                             const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
                             await navigator.clipboard.writeText(fullUrl);
@@ -269,14 +270,17 @@ function Landing_MyFiles() {
                         >
                           {currentLink.download_url}
                         </div>
-                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                           {fileDateFormatter(currentLink.expires_at)[2]}
                         </div>
-                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                           {currentLink.download_count}/{currentLink.download_limit || "Null"}
                         </div>
-                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                           {currentLink.password ? "Yes" : "No"}
+                        </div>
+                        <div className="px-2 py-1 whitespace-nowrap overflow-hidden truncate text-red-500 font-bold w-8 ">
+                          <button className="">X</button>
                         </div>
                       </div>
                     ))
