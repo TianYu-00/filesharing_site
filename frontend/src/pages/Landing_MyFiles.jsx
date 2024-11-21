@@ -250,10 +250,10 @@ function Landing_MyFiles() {
             <table className="table-auto w-full text-white text-left max-h-[200px] overflow-y-auto block">
               <thead className="border-b-2 border-gray-500">
                 <tr>
-                  <th className="px-2 py-2 min-w-0">Link</th>
-                  <th className="px-2 py-2 min-w-0">Expires</th>
-                  <th className="px-2 py-2 min-w-0">Limit</th>
-                  <th className="px-2 py-2 min-w-0">Password</th>
+                  <th className="px-2 py-2">Link</th>
+                  <th className="px-2 py-2">Expires</th>
+                  <th className="px-2 py-2">Limit</th>
+                  <th className="px-2 py-2">Password</th>
                 </tr>
               </thead>
               <tbody className="">
