@@ -26,8 +26,11 @@ Additional Ideas:
 - Allow logged in users to add password to their shared link 🟠
 - Allow logged in users to add link expiration 🟠
 - Allow logged in users to add limited download 🟠
-
 - File auto delete after 24 hours if was uploaded by guest (not logged in)
+
+- Styling
+- User visual feedbacks
+
 
 ## checking db
 ```
