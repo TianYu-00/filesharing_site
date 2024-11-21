@@ -247,44 +247,45 @@ function Landing_MyFiles() {
           modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
         >
           <div className="overflow-auto">
-            <table className="table-auto w-full text-white text-left max-h-[200px] overflow-y-auto block">
-              <thead className="border-b-2 border-gray-500">
-                <tr>
-                  <th className="px-2 py-2">Link</th>
-                  <th className="px-2 py-2">Expires</th>
-                  <th className="px-2 py-2">Limit</th>
-                  <th className="px-2 py-2">Password</th>
-                </tr>
-              </thead>
-              <tbody className="">
-                {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
-                  listOfDownloadLinks.map((currentLink) => (
-                    <tr key={currentLink.id} className="hover:bg-neutral-900 border-b border-gray-500 ">
-                      <td
-                        className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden lg:max-w-[300px] max-w-[100px] truncate cursor-pointer"
-                        onClick={async () => {
-                          const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
-                          await navigator.clipboard.writeText(fullUrl);
-                        }}
-                      >
-                        {currentLink.download_url}
-                      </td>
-                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
-                        {fileDateFormatter(currentLink.expires_at)[2]}
-                      </td>
-                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
-                        {currentLink.download_count}/{currentLink.download_limit || "Null"}
-                      </td>
-                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
-                        {currentLink.password ? "Yes" : "No"}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </tbody>
-            </table>
+            <div className="overflow-y-auto">
+              <div className="flex flex-col w-full text-white">
+                <div className="flex border-b-2 border-gray-500">
+                  <div className="px-2 py-2 w-1/4">Link</div>
+                  <div className="px-2 py-2 w-1/4">Expires</div>
+                  <div className="px-2 py-2 w-1/4">Limit</div>
+                  <div className="px-2 py-2 w-1/4">Password</div>
+                </div>
+
+                <div className="max-h-[200px]">
+                  {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
+                    listOfDownloadLinks.map((currentLink) => (
+                      <div key={currentLink.id} className="flex hover:bg-neutral-900 border-b border-gray-500">
+                        <div
+                          className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer w-1/4"
+                          onClick={async () => {
+                            const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
+                            await navigator.clipboard.writeText(fullUrl);
+                          }}
+                        >
+                          {currentLink.download_url}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                          {fileDateFormatter(currentLink.expires_at)[2]}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                          {currentLink.download_count}/{currentLink.download_limit || "Null"}
+                        </div>
+                        <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate">
+                          {currentLink.password ? "Yes" : "No"}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </div>
+            </div>
 
             <div className="w-full border-b my-8"></div>
 
