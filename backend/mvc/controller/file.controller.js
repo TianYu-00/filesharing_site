@@ -10,6 +10,7 @@ const {
   createDownloadLink,
   deleteDownloadLink,
   retrieveFileInfoByDownloadLinkId,
+  retrieveDownloadLinkInfo,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -185,6 +186,22 @@ exports.removeDownloadLinkByLinkId = async (req, res, next) => {
 
     const data = await deleteDownloadLink(link_id);
     res.json({ success: true, msg: "Download link has been deleted", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
+  try {
+    const downloadLink = req.params.download_link;
+    const linkInfo = await retrieveDownloadLinkInfo(downloadLink);
+
+    if (!linkInfo) {
+      return res.status(404).json({ success: false, msg: "Download link not found" });
+    }
+
+    res.json({ success: true, msg: "Download link info has been fetched", data: linkInfo });
   } catch (err) {
     console.error(err);
     next(err);

@@ -225,3 +225,25 @@ exports.deleteDownloadLink = async (link_id) => {
     return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };
+
+exports.retrieveDownloadLinkInfo = async (downloadLink) => {
+  try {
+    const query = `SELECT * FROM file_download_link WHERE download_url = $1`;
+    const result = await db.query(query, [downloadLink]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const linkInfo = result.rows[0];
+
+    const formattedLinkInfo = {
+      ...linkInfo,
+      password: !!linkInfo.password,
+    };
+
+    return formattedLinkInfo;
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
