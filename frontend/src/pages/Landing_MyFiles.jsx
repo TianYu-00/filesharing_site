@@ -7,6 +7,7 @@ import {
   renameFileById,
   getDownloadLinksByFileId,
   createDownloadLinkByFileId,
+  removeDownloadLinkByLinkId,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -171,7 +172,7 @@ function Landing_MyFiles() {
     // listOfDownloadLinks, setListOfDownloadLinks
     try {
       const response = await getDownloadLinksByFileId(file_id);
-      console.log(response.data);
+      // console.log(response.data);
       setListOfDownloadLinks(response.data);
     } catch (err) {
       console.error("Failed to fetch download link", err);
@@ -189,7 +190,7 @@ function Landing_MyFiles() {
 
       const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
       if (response.success) {
-        console.log(response.data);
+        // console.log(response.data);
         setCreateLinkExpiresAt("");
         setCreateLinkDownloadLimit("");
         setCreateLinkPassword("");
@@ -199,6 +200,21 @@ function Landing_MyFiles() {
       }
     } catch (err) {
       console.error("Failed to create download link", err);
+    }
+  };
+
+  const handle_DeleteDownloadLinkById = async (link_id) => {
+    try {
+      // console.log(link_id);
+      const response = await removeDownloadLinkByLinkId(link_id);
+      if (response.success) {
+        // console.log("Download Link removed");
+        setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
+      } else {
+        console.error("Failed to delete download link");
+      }
+    } catch (err) {
+      console.error("Failed to delete download link", err);
     }
   };
 
@@ -280,7 +296,9 @@ function Landing_MyFiles() {
                           {currentLink.password ? "Yes" : "No"}
                         </div>
                         <div className="px-2 py-1 whitespace-nowrap overflow-hidden truncate text-red-500 font-bold w-8 ">
-                          <button className="">X</button>
+                          <button className="" onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}>
+                            X
+                          </button>
                         </div>
                       </div>
                     ))

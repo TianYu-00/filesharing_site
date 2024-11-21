@@ -181,3 +181,13 @@ export const createDownloadLinkByFileId = async (file_id, expires_at, download_l
     throw error;
   }
 };
+
+export const removeDownloadLinkByLinkId = async (link_id) => {
+  try {
+    const response = await api.delete(`/files/remove-download-link/${link_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
