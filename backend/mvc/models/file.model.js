@@ -112,8 +112,10 @@ exports.retrieveDownloadLinks = async (file_id) => {
   try {
     const result = await db.query(`SELECT * FROM file_download_link WHERE file_id = $1`, [file_id]);
     const filteredResults = result.rows.map((row) => {
-      const { password, ...otherValues } = row;
-      return otherValues;
+      return {
+        ...row,
+        password: !!row.password,
+      };
     });
     return filteredResults;
   } catch (err) {
