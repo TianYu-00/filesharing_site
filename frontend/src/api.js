@@ -170,3 +170,14 @@ export const getDownloadLinksByFileId = async (file_id) => {
     throw error;
   }
 };
+
+export const createDownloadLinkByFileId = async (file_id, expires_at, download_limit, password) => {
+  const data = { expires_at: expires_at, download_limit: download_limit, password: password };
+  try {
+    const response = await api.post(`/files/create-download-link/${file_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

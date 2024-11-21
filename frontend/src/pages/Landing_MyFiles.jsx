@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchFilesByUserId, deleteFileById, downloadFileByID, renameFileById, getDownloadLinksByFileId } from "../api";
+import {
+  fetchFilesByUserId,
+  deleteFileById,
+  downloadFileByID,
+  renameFileById,
+  getDownloadLinksByFileId,
+  createDownloadLinkByFileId,
+} from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
-import { BsLink45Deg } from "react-icons/bs";
+import { BsFillTrashFill } from "react-icons/bs";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -21,6 +28,9 @@ function Landing_MyFiles() {
   // manage link
   const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
   const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
+  const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
+  const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
+  const [createLinkPassword, setCreateLinkPassword] = useState("");
 
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
@@ -170,6 +180,28 @@ function Landing_MyFiles() {
 
   //
 
+  const handle_CreateDownloadLink = async (e, file_id) => {
+    e.preventDefault();
+    try {
+      const tempExpiresAt = createLinkExpiresAt || null;
+      const tempDownloadLimit = createLinkDownloadLimit || null;
+      const tempPassword = createLinkPassword || null;
+
+      const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
+      if (response.success) {
+        console.log(response.data);
+        setCreateLinkExpiresAt("");
+        setCreateLinkDownloadLimit("");
+        setCreateLinkPassword("");
+        setListOfDownloadLinks((prevLinks) => [...prevLinks, response.data]);
+      } else {
+        console.error("Failed to create download link");
+      }
+    } catch (err) {
+      console.error("Failed to create download link", err);
+    }
+  };
+
   return (
     <div className="pt-20">
       {/* MyFiles Landing Page */}
@@ -207,34 +239,34 @@ function Landing_MyFiles() {
           isOpen={isManageLinkModalOpen}
           onClose={() => {
             setIsManageLinkModalOpen(false);
+            setCreateLinkExpiresAt("");
+            setCreateLinkDownloadLimit("");
+            setCreateLinkPassword("");
             setCurrentSelectedFile(null);
           }}
           modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
         >
-          <div className="overflow-auto max-w-lg">
-            <table className="table-auto w-full text-white text-left">
+          <div className="overflow-auto">
+            <table className="table-auto w-full text-white text-left max-h-[200px] overflow-y-auto block">
               <thead className="border-b-2 border-gray-500">
                 <tr>
-                  <th className="px-2 py-2 w-1/4">Link</th>
-                  <th className="px-2 py-2 w-1/4">Expires</th>
-                  <th className="px-2 py-2 w-1/4">Limit</th>
-                  <th className="px-2 py-2 w-1/4">Password</th>
+                  <th className="px-2 py-2 min-w-0">Link</th>
+                  <th className="px-2 py-2 min-w-0">Expires</th>
+                  <th className="px-2 py-2 min-w-0">Limit</th>
+                  <th className="px-2 py-2 min-w-0">Password</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="">
                 {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
                   listOfDownloadLinks.map((currentLink) => (
-                    <tr key={currentLink.id} className="hover:bg-neutral-900 border-b border-gray-500">
-                      <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden max-w-[100px] truncate">
-                        <button
-                          className="mr-2"
-                          onClick={async () => {
-                            const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
-                            await navigator.clipboard.writeText(fullUrl);
-                          }}
-                        >
-                          <BsLink45Deg className="" size={20} />
-                        </button>
+                    <tr key={currentLink.id} className="hover:bg-neutral-900 border-b border-gray-500 ">
+                      <td
+                        className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden lg:max-w-[300px] max-w-[100px] truncate cursor-pointer"
+                        onClick={async () => {
+                          const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
+                          await navigator.clipboard.writeText(fullUrl);
+                        }}
+                      >
                         {currentLink.download_url}
                       </td>
                       <td className="px-2 py-1 text-sm whitespace-nowrap overflow-hidden truncate">
@@ -259,16 +291,37 @@ function Landing_MyFiles() {
             <form className="grid">
               {/* Expires At */}
               <label className="text-white">Expires At</label>
-              <input type="datetime-local" className="mb-2 p-1 rounded"></input>
+              <input
+                type="datetime-local"
+                className="mb-2 p-1 rounded"
+                value={createLinkExpiresAt}
+                onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
+              ></input>
               {/* Download Limit  */}
               <label className="text-white">Download Limit</label>
-              <input type="number" className="mb-2 p-1 rounded" autoComplete="off"></input>
+              <input
+                type="number"
+                className="mb-2 p-1 rounded"
+                value={createLinkDownloadLimit}
+                onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
+              ></input>
               {/* Password */}
               <label className="text-white">Link Password</label>
-              <input type="password" className="mb-2 p-1 rounded" autoComplete="off"></input>
+              <input
+                type="password"
+                className="mb-2 p-1 rounded"
+                autoComplete="new-password"
+                value={createLinkPassword}
+                onChange={(e) => setCreateLinkPassword(e.target.value)}
+              ></input>
 
               <div className="flex justify-end">
-                <button className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded">Create Link</button>
+                <button
+                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded"
+                  onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
+                >
+                  Create Link
+                </button>
               </div>
             </form>
           </div>
