@@ -188,3 +188,40 @@ exports.updateFileNameById = async (fileInfo, newFileName) => {
     return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };
+
+exports.retrieveFileInfoByDownloadLinkId = async (link_id) => {
+  try {
+    const linkResult = await db.query(`SELECT file_id FROM file_download_link WHERE id = $1`, [link_id]);
+
+    if (linkResult.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const file_id = linkResult.rows[0].file_id;
+
+    const fileInfoResult = await db.query(`SELECT * FROM file_info WHERE id = $1`, [file_id]);
+
+    if (fileInfoResult.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    return fileInfoResult.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
+
+exports.deleteDownloadLink = async (link_id) => {
+  try {
+    const query = `
+      DELETE FROM file_download_link
+      WHERE id = $1
+      RETURNING *;
+    `;
+    // console.log(query, link_id);
+    const result = await db.query(query, [link_id]);
+    return result.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+  }
+};
