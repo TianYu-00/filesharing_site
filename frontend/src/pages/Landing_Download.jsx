@@ -1,95 +1,144 @@
 import React, { useEffect, useState } from "react";
-import { fetchFileInfo, downloadFileByID } from "../api";
+import {
+  fetchFileInfo,
+  downloadFileByID,
+  fetchDownloadLinkInfoByDownloadLink,
+  increaseDownloadLinkCountByLinkId,
+  validateDownloadLinkPassword,
+} from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useParams, useNavigate } from "react-router-dom";
-import { Tooltip } from "react-tooltip"; // https://react-tooltip.com/docs/examples/styling
-
+import { Tooltip } from "react-tooltip";
 import { BsLink45Deg } from "react-icons/bs";
-
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 
 function Landing_Download() {
-  const [file, setFile] = useState(null);
   const { file_id: download_link } = useParams();
+  const navigate = useNavigate();
+
+  const [file, setFile] = useState(null);
+  const [downloadLinkInfo, setDownloadLinkInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
-  const [isFileNotFound, setIsFileNotFound] = useState(true);
-
-  //
-  const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy file link to clipboard");
-
-  useEffect(() => {
-    fetchFile();
-  }, []);
+  const [passwordState, setPasswordState] = useState({
+    needed: false,
+    correct: null,
+    entered: "",
+  });
+  const [tooltipContent, setTooltipContent] = useState("Copy file link to clipboard");
 
   useEffect(() => {
-    console.log(file);
-  }, [file]);
+    const fetchDownloadLinkInfo = async () => {
+      try {
+        const response = await fetchDownloadLinkInfoByDownloadLink(download_link);
+        if (response.success) {
+          setDownloadLinkInfo(response.data);
+          setPasswordState((prev) => ({ ...prev, needed: !!response.data.password }));
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDownloadLinkInfo();
+  }, [download_link]);
+
+  useEffect(() => {
+    if (downloadLinkInfo && !passwordState.needed) {
+      fetchFile();
+    }
+  }, [downloadLinkInfo]);
 
   const fetchFile = async () => {
     try {
       setIsLoading(true);
-      setIsFileNotFound(true);
-      const fetchedFileInfo = await fetchFileInfo(download_link);
-      if (fetchedFileInfo.success) {
-        setIsLoading(false);
-        setIsFileNotFound(false);
-        setFile(fetchedFileInfo.data);
-      } else {
-        setIsFileNotFound(true);
-        setIsLoading(false);
+      const response = await fetchFileInfo(download_link);
+      if (response.success) {
+        setFile(response.data);
       }
     } catch (error) {
-      console.error(error);
+      setErrorMessage(error.response?.data?.msg || "Failed to fetch file info.");
+    } finally {
       setIsLoading(false);
-      setIsFileNotFound(true);
-      setErrorMessage(error.response.data.msg);
     }
   };
 
-  const downloadFile = async () => {
+  const handle_PasswordSubmit = async () => {
     try {
+      const response = await validateDownloadLinkPassword(downloadLinkInfo.id, passwordState.entered);
+      if (response.success) {
+        setPasswordState({ needed: false, correct: true, entered: "" });
+        fetchFile();
+      } else {
+        setPasswordState((prev) => ({ ...prev, correct: false }));
+      }
+    } catch (error) {
+      console.error("Password validation failed:", error);
+      setPasswordState((prev) => ({ ...prev, correct: false }));
+    }
+  };
+
+  const handle_DownloadFile = async () => {
+    try {
+      await increaseDownloadLinkCountByLinkId(downloadLinkInfo.id);
       const fileBlob = await downloadFileByID(file.id);
       const url = URL.createObjectURL(new Blob([fileBlob]));
-
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
+      setDownloadLinkInfo((prevInfo) => ({
+        ...prevInfo,
+        download_count: prevInfo.download_count + 1,
+      }));
     } catch (error) {
       console.error("Failed to download file:", error);
     }
   };
 
   const triggerDownload = (url, filename) => {
-    const downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = filename;
-
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const copyLinkToClipBoard = async () => {
+  const copyLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setLinkButtonToolTipContent("Link copied!");
+      setTooltipContent("Link copied!");
     } catch (error) {
-      console.error("Failed to copy: ", error);
-      setLinkButtonToolTipContent("Failed to copy!");
+      console.error("Failed to copy link:", error);
+      setTooltipContent("Failed to copy!");
+    } finally {
+      setTimeout(() => setTooltipContent("Copy file link to clipboard"), 2000);
     }
-    setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
   };
 
-  if (isLoading) {
-    return <Page_BoilerPlate>Loading ...</Page_BoilerPlate>;
-  }
+  const validateDownloadLink = () => {
+    const currentTime = new Date();
 
-  if (!isLoading && isFileNotFound) {
+    if (downloadLinkInfo?.expires_at && currentTime > new Date(downloadLinkInfo.expires_at)) {
+      return { valid: false, message: "Download link has expired." };
+    }
+
+    if (
+      downloadLinkInfo?.download_limit != null &&
+      downloadLinkInfo.download_limit <= downloadLinkInfo.download_count
+    ) {
+      return { valid: false, message: "Download limit has been reached." };
+    }
+
+    return { valid: true };
+  };
+
+  const validation = validateDownloadLink();
+
+  if (!validation.valid) {
     return (
       <Page_BoilerPlate>
         <div className="flex flex-col justify-center items-center">
-          <p className="text-red-500">{errorMessage}</p>
+          <p className="text-red-500">{validation.message}</p>
           <button
             className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
             onClick={() => navigate("/")}
@@ -103,6 +152,30 @@ function Landing_Download() {
 
   return (
     <Page_BoilerPlate>
+      {passwordState.needed && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handle_PasswordSubmit();
+          }}
+          className="flex flex-col"
+        >
+          <input
+            type="text"
+            className="border p-2 text-black"
+            value={passwordState.entered}
+            onChange={(e) => setPasswordState((prev) => ({ ...prev, entered: e.target.value }))}
+            placeholder="Enter password"
+          />
+          <button type="submit" className="bg-gray-500 mt-4">
+            Submit Password
+          </button>
+          {passwordState.correct === false && (
+            <p className="text-red-500 mt-2">Incorrect password, please try again.</p>
+          )}
+        </form>
+      )}
+
       {file && (
         <div>
           <div className="grid grid-cols-2 w-full mx-auto mt-6">
@@ -126,14 +199,17 @@ function Landing_Download() {
 
             <div className="border border-gray-700 p-2 text-left">File Owner ID</div>
             <div className="border border-gray-700 p-2 text-left">{file.user_id}</div>
+
+            <div className="border border-gray-700 p-2 text-left">Downloads</div>
+            <div className="border border-gray-700 p-2 text-left">{downloadLinkInfo?.download_count || "N/A"}</div>
           </div>
 
           <div>
             <button
               className="mt-4"
-              onClick={copyLinkToClipBoard}
+              onClick={copyLinkToClipboard}
               data-tooltip-id="id_link_button"
-              data-tooltip-content={linkButtonToolTipContent}
+              data-tooltip-content={tooltipContent}
             >
               <BsLink45Deg className="p-1" size={30} />
             </button>
@@ -146,18 +222,18 @@ function Landing_Download() {
           </div>
 
           <button
-            onClick={downloadFile}
+            onClick={handle_DownloadFile}
             className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-green-500"
           >
             Download
           </button>
         </div>
       )}
+
+      {isLoading && !passwordState.needed && <p>Loading...</p>}
+      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
     </Page_BoilerPlate>
   );
 }
 
 export default Landing_Download;
-
-// get url download_link
-// send get request to fetch file data

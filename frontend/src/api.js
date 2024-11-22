@@ -191,3 +191,34 @@ export const removeDownloadLinkByLinkId = async (link_id) => {
     throw error;
   }
 };
+
+export const fetchDownloadLinkInfoByDownloadLink = async (download_link) => {
+  try {
+    const response = await api.get(`/files/download-link-info/${download_link}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const increaseDownloadLinkCountByLinkId = async (link_id) => {
+  try {
+    const response = await api.patch(`/files/increase-download-count/${link_id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const validateDownloadLinkPassword = async (link_id, password) => {
+  const data = { password: password };
+  try {
+    const response = await api.post(`/files/validate-download-password/${link_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
