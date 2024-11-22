@@ -225,3 +225,91 @@ exports.deleteDownloadLink = async (link_id) => {
     return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
   }
 };
+
+exports.retrieveDownloadLinkInfo = async (downloadLink) => {
+  try {
+    const query = `SELECT * FROM file_download_link WHERE download_url = $1`;
+    const result = await db.query(query, [downloadLink]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const linkInfo = result.rows[0];
+
+    const formattedLinkInfo = {
+      ...linkInfo,
+      password: !!linkInfo.password,
+    };
+
+    return formattedLinkInfo;
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
+
+exports.patchDownloadLinkLimitCount = async (link_id) => {
+  try {
+    const query = `
+      SELECT download_count, download_limit
+      FROM file_download_link
+      WHERE id = $1;
+    `;
+    // console.log(link_id);
+    const result = await db.query(query, [link_id]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    const linkInfo = result.rows[0];
+    const currentDownloadCount = linkInfo.download_count;
+    const downloadLimit = linkInfo.download_limit;
+
+    if (downloadLimit && currentDownloadCount >= downloadLimit) {
+      return Promise.reject({
+        code: "LIMIT_EXCEEDED",
+        message: `Download limit of ${downloadLimit} has been reached.`,
+      });
+    }
+
+    const updateQuery = `
+      UPDATE file_download_link
+      SET download_count = download_count + 1
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const updateResult = await db.query(updateQuery, [link_id]);
+
+    return updateResult.rows[0];
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
+
+exports.validateDownloadPassword = async (link_id, enteredPassword) => {
+  try {
+    const query = `SELECT password FROM file_download_link WHERE id = $1`;
+    const result = await db.query(query, [link_id]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    if (!result.rows[0].password) {
+      return Promise.reject({ code: "PASSWORD_NOT_FOUND", message: "Download link does not have any password" });
+    }
+
+    const storedHashedPassword = result.rows[0].password;
+
+    const isPasswordCorrect = await bcrypt.compare(enteredPassword, storedHashedPassword);
+
+    if (!isPasswordCorrect) {
+      return Promise.reject({ code: "INCORRECT_PASSWORD", message: "Incorrect password" });
+    }
+
+    return { isPasswordCorrect };
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};

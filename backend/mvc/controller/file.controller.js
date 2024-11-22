@@ -10,6 +10,9 @@ const {
   createDownloadLink,
   deleteDownloadLink,
   retrieveFileInfoByDownloadLinkId,
+  retrieveDownloadLinkInfo,
+  patchDownloadLinkLimitCount,
+  validateDownloadPassword,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -185,6 +188,48 @@ exports.removeDownloadLinkByLinkId = async (req, res, next) => {
 
     const data = await deleteDownloadLink(link_id);
     res.json({ success: true, msg: "Download link has been deleted", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
+  try {
+    const downloadLink = req.params.download_link;
+    const linkInfo = await retrieveDownloadLinkInfo(downloadLink);
+
+    if (!linkInfo) {
+      return res.status(404).json({ success: false, msg: "Download link not found" });
+    }
+
+    res.json({ success: true, msg: "Download link info has been fetched", data: linkInfo });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.updateDownloadLinkCount = async (req, res, next) => {
+  try {
+    const link_id = req.params.link_id;
+    const data = await patchDownloadLinkLimitCount(link_id);
+    res.json({ success: true, msg: "Download link counter increased", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.validateDownloadLinkPassword = async (req, res, next) => {
+  try {
+    const link_id = req.params.link_id;
+    const { password } = req.body;
+
+    // console.log(link_id, password);
+    const data = await validateDownloadPassword(link_id, password);
+
+    res.json({ success: true, msg: "Password validated successfully", data: data });
   } catch (err) {
     console.error(err);
     next(err);
