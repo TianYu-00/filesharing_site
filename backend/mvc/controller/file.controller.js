@@ -12,6 +12,7 @@ const {
   retrieveFileInfoByDownloadLinkId,
   retrieveDownloadLinkInfo,
   patchDownloadLinkLimitCount,
+  validateDownloadPassword,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -214,6 +215,21 @@ exports.updateDownloadLinkCount = async (req, res, next) => {
     const link_id = req.params.link_id;
     const data = await patchDownloadLinkLimitCount(link_id);
     res.json({ success: true, msg: "Download link counter increased", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.validateDownloadLinkPassword = async (req, res, next) => {
+  try {
+    const link_id = req.params.link_id;
+    const { password } = req.body;
+
+    // console.log(link_id, password);
+    const data = await validateDownloadPassword(link_id, password);
+
+    res.json({ success: true, msg: "Password validated successfully", data: data });
   } catch (err) {
     console.error(err);
     next(err);

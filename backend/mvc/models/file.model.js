@@ -286,3 +286,30 @@ exports.patchDownloadLinkLimitCount = async (link_id) => {
     return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
 };
+
+exports.validateDownloadPassword = async (link_id, enteredPassword) => {
+  try {
+    const query = `SELECT password FROM file_download_link WHERE id = $1`;
+    const result = await db.query(query, [link_id]);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "LINK_NOT_FOUND", message: "Download link not found" });
+    }
+
+    if (!result.rows[0].password) {
+      return Promise.reject({ code: "PASSWORD_NOT_FOUND", message: "Download link does not have any password" });
+    }
+
+    const storedHashedPassword = result.rows[0].password;
+
+    const isPasswordCorrect = await bcrypt.compare(enteredPassword, storedHashedPassword);
+
+    if (isPasswordCorrect) {
+      return { success: true, msg: "Password is correct", data: isPasswordCorrect };
+    } else {
+      return { success: false, msg: "Incorrect password", data: isPasswordCorrect };
+    }
+  } catch (err) {
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
