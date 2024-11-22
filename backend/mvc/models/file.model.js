@@ -255,7 +255,7 @@ exports.patchDownloadLinkLimitCount = async (link_id) => {
       FROM file_download_link
       WHERE id = $1;
     `;
-    console.log(link_id);
+    // console.log(link_id);
     const result = await db.query(query, [link_id]);
 
     if (result.rows.length === 0) {
