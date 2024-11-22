@@ -27,7 +27,7 @@ Additional Ideas:
 - Allow logged in users to add link expiration ✅
 - Allow logged in users to add limited download ✅
 
-- File auto delete after 24 hours if was uploaded by guest (not logged in)
+- File auto delete after 24 hours if was uploaded by guest (not logged in) ✅
 
 - Styling
 - User visual feedbacks
