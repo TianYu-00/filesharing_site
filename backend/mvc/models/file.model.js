@@ -304,11 +304,11 @@ exports.validateDownloadPassword = async (link_id, enteredPassword) => {
 
     const isPasswordCorrect = await bcrypt.compare(enteredPassword, storedHashedPassword);
 
-    if (isPasswordCorrect) {
-      return { success: true, msg: "Password is correct", data: isPasswordCorrect };
-    } else {
-      return { success: false, msg: "Incorrect password", data: isPasswordCorrect };
+    if (!isPasswordCorrect) {
+      return Promise.reject({ code: "INCORRECT_PASSWORD", message: "Incorrect password" });
     }
+
+    return { isPasswordCorrect };
   } catch (err) {
     return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
