@@ -16,7 +16,6 @@ exports.startCronJob = () => {
   deleteExpiredLinks();
   cron.schedule("0 * * * *", deleteExpiredLinks); // 0 * * * * = every hour
   //   cron.schedule("* * * * *", deleteExpiredLinks); // to test
-  //   console.log("Cron job to remove expired download link is scheduled");
 };
 
 // useful cron stuff:
