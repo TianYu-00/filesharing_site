@@ -26,7 +26,7 @@ function Header() {
     <div
       className={` w-screen absolute transition-all duration-700 ease-in-out ${
         isMenuClicked ? "max-h-screen" : "max-h-20"
-      } bg-neutral-900 z-50`}
+      } bg-[#111313] z-50`}
     >
       <div className="flex items-center p-4">
         <div className="flex-shrink-0 hidden md:block">
@@ -50,28 +50,14 @@ function Header() {
         } overflow-hidden`}
       >
         <ul className="space-y-1 flex flex-col items-center pt-5">
-          {/* Login */}
           {!user && (
             <li className="w-full">
               <Link
-                to="/login"
+                to="/auth"
                 className="hover:bg-neutral-700 w-full flex justify-center p-2"
                 onClick={handle_MenuClick}
               >
-                Login
-              </Link>
-            </li>
-          )}
-
-          {/* Register */}
-          {!user && (
-            <li className="w-full">
-              <Link
-                to="/register"
-                className="hover:bg-neutral-700 w-full flex justify-center p-2"
-                onClick={handle_MenuClick}
-              >
-                Register
+                Login / Register
               </Link>
             </li>
           )}
