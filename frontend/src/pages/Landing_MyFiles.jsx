@@ -14,6 +14,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { BsFillTrashFill } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -74,14 +75,17 @@ function Landing_MyFiles() {
   const handle_FileDelete = async (id) => {
     try {
       const response = await deleteFileById(id);
+      console.log(response);
       if (response.success) {
         setFiles(files.filter((file) => file.id !== id));
-        console.log("File has been removed");
+        toast.success(response?.msg || "File has been removed");
       } else {
         console.log("Failed to remove file");
+        toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
-      console.error("Error removing file:", err);
+      // console.error("Error removing file:", err);
+      toast.error(err?.response?.data?.msg || "Failed to delete file");
     }
   };
 
@@ -89,7 +93,8 @@ function Landing_MyFiles() {
     try {
       const file = files.find((currentFile) => currentFile.id === id);
       if (!file) {
-        console.error("File not found");
+        // console.error("File not found");
+        toast.error("File not found");
         return;
       }
 
@@ -109,7 +114,7 @@ function Landing_MyFiles() {
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Failed to download file:", err);
+      toast.error(err?.response?.data?.msg || "Failed to download file");
     }
   };
 
@@ -121,17 +126,22 @@ function Landing_MyFiles() {
   const handle_FileRename = async () => {
     try {
       if (!currentSelectedFile) {
-        console.error("Current selected file missing");
+        // console.error("Current selected file missing");
+        toast.error("Current selected file is missing");
+        return;
       }
 
       const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
       if (!file) {
-        console.error("File not found");
+        // console.error("File not found");
+        toast.error("File not found");
         return;
       }
 
       if (!fileRenameString) {
-        console.error("File name string missing");
+        // console.error("File name string missing");
+        toast.error("Filename can not empty");
+        return;
       }
 
       const extractedFileExtension = currentSelectedFile.originalname.substring(
@@ -154,11 +164,14 @@ function Landing_MyFiles() {
         setIsRenameModalOpen(false);
         setFileRenameString("");
         setCurrentSelectedFile(null);
+        toast.success("Renamed successfully");
       } else {
-        console.error("Failed to rename file");
+        // console.error("Failed to rename file");
+        toast.error("Failed to rename file");
       }
     } catch (err) {
-      console.error("Failed to rename file", err);
+      // console.error("Failed to rename file", err);
+      toast.error(err?.response?.data?.msg || "Failed to rename file");
     }
   };
 
@@ -175,7 +188,8 @@ function Landing_MyFiles() {
       // console.log(response.data);
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      console.error("Failed to fetch download link", err);
+      // console.error("Failed to fetch download link", err);
+      toast.error(err?.response?.data?.msg || "Failed to fetch download links");
     }
   };
 
@@ -195,11 +209,14 @@ function Landing_MyFiles() {
         setCreateLinkDownloadLimit("");
         setCreateLinkPassword("");
         setListOfDownloadLinks((prevLinks) => [...prevLinks, response.data]);
+        toast.success("Download link has been created");
       } else {
-        console.error("Failed to create download link");
+        // console.error("Failed to create download link");
+        toast.error("Failed to create download link");
       }
     } catch (err) {
-      console.error("Failed to create download link", err);
+      // console.error("Failed to create download link", err);
+      toast.error(err?.response?.data?.msg || "Failed to create download link");
     }
   };
 
@@ -210,11 +227,14 @@ function Landing_MyFiles() {
       if (response.success) {
         // console.log("Download Link removed");
         setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
+        toast.success("Download link has been deleted");
       } else {
-        console.error("Failed to delete download link");
+        // console.error("Failed to delete download link");
+        toast.error("Failed to delete download link");
       }
     } catch (err) {
-      console.error("Failed to delete download link", err);
+      // console.error("Failed to delete download link", err);
+      toast.error(err?.response?.data?.msg || "Failed to delete download link");
     }
   };
 

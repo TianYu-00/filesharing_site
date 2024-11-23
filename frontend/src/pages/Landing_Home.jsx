@@ -11,6 +11,8 @@ import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg } from "react-icons/bs
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
 
+import { toast } from "react-toastify";
+
 // rfce snippet
 
 function Home() {
@@ -24,7 +26,7 @@ function Home() {
   //
   const [downloadButtonToolTipContent, setDownloadButtonToolTipContent] = useState("Redirect to download page");
   const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy download link to clipboard");
-  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Reselect a file to upload");
+  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload another file");
 
   //
   const { user } = useUser();
@@ -49,11 +51,12 @@ function Home() {
 
   const handle_FileUpload = async () => {
     if (!selectedFile) {
-      alert("Please choose a file to upload!");
+      toast.error("Please choose a file to upload");
       return;
     }
 
     try {
+      toast.info("File is being uploaded");
       const formData = new FormData();
       formData.append("file", selectedFile);
       if (user && user.id) {
@@ -66,13 +69,12 @@ function Home() {
         setUploadProgress(percentCount);
       });
 
-      setUploadStatus("✓");
+      toast.success("Uploaded successfully");
       console.log("Server response:", uploadResponse);
       setDownloadLink(uploadResponse.data.downloadLink.download_url);
     } catch (error) {
       setIsUploadClicked(false);
-      setUploadStatus("Upload failed");
-      console.error(error);
+      toast.error("Failed to upload");
     }
   };
 
@@ -82,7 +84,7 @@ function Home() {
       await navigator.clipboard.writeText(fullUrl);
       setLinkButtonToolTipContent("Link copied!");
     } catch (error) {
-      console.error("Failed to copy: ", error);
+      // console.error("Failed to copy: ", error);
       setLinkButtonToolTipContent("Failed to copy!");
     }
     setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
@@ -99,25 +101,27 @@ function Home() {
       {isUploadClicked &&
         (uploadProgress === 100 ? (
           <div className="w-full mx-auto flex mt-2 justify-center">
-            <p>File has been uploaded</p>
+            <p className="text-green-500 font-bold">File has been uploaded</p>
           </div>
         ) : (
           <div className="w-full mx-auto flex mt-2 justify-center">
-            <p>File is being uploaded...</p>
+            <p className="text-orange-500 font-bold">File is being uploaded...</p>
           </div>
         ))}
 
       {selectedFile && (
         <div className="grid grid-cols-3 w-full mx-auto mt-6">
           {/* Header Row */}
-          <div className="border-b border-gray-700 p-2 text-left">Name</div>
-          <div className="border-b border-gray-700 p-2 text-left">Size</div>
-          <div className="border-b border-gray-700 p-2 text-left">Type</div>
+          <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
+          <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
+          <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
 
           {/* Data Row */}
-          <div className="border-gray-700 p-2 text-left">{selectedFile.name}</div>
-          <div className="border-gray-700 p-2 text-left">{fileSizeFormatter(selectedFile.size)}</div>
-          <div className="border-gray-700 p-2 text-left">{selectedFile.type}</div>
+          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.name}</div>
+          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
+            {fileSizeFormatter(selectedFile.size)}
+          </div>
+          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.type}</div>
         </div>
       )}
 
@@ -125,7 +129,7 @@ function Home() {
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
-            className="bg-blue-500 p-1 rounded flex items-center justify-center w-full font-bold"
+            className="bg-blue-500 p-2 rounded flex items-center justify-center w-full font-bold"
           >
             <BsUpload className="mx-2 stroke-1" size={20} /> Upload
           </button>
