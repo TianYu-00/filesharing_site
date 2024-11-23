@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyPasswordResetToken, changeUserPassword } from "../api";
+import { toast } from "react-toastify";
 
 function Landing_ResetPassword() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
   const [isTokenValid, setIsTokenValid] = useState(false);
   const location = useLocation();
 
@@ -26,11 +26,11 @@ function Landing_ResetPassword() {
             console.log("token is valid");
             setEmail(response.data.email);
           } else {
-            setMessage("Invalid or expired token.");
+            toast.error("Invalid or expired token");
           }
         } catch (error) {
           setIsTokenValid(false);
-          setMessage(error.response.data.msg);
+          // toast.error(error?.response?.data?.msg || "Failed to verify password reset token");
         }
       }
     };
@@ -42,29 +42,28 @@ function Landing_ResetPassword() {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match.");
+      toast.error("Passwords do not match");
       return;
     }
 
     if (!isTokenValid) {
-      setMessage("Invalid token.");
+      toast.error("Invalid token");
       return;
     }
 
     try {
       const response = await changeUserPassword(email, password);
       if (response.success) {
-        setMessage("Password has been changed");
-
+        toast.success("Password has been changed");
+        toast.info("Navigating to login page");
         setTimeout(() => {
-          navigate("/login");
+          navigate("/auth");
         }, 3000);
       } else {
-        setMessage("Failed to change password");
+        toast.error("Failed to change password");
       }
     } catch (error) {
-      const tmpMessage = "failed";
-      setMessage(tmpMessage);
+      toast.error(error?.response?.data?.msg || "Failed to change password");
     }
   };
 
@@ -72,7 +71,7 @@ function Landing_ResetPassword() {
     return (
       <Page_BoilerPlate>
         <div className="flex flex-col justify-center items-center">
-          <p className="text-red-500">{message}</p>
+          <p className="text-red-500">Password reset link has expired</p>
           <button
             className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
             onClick={() => navigate("/")}
@@ -117,12 +116,6 @@ function Landing_ResetPassword() {
               required
             />
           </div>
-
-          {message && (
-            <div className="flex flex-col">
-              <p className={`text-${isTokenValid ? "green" : "red"}-500`}>{message}</p>
-            </div>
-          )}
 
           <button
             className="w-full border border bg-black text-white font-semibold p-2 rounded"
