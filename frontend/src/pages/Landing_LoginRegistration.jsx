@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { toast } from "react-toastify";
 
 function Landing_Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,24 +22,25 @@ function Landing_Auth() {
       if (isLogin) {
         const loginResponse = await userLogin(email, password, rememberMe);
         if (!loginResponse.success) {
-          setMessage(loginResponse.response.data.msg);
+          toast.error(loginResponse.response.data.msg);
         } else {
           navigate("/home");
         }
       } else {
         if (password !== confirmPassword) {
-          setMessage("Passwords do not match");
+          toast.error("Passwords do not match");
           return;
         }
         const registerResponse = await userRegister(username, email, password);
         if (!registerResponse.success) {
-          setMessage(registerResponse.response.data.msg);
+          toast.error(registerResponse.response.data.msg);
         } else {
           navigate("/home");
         }
       }
     } catch (error) {
-      setMessage("An error occurred. Please try again.");
+      console.log(error);
+      toast.error("An unknown error occurred. Please try again");
     }
   };
 
@@ -142,11 +144,11 @@ function Landing_Auth() {
 
         <p className="text-center text-gray-500 text-sm mt-4">
           By continuing, you agree to our{" "}
-          <Link to="/terms" className="text-blue-500 hover:underline">
+          <Link to="#" className="text-blue-500 hover:underline">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link to="/privacy" className="text-blue-500 hover:underline">
+          <Link to="#" className="text-blue-500 hover:underline">
             Privacy Policy
           </Link>
           .
