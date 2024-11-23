@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/logo_simple.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BsList } from "react-icons/bs";
 import { useUser } from "../context/UserContext";
 import { useSpring, animated } from "@react-spring/web";
@@ -8,6 +8,7 @@ import { useSpring, animated } from "@react-spring/web";
 function Header() {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
   const { user, userLogout, userVerify } = useUser();
+  const navigate = useNavigate();
 
   useEffect(() => {
     userVerify();
@@ -26,7 +27,7 @@ function Header() {
   return (
     <div className="w-screen absolute bg-[#111313] z-50">
       <div className="flex items-center p-4">
-        <div className="flex-shrink-0 hidden md:block">
+        <div className="flex-shrink-0 hidden md:block cursor-pointer" onClick={() => navigate("/")}>
           <img src={logo} className="h-10" alt="Logo" />
         </div>
         <div className="flex-grow flex items-center justify-end text-white">
