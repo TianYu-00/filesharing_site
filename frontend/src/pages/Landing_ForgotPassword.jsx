@@ -17,7 +17,7 @@ function Landing_ForgotPassword() {
         toast.error(response.msg);
       }
     } catch (error) {
-      toast.error(error.response.data.msg);
+      toast.error(error?.response?.data?.msg || "Failed to send password reset link");
     }
   };
 
