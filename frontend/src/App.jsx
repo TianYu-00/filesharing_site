@@ -11,6 +11,8 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import CookieBanner from "./components/CookieNotice";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -18,6 +20,19 @@ const App = () => {
       <BrowserRouter>
         <Header />
         <CookieBanner />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable={false}
+          pauseOnHover={false}
+          theme="dark"
+          transition:Bounce
+        />
         <Routes>
           <Route path="/" element={<Landing_Home />} />
           <Route path="/home" element={<Landing_Home />} />

@@ -11,6 +11,8 @@ import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg } from "react-icons/bs
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
 
+import { toast } from "react-toastify";
+
 // rfce snippet
 
 function Home() {
@@ -49,11 +51,12 @@ function Home() {
 
   const handle_FileUpload = async () => {
     if (!selectedFile) {
-      alert("Please choose a file to upload!");
+      toast.error("Please choose a file to upload");
       return;
     }
 
     try {
+      toast.info("File is being uploaded");
       const formData = new FormData();
       formData.append("file", selectedFile);
       if (user && user.id) {
@@ -66,13 +69,12 @@ function Home() {
         setUploadProgress(percentCount);
       });
 
-      setUploadStatus("✓");
+      toast.success("Uploaded successfully");
       console.log("Server response:", uploadResponse);
       setDownloadLink(uploadResponse.data.downloadLink.download_url);
     } catch (error) {
       setIsUploadClicked(false);
-      setUploadStatus("Upload failed");
-      console.error(error);
+      toast.error("Failed to upload");
     }
   };
 
@@ -82,7 +84,7 @@ function Home() {
       await navigator.clipboard.writeText(fullUrl);
       setLinkButtonToolTipContent("Link copied!");
     } catch (error) {
-      console.error("Failed to copy: ", error);
+      // console.error("Failed to copy: ", error);
       setLinkButtonToolTipContent("Failed to copy!");
     }
     setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
