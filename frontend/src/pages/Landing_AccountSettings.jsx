@@ -11,6 +11,7 @@ import {
 
 import { editUser } from "../api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Landing_AccountSettings() {
   const navigate = useNavigate();
@@ -20,7 +21,6 @@ function Landing_AccountSettings() {
   const [email, setEmail] = useState(user?.email || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -37,14 +37,13 @@ function Landing_AccountSettings() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setMessage("");
 
     const changes = {};
 
     if (username !== user?.username) changes.username = username;
     if (email !== user?.email) {
       if (!currentPassword) {
-        setMessage("Please enter your current password to change your email");
+        toast.error("Current password is required to change email");
         return;
       }
       changes.email = email;
@@ -53,7 +52,7 @@ function Landing_AccountSettings() {
 
     if (newPassword) {
       if (!currentPassword) {
-        setMessage("Please enter your current password to change your password");
+        toast.error("Current password is required to change password");
         return;
       }
       changes.currentPassword = currentPassword;
@@ -61,18 +60,18 @@ function Landing_AccountSettings() {
     }
 
     if (Object.keys(changes).length === 0) {
-      setMessage("No changes detected");
+      toast.info("No changes detected");
       return;
     }
 
     try {
       const changeResponse = await editUser(user.id, changes);
       if (changeResponse.success) {
-        setMessage("Changes saved successfully!");
+        toast.success("Changes saved successfully!");
         setUserInfo(changeResponse.data);
       }
     } catch (err) {
-      setMessage(err.response?.data?.msg || "Failed. Please try again");
+      toast.error(err.response?.data?.msg || "Failed. Please try again");
     }
   };
 
@@ -151,10 +150,6 @@ function Landing_AccountSettings() {
                 autoComplete="new-password"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
-            </div>
-
-            <div className="flex flex-col">
-              <p className="text-red-500">{message}</p>
             </div>
 
             {/* Save Button */}
