@@ -11,6 +11,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import { BsLink45Deg } from "react-icons/bs";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
+import { toast } from "react-toastify";
 
 function Landing_Download() {
   const { file_id: download_link } = useParams();
@@ -19,7 +20,6 @@ function Landing_Download() {
   const [file, setFile] = useState(null);
   const [downloadLinkInfo, setDownloadLinkInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
   const [passwordState, setPasswordState] = useState({
     needed: false,
     correct: null,
@@ -37,7 +37,8 @@ function Landing_Download() {
           console.log(response.data);
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
+        toast.error(error.response?.data?.msg || "Failed to fetch info");
       }
     };
     fetchDownloadLinkInfo();
@@ -57,7 +58,7 @@ function Landing_Download() {
         setFile(response.data);
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.msg || "Failed to fetch file info.");
+      toast.error(error.response?.data?.msg || "Failed to fetch info");
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +74,7 @@ function Landing_Download() {
         setPasswordState((prev) => ({ ...prev, correct: false }));
       }
     } catch (error) {
-      console.error("Password validation failed:", error);
+      toast.error("Password validation failed");
       setPasswordState((prev) => ({ ...prev, correct: false }));
     }
   };
@@ -90,7 +91,8 @@ function Landing_Download() {
         download_count: prevInfo.download_count + 1,
       }));
     } catch (error) {
-      console.error("Failed to download file:", error);
+      // console.error("Failed to download file:", error);
+      toast.error("Failed to download");
     }
   };
 
@@ -108,7 +110,6 @@ function Landing_Download() {
       await navigator.clipboard.writeText(window.location.href);
       setTooltipContent("Link copied!");
     } catch (error) {
-      console.error("Failed to copy link:", error);
       setTooltipContent("Failed to copy!");
     } finally {
       setTimeout(() => setTooltipContent("Copy file link to clipboard"), 2000);
@@ -170,9 +171,9 @@ function Landing_Download() {
           <button type="submit" className="bg-gray-500 mt-4">
             Submit Password
           </button>
-          {passwordState.correct === false && (
+          {/* {passwordState.correct === false && (
             <p className="text-red-500 mt-2">Incorrect password, please try again.</p>
-          )}
+          )} */}
         </form>
       )}
 
@@ -231,7 +232,6 @@ function Landing_Download() {
       )}
 
       {isLoading && !passwordState.needed && <p>Loading...</p>}
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
     </Page_BoilerPlate>
   );
 }
