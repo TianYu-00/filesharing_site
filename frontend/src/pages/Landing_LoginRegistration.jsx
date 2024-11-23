@@ -10,14 +10,12 @@ function Landing_Auth() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [message, setMessage] = useState("");
   const { userLogin, userRegister } = useUser();
   const navigate = useNavigate();
 
   const handleAuth = async (event) => {
     try {
       event.preventDefault();
-      setMessage("");
 
       if (isLogin) {
         const loginResponse = await userLogin(email, password, rememberMe);
@@ -133,9 +131,6 @@ function Landing_Auth() {
               </Link>
             </div>
           )}
-
-          {/* Error Message */}
-          {message && <p className="text-red-500 text-sm">{message}</p>}
 
           <button type="submit" className="w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-900">
             {isLogin ? "Login" : "Register"}

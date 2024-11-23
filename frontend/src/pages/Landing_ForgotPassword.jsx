@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { sendPasswordResetLink } from "../api";
+import { toast } from "react-toastify";
 
 function Landing_ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
 
   const handle_ForgetPassword = async (event) => {
     try {
@@ -12,12 +12,12 @@ function Landing_ForgotPassword() {
       const response = await sendPasswordResetLink(email);
       console.log(response);
       if (response.success) {
-        setMessage(response.msg);
+        toast.success(response.msg);
       } else {
-        setMessage(response.msg);
+        toast.error(response.msg);
       }
     } catch (error) {
-      setMessage(error.response.data.msg);
+      toast.error(error.response.data.msg);
     }
   };
 
@@ -42,10 +42,6 @@ function Landing_ForgotPassword() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-          </div>
-
-          <div className="flex flex-col">
-            <p className="text-red-500">{message}</p>
           </div>
 
           <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">
