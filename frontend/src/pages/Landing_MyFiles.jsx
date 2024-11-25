@@ -13,7 +13,6 @@ import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatt
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
-import { BsFillTrashFill } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 function Landing_MyFiles() {
@@ -35,6 +34,8 @@ function Landing_MyFiles() {
   const [createLinkPassword, setCreateLinkPassword] = useState("");
 
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
+
+  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
@@ -68,8 +69,21 @@ function Landing_MyFiles() {
     };
   }, []);
 
-  const toggleFileMenu = (id) => {
-    setOpenFileMenu(openFileMenu === id ? null : id);
+  const getFileButtonDropdownPosition = (buttonElement) => {
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+
+    return spaceBelow < 200 ? "up" : "down";
+  };
+
+  const handle_FileMenuClick = (fileId, buttonElement) => {
+    // need to get button position
+    // calculate how much space between button - bottom
+    // if its less than x value make it up else down
+
+    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
+    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
+    setFileMenuDropdownPosition(dropdownPosition);
   };
 
   const handle_FileDelete = async (id) => {
@@ -389,11 +403,19 @@ function Landing_MyFiles() {
                   <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                   <td className="px-2 py-1 ">
                     <div className="relative flex justify-end">
-                      <button className="p-2 rounded-full hover:bg-black" onClick={() => toggleFileMenu(file.id)}>
+                      <button
+                        className="p-2 rounded-full hover:bg-black"
+                        onClick={(e) => handle_FileMenuClick(file.id, e.target)}
+                      >
                         <BsThreeDotsVertical size={17} />
                       </button>
                       {openFileMenu === file.id && (
-                        <div className="absolute right-0 mt-8 bg-neutral-700 shadow-lg rounded z-10" ref={fileMenuRef}>
+                        <div
+                          className={`absolute right-0 mt-1 ${
+                            fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                          } bg-neutral-700 shadow-lg rounded z-10`}
+                          ref={fileMenuRef}
+                        >
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
                             onClick={() => handle_FileDownload(file.id)}
