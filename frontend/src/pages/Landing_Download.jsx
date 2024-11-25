@@ -34,7 +34,7 @@ function Landing_Download() {
         if (response.success) {
           setDownloadLinkInfo(response.data);
           setPasswordState((prev) => ({ ...prev, needed: !!response.data.password }));
-          console.log(response.data);
+          // console.log(response.data);
         }
       } catch (error) {
         // console.error(error);

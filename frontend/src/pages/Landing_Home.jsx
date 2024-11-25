@@ -70,7 +70,7 @@ function Home() {
       });
 
       toast.success("Uploaded successfully");
-      console.log("Server response:", uploadResponse);
+      // console.log("Server response:", uploadResponse);
       setDownloadLink(uploadResponse.data.downloadLink.download_url);
     } catch (error) {
       setIsUploadClicked(false);

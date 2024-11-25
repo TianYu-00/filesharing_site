@@ -23,7 +23,7 @@ function Landing_ResetPassword() {
           const response = await verifyPasswordResetToken(token);
           if (response.success && response.data.isValid) {
             setIsTokenValid(true);
-            console.log("token is valid");
+            // console.log("token is valid");
             setEmail(response.data.email);
           } else {
             toast.error("Invalid or expired token");

@@ -37,7 +37,7 @@ function Landing_Auth() {
         }
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       toast.error("An unknown error occurred. Please try again");
     }
   };
