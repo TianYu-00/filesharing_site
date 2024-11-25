@@ -25,7 +25,7 @@ function Header() {
   });
 
   return (
-    <div className="w-screen absolute bg-[#111313] z-50">
+    <div className="w-full absolute bg-[#111313] z-50">
       <div className="flex items-center p-4">
         <div className="flex-shrink-0 hidden md:block cursor-pointer" onClick={() => navigate("/")}>
           <img src={logo} className="h-10" alt="Logo" />

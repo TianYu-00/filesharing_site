@@ -240,9 +240,6 @@ function Landing_MyFiles() {
 
   return (
     <div className="pt-20">
-      {/* MyFiles Landing Page */}
-      {/* <div className="flex justify-center text-white">MyFiles Landing Page</div> */}
-
       {/* Rename Modal */}
       {isRenameModalOpen && (
         <Modal
@@ -257,8 +254,9 @@ function Landing_MyFiles() {
           <input
             className="p-1"
             onChange={(e) => setFileRenameString(e.target.value)}
-            value={fileRenameString}
-            placeholder="enter new name here"
+            // value={fileRenameString}
+            placeholder="Enter new name here"
+            defaultValue={currentSelectedFile.originalname.split(".").slice(0, -1).join(".")}
           />
           <button
             className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 p-1 rounded mx-4"
