@@ -14,6 +14,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
+import { Tooltip } from "react-tooltip";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -36,6 +37,9 @@ function Landing_MyFiles() {
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
   const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
+
+  // tooltips
+  const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
@@ -314,10 +318,20 @@ function Landing_MyFiles() {
                           onClick={async () => {
                             const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
                             await navigator.clipboard.writeText(fullUrl);
+                            setManageLink_LinkTooltip("Link copied!");
+                            setTimeout(() => setManageLink_LinkTooltip("Click to copy link"), 2000);
                           }}
+                          data-tooltip-id="id_managelink_link"
+                          data-tooltip-content={manageLink_LinkTooltip}
                         >
                           {currentLink.download_url}
                         </div>
+                        <Tooltip
+                          id="id_managelink_link"
+                          style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
+                          opacity={0.9}
+                          place="bottom"
+                        />
                         <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                           {fileDateFormatter(currentLink.expires_at)[2]}
                         </div>
