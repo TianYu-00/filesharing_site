@@ -41,7 +41,14 @@ exports.uploadFile = async (req) => {
         );
 
         const fileId = result.rows[0].id;
-        const downloadLink = await exports.createDownloadLink(fileId);
+        // const downloadLink = await exports.createDownloadLink(fileId);
+        let downloadLink;
+        if (userId) {
+          downloadLink = await exports.createDownloadLink(fileId);
+        } else {
+          const tempExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          downloadLink = await exports.createDownloadLink(fileId, tempExpires);
+        }
 
         resolve({ file: req.file, fileId, downloadLink });
       } catch (dbError) {
@@ -69,6 +76,7 @@ exports.createDownloadLink = async (file_id, expires_at = null, password = null,
       ;`,
       [file_id, downloadUrl, expires_at, tempPassword, download_limit]
     );
+    // console.log(result.rows[0]);
     return result.rows[0];
   } catch (err) {
     console.log(err);
