@@ -62,7 +62,7 @@ function FileDropZone({ onFileSelect }) {
       onDrop={handleDrop}
       onClick={handleClick}
       className={`min-h-[300px] w-full p-4 border-2 border-dashed rounded cursor-pointer transition-colors duration-500
-    ${isDragging ? "bg-slate-400" : "bg-slate-600 hover:bg-slate-400"}`}
+    ${isDragging ? "bg-slate-400" : "bg-slate-600 hover:bg-slate-400"} mt-8`}
     >
       <div className="flex justify-center items-center min-h-[300px] pointer-events-none">
         {isDragging ? <p>Drop file here...</p> : <p>Drag and drop a file here, or click to select a file</p>}
