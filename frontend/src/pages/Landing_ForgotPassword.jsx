@@ -10,7 +10,7 @@ function Landing_ForgotPassword() {
     try {
       event.preventDefault();
       const response = await sendPasswordResetLink(email);
-      console.log(response);
+      // console.log(response);
       if (response.success) {
         toast.success(response.msg);
       } else {

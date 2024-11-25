@@ -75,12 +75,12 @@ function Landing_MyFiles() {
   const handle_FileDelete = async (id) => {
     try {
       const response = await deleteFileById(id);
-      console.log(response);
+      // console.log(response);
       if (response.success) {
         setFiles(files.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
-        console.log("Failed to remove file");
+        // console.log("Failed to remove file");
         toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
