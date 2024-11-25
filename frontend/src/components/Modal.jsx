@@ -9,7 +9,7 @@ const Modal = ({ isOpen, onClose, children, modalTitle }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-white">{modalTitle}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button onClick={onClose} className="text-gray-500 hover:text-red-500 text-2xl">
             ×
           </button>
         </div>
