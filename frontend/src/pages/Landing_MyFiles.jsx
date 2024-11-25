@@ -34,6 +34,9 @@ function Landing_MyFiles() {
   const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
   const [createLinkPassword, setCreateLinkPassword] = useState("");
 
+  // delete confirmation
+  const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
 
   const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
@@ -90,11 +93,18 @@ function Landing_MyFiles() {
     setFileMenuDropdownPosition(dropdownPosition);
   };
 
+  const handle_OnClickDelete = async (file) => {
+    setCurrentSelectedFile(file);
+    setIsDeleteConfirmModalOpen(true);
+  };
+
   const handle_FileDelete = async (id) => {
     try {
       const response = await deleteFileById(id);
       // console.log(response);
       if (response.success) {
+        setIsDeleteConfirmModalOpen(false);
+        setCurrentSelectedFile(null);
         setFiles(files.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
@@ -259,6 +269,40 @@ function Landing_MyFiles() {
 
   return (
     <div className="pt-20">
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmationModalOpen && (
+        <Modal
+          isOpen={isDeleteConfirmationModalOpen}
+          onClose={() => {
+            setIsDeleteConfirmModalOpen(false);
+            setCurrentSelectedFile(null);
+          }}
+          modalTitle={`Delete Confirmation`}
+        >
+          <p className="text-white text-lg mb-4">Are you sure you want to delete the file?</p>
+          <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
+          <div className="flex justify-center items-align space-x-6">
+            <button
+              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-600"
+              onClick={() => {
+                setIsDeleteConfirmModalOpen(false);
+                setCurrentSelectedFile(null);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-600"
+              onClick={() => {
+                handle_FileDelete(currentSelectedFile.id);
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
+
       {/* Rename Modal */}
       {isRenameModalOpen && (
         <Modal
@@ -450,7 +494,8 @@ function Landing_MyFiles() {
                           </button>
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_FileDelete(file.id)}
+                            // onClick={() => handle_FileDelete(file.id)}
+                            onClick={() => handle_OnClickDelete(file)}
                           >
                             Delete
                           </button>
@@ -474,16 +519,16 @@ export default Landing_MyFiles;
 
 // Notes:
 // Some things i want:
-// Original Name, Size, Created At, Dropdown menu
-// Now i need some notification or alerts of some sort to help with user feedbacks
+// Original Name, Size, Created At, Dropdown menu 🟢
+// Now i need some notification or alerts of some sort to help with user feedbacks 🟢
 
-// Download - Download the file directly 🔴
+// Download - Download the file directly 🟢
 
-// Rename - Rename the file (need to create api call for this: patch files/update/:file_id) 🔴
+// Rename - Rename the file (need to create api call for this: patch files/update/:file_id) 🟢
 
-// Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🔴
+// Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🟢
 
 // Delete - Delete file 🟢
 
-// NOTE: NEED TO ADD SOME USER VISUAL FEEDBACKS but for now, just work on my features.
+// NOTE: NEED TO ADD SOME USER VISUAL FEEDBACKS but for now, just work on my features. 🟢
 // prob should change err to error too for the new habit of using try catch snippets @.@
