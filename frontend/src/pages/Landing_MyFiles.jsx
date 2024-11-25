@@ -134,6 +134,7 @@ function Landing_MyFiles() {
 
   const handle_OnClickFileRename = async (file) => {
     setCurrentSelectedFile(file);
+    setFileRenameString(file.originalname.split(".").slice(0, -1).join("."));
     setIsRenameModalOpen(true);
   };
 
@@ -268,9 +269,8 @@ function Landing_MyFiles() {
           <input
             className="p-1"
             onChange={(e) => setFileRenameString(e.target.value)}
-            // value={fileRenameString}
+            value={fileRenameString}
             placeholder="Enter new name here"
-            defaultValue={currentSelectedFile.originalname.split(".").slice(0, -1).join(".")}
           />
           <button
             className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 p-1 rounded mx-4"
