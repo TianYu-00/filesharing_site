@@ -22,14 +22,14 @@ const App = () => {
         <CookieBanner />
         <ToastContainer
           position="bottom-right"
-          autoClose={3000}
+          autoClose={3200}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
           rtl={false}
           pauseOnFocusLoss
           draggable={false}
-          pauseOnHover={false}
+          pauseOnHover={true}
           theme="dark"
           transition:Bounce
         />
