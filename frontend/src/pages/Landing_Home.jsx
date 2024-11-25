@@ -129,7 +129,7 @@ function Home() {
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
-            className="bg-blue-500 p-2 rounded flex items-center justify-center w-full font-bold"
+            className="bg-blue-500 p-2 rounded flex items-center justify-center w-full font-bold hover:bg-green-500 transition duration-500 ease-in-out"
           >
             <BsUpload className="mx-2 stroke-1" size={20} /> Upload
           </button>

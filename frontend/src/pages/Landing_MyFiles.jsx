@@ -283,7 +283,7 @@ function Landing_MyFiles() {
           <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
           <div className="flex justify-center items-align space-x-6">
             <button
-              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-600"
+              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-600 transition duration-500 ease-in-out"
               onClick={() => {
                 setIsDeleteConfirmModalOpen(false);
                 setCurrentSelectedFile(null);
@@ -292,7 +292,7 @@ function Landing_MyFiles() {
               Cancel
             </button>
             <button
-              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-600"
+              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-600 transition duration-500 ease-in-out"
               onClick={() => {
                 handle_FileDelete(currentSelectedFile.id);
               }}
@@ -315,13 +315,13 @@ function Landing_MyFiles() {
           modalTitle={`Rename: ${currentSelectedFile.originalname}`}
         >
           <input
-            className="p-1"
+            className="my-2 p-1 rounded mx-1"
             onChange={(e) => setFileRenameString(e.target.value)}
             value={fileRenameString}
             placeholder="Enter new name here"
           />
           <button
-            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 p-1 rounded mx-4"
+            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 px-2 p-1 rounded font-bold ml-2"
             onClick={() => handle_FileRename()}
           >
             Update
@@ -403,34 +403,34 @@ function Landing_MyFiles() {
 
             <form className="grid">
               {/* Expires At */}
-              <label className="text-white">Expires At</label>
+              <label className="text-white mx-3">Expires At</label>
               <input
                 type="datetime-local"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 value={createLinkExpiresAt}
                 onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
               ></input>
               {/* Download Limit  */}
-              <label className="text-white">Download Limit</label>
+              <label className="text-white mx-3">Download Limit</label>
               <input
                 type="number"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 value={createLinkDownloadLimit}
                 onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
               ></input>
               {/* Password */}
-              <label className="text-white">Link Password</label>
+              <label className="text-white mx-3">Link Password</label>
               <input
                 type="password"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 autoComplete="new-password"
                 value={createLinkPassword}
                 onChange={(e) => setCreateLinkPassword(e.target.value)}
               ></input>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end mx-3">
                 <button
-                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded"
+                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
                   onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
                 >
                   Create Link
@@ -456,7 +456,9 @@ function Landing_MyFiles() {
             files.map((file) => {
               return (
                 <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
-                  <td className="px-2 py-1 ">{file.originalname}</td>
+                  <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-24 ">
+                    {file.originalname}
+                  </td>
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
                   <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                   <td className="px-2 py-1 ">

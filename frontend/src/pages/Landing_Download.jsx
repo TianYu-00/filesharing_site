@@ -141,7 +141,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">{validation.message}</p>
           <button
-            className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
+            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-green-500 transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -159,7 +159,7 @@ function Landing_Download() {
             e.preventDefault();
             handle_PasswordSubmit();
           }}
-          className="flex flex-col"
+          className="flex flex-col items-center"
         >
           <input
             type="text"
@@ -168,7 +168,10 @@ function Landing_Download() {
             onChange={(e) => setPasswordState((prev) => ({ ...prev, entered: e.target.value }))}
             placeholder="Enter password"
           />
-          <button type="submit" className="bg-gray-500 mt-4">
+          <button
+            type="submit"
+            className="bg-blue-500 mt-4 p-2 rounded hover:bg-green-500 font-bold transition duration-500 ease-in-out"
+          >
             Submit Password
           </button>
           {/* {passwordState.correct === false && (
@@ -184,7 +187,9 @@ function Landing_Download() {
             <div className="border border-gray-700 p-2 text-left">{file.id}</div>
 
             <div className="border border-gray-700 p-2 text-left">File Name</div>
-            <div className="border border-gray-700 p-2 text-left">{file.originalname}</div>
+            <div className="border border-gray-700 p-2 text-left whitespace-nowrap overflow-hidden truncate">
+              {file.originalname}
+            </div>
 
             <div className="border border-gray-700 p-2 text-left">File Size</div>
             <div className="border border-gray-700 p-2 text-left">{fileSizeFormatter(file.size)}</div>
@@ -224,7 +229,7 @@ function Landing_Download() {
 
           <button
             onClick={handle_DownloadFile}
-            className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-green-500"
+            className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-green-500 font-bold"
           >
             Download
           </button>

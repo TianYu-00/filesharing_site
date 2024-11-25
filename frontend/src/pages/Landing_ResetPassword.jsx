@@ -91,14 +91,14 @@ function Landing_ResetPassword() {
           onSubmit={handle_PasswordReset}
         >
           <div className="flex flex-col">
-            <p className="text-left font-bold text-3xl text-center">Reset Password</p>
-            <p className="text-left mt-3 text-center">Enter your new password to reset for {email}.</p>
+            <p className="text-center text-2xl font-bold mb-2">Reset Password</p>
+            <p className="text-center text-gray-600 mb-6">Enter your new password to reset for {email}.</p>
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-left font-semibold">Password</label>
+          <div className="flex flex-col items-start">
+            <label className="block text-sm font-medium text-gray-700">Password</label>
             <input
-              className="border p-2 border-black rounded"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
               autoComplete="new-password"
               onChange={(e) => setPassword(e.target.value)}
@@ -106,10 +106,10 @@ function Landing_ResetPassword() {
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-left font-semibold">Confirm Password</label>
+          <div className="flex flex-col items-start">
+            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
             <input
-              className="border p-2 border-black rounded"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
               autoComplete="new-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
