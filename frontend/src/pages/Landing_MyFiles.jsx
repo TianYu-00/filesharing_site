@@ -462,9 +462,9 @@ function Landing_MyFiles() {
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
                   <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                   <td className="px-2 py-1 ">
-                    <div className="relative flex justify-end">
+                    <div className="relative flex justify-end pr-2">
                       <button
-                        className="p-2 rounded-full hover:text-blue-500"
+                        className="p-2 rounded-md hover:text-black hover:bg-gray-100"
                         onClick={(e) => handle_FileMenuClick(file.id, e.target)}
                       >
                         <BsThreeDotsVertical size={17} className="" />
