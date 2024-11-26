@@ -5,20 +5,31 @@ const fileRouter = express.Router();
 const checkAdminRole = require("../src/checkAdminRole");
 const verifyUserAuthToken = require("../src/verifyUserAuthToken");
 
-fileRouter.get("/", fileController.getAllFilesInfo);
-fileRouter.post("/upload", fileController.postFile);
-fileRouter.get("/info/:file_id", fileController.getFileInfo);
-fileRouter.get("/download/:file_id", fileController.getFile);
-fileRouter.delete("/delete/:file_id", verifyUserAuthToken, fileController.deleteFile);
-fileRouter.get("/info-by-link/:download_link", fileController.getFileInfoByLink);
-fileRouter.patch("/rename/:file_id", verifyUserAuthToken, fileController.renameFileById);
+// admin only
+fileRouter.get("/", verifyUserAuthToken, checkAdminRole, fileController.getAllFilesInfo); // not used
+fileRouter.get("/info/:file_id", verifyUserAuthToken, checkAdminRole, fileController.getFileInfo); // not used
 
-fileRouter.get("/download-link/:file_id", fileController.getDownloadLinks);
-fileRouter.post("/create-download-link/:file_id", verifyUserAuthToken, fileController.createDownloadLinkByFileId);
-fileRouter.delete("/remove-download-link/:link_id", verifyUserAuthToken, fileController.removeDownloadLinkByLinkId);
+// should be protected
+fileRouter.delete("/delete-file-by-file-id/:file_id", verifyUserAuthToken, fileController.deleteFile);
+fileRouter.patch("/rename-file-by-file-id/:file_id", verifyUserAuthToken, fileController.renameFileById);
+fileRouter.get("/download-link-by-file-id/:file_id", verifyUserAuthToken, fileController.getDownloadLinks);
+fileRouter.post(
+  "/create-download-link-by-file-id/:file_id",
+  verifyUserAuthToken,
+  fileController.createDownloadLinkByFileId
+);
+fileRouter.delete(
+  "/remove-download-link-by-link-id/:link_id",
+  verifyUserAuthToken,
+  fileController.removeDownloadLinkByLinkId
+);
 
-fileRouter.get("/download-link-info/:download_link", fileController.getDownloadLinkInfoByDownloadLink);
-fileRouter.patch("/increase-download-count/:link_id", fileController.updateDownloadLinkCount);
-fileRouter.post("/validate-download-password/:link_id", fileController.validateDownloadLinkPassword);
+// for all
+fileRouter.post("/file-upload", fileController.postFile);
+fileRouter.get("/download-file-by-id/:file_id", fileController.getFile);
+fileRouter.get("/file-info-by-link/:download_link", fileController.getFileInfoByLink);
+fileRouter.get("/download-link-info-by-link/:download_link", fileController.getDownloadLinkInfoByDownloadLink);
+fileRouter.patch("/increase-download-count-by-link-id/:link_id", fileController.updateDownloadLinkCount);
+fileRouter.post("/validate-download-password-by-link-id/:link_id", fileController.validateDownloadLinkPassword);
 
 module.exports = fileRouter;
