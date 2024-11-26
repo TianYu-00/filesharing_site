@@ -160,7 +160,7 @@ function Landing_AccountSettings() {
             {/* Save Button */}
             <button
               type="submit"
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-green-500 font-bold transition duration-500 ease-in-out"
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
             >
               Save Changes
             </button>

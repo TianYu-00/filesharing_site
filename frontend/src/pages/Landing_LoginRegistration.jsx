@@ -132,7 +132,10 @@ function Landing_Auth() {
             </div>
           )}
 
-          <button type="submit" className="w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-900">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-500 ease-in-out"
+          >
             {isLogin ? "Login" : "Register"}
           </button>
         </form>

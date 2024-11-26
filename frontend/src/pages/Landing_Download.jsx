@@ -141,7 +141,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">{validation.message}</p>
           <button
-            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-green-500 transition duration-500 ease-in-out"
+            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -170,7 +170,7 @@ function Landing_Download() {
           />
           <button
             type="submit"
-            className="bg-blue-500 mt-4 p-2 rounded hover:bg-green-500 font-bold transition duration-500 ease-in-out"
+            className="bg-blue-500 mt-4 p-2 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
           >
             Submit Password
           </button>
@@ -229,7 +229,7 @@ function Landing_Download() {
 
           <button
             onClick={handle_DownloadFile}
-            className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-green-500 font-bold"
+            className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-blue-700 font-bold"
           >
             Download
           </button>

@@ -283,7 +283,7 @@ function Landing_MyFiles() {
           <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
           <div className="flex justify-center items-align space-x-6">
             <button
-              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-600 transition duration-500 ease-in-out"
+              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-700 transition duration-500 ease-in-out"
               onClick={() => {
                 setIsDeleteConfirmModalOpen(false);
                 setCurrentSelectedFile(null);
@@ -292,7 +292,7 @@ function Landing_MyFiles() {
               Cancel
             </button>
             <button
-              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-600 transition duration-500 ease-in-out"
+              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-700 transition duration-500 ease-in-out"
               onClick={() => {
                 handle_FileDelete(currentSelectedFile.id);
               }}
@@ -321,7 +321,7 @@ function Landing_MyFiles() {
             placeholder="Enter new name here"
           />
           <button
-            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 px-2 p-1 rounded font-bold ml-2"
+            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-blue-700 px-2 p-1 rounded font-bold ml-2"
             onClick={() => handle_FileRename()}
           >
             Update
@@ -430,7 +430,7 @@ function Landing_MyFiles() {
 
               <div className="flex justify-end mx-3">
                 <button
-                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
+                  className="text-white bg-blue-500 hover:bg-blue-700 p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
                   onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
                 >
                   Create Link
@@ -464,10 +464,10 @@ function Landing_MyFiles() {
                   <td className="px-2 py-1 ">
                     <div className="relative flex justify-end">
                       <button
-                        className="p-2 rounded-full hover:bg-black"
+                        className="p-2 rounded-full hover:text-blue-500"
                         onClick={(e) => handle_FileMenuClick(file.id, e.target)}
                       >
-                        <BsThreeDotsVertical size={17} />
+                        <BsThreeDotsVertical size={17} className="" />
                       </button>
                       {openFileMenu === file.id && (
                         <div

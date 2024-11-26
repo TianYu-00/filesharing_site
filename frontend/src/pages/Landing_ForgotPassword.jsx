@@ -44,7 +44,10 @@ function Landing_ForgotPassword() {
             />
           </div>
 
-          <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">
+          <button
+            className="w-full border border bg-blue-500 text-white font-semibold p-2 rounded hover:bg-blue-700 transition duration-500 ease-in-out"
+            type="submit"
+          >
             Reset Password
           </button>
         </form>

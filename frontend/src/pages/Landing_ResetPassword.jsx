@@ -73,7 +73,7 @@ function Landing_ResetPassword() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">Password reset link has expired</p>
           <button
-            className="w-full bg-black text-white font-semibold p-2 rounded mt-10 max-w-md"
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold p-2 rounded mt-10 max-w-md transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -118,7 +118,7 @@ function Landing_ResetPassword() {
           </div>
 
           <button
-            className="w-full border border bg-black text-white font-semibold p-2 rounded"
+            className="w-full border border bg-blue-500 hover:bg-blue-700 text-white font-semibold p-2 rounded transition duration-500 ease-in-out"
             type="submit"
             disabled={!isTokenValid}
           >
