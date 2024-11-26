@@ -57,11 +57,3 @@ function Landing_ForgotPassword() {
 }
 
 export default Landing_ForgotPassword;
-
-// Password reset flow
-
-/*
-- Enter their email
-- Submit the form
-
-*/

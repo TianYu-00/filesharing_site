@@ -518,19 +518,3 @@ function Landing_MyFiles() {
 }
 
 export default Landing_MyFiles;
-
-// Notes:
-// Some things i want:
-// Original Name, Size, Created At, Dropdown menu 🟢
-// Now i need some notification or alerts of some sort to help with user feedbacks 🟢
-
-// Download - Download the file directly 🟢
-
-// Rename - Rename the file (need to create api call for this: patch files/update/:file_id) 🟢
-
-// Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🟢
-
-// Delete - Delete file 🟢
-
-// NOTE: NEED TO ADD SOME USER VISUAL FEEDBACKS but for now, just work on my features. 🟢
-// prob should change err to error too for the new habit of using try catch snippets @.@
