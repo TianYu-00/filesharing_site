@@ -49,17 +49,28 @@ app.use((err, req, res, next) => {
       msg: err.message || "Database error occurred",
       data: null,
     });
-  } else {
-    next(err);
   }
-});
-
-app.use((err, req, res, next) => {
+  // LIMIT_EXCEEDED
+  else if (err.code === "LIMIT_EXCEEDED") {
+    res.status(500).send({
+      success: false,
+      msg: err.message || "Download limit as exceeded",
+      data: null,
+    });
+  }
+  // "PASSWORD_NOT_FOUND"
+  else if (err.code === "PASSWORD_NOT_FOUND") {
+    res.status(500).send({
+      success: false,
+      msg: err.message || "Password not found",
+      data: null,
+    });
+  }
   // DUPLICATE_EMAIL
   if (err.code === "DUPLICATE_EMAIL") {
     res.status(409).send({
       success: false,
-      msg: err.message || "Email address already in use. Please enter a different email.",
+      msg: err.message || "Please enter a different email.",
       data: null,
     });
   }
@@ -94,7 +105,10 @@ app.use((err, req, res, next) => {
       msg: "Data already exists.",
       data: null,
     });
-  } else {
+  }
+
+  // Final
+  else {
     next(err);
   }
 });

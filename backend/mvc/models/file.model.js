@@ -193,7 +193,7 @@ exports.updateFileNameById = async (fileInfo, newFileName) => {
     if (err.code === "ENOENT") {
       return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found on disk." });
     }
-    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
 };
 
@@ -230,7 +230,7 @@ exports.deleteDownloadLink = async (link_id) => {
     const result = await db.query(query, [link_id]);
     return result.rows[0];
   } catch (err) {
-    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
 };
 
