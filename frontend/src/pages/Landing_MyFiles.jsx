@@ -52,6 +52,36 @@ function Landing_MyFiles() {
   // selected
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
 
+  // sticky options
+  const [isToolBarSticky, setIsToolBarSticky] = useState(false);
+  const toolBarRef = useRef(null);
+  const toolBarParentRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (toolBarParentRef.current && toolBarRef.current) {
+        const parentRect = toolBarParentRef.current.getBoundingClientRect();
+
+        const shouldToolBarStick = parentRect.top < 0;
+
+        const shouldToolBarUnstick = parentRect.top >= 0;
+
+        if (shouldToolBarStick) {
+          setIsToolBarSticky(true);
+        } else if (shouldToolBarUnstick) {
+          setIsToolBarSticky(false);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const sortedFiles = React.useMemo(() => {
     if (!files.length || !fileSortingConfig.sortByKey) return files;
 
@@ -501,23 +531,26 @@ function Landing_MyFiles() {
 
       {/* Selected Options */}
       {listOfSelectedFile.length > 0 && (
-        <div className="max-w-full p-2 rounded-full border border-gray-700 mx-2">
-          <button
-            className="border border-blue-800 p-1 px-4 rounded-full text-white bg-blue-500 hover:bg-blue-700 mr-4"
-            onClick={() => {
-              setListOfSelectedFile([]);
-            }}
+        <div ref={toolBarParentRef} className="max-w-full rounded-full h-14">
+          <div
+            ref={toolBarRef}
+            className={`${
+              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none" : ""
+            } max-w-full p-2 rounded-full border border-gray-700 bg-[#181a1b]`}
           >
-            Deselect
-          </button>
-          <button
-            className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4"
-            onClick={() => {
-              handle_DeleteManyFiles();
-            }}
-          >
-            Delete
-          </button>
+            <button
+              className="border border-blue-800 p-1 px-4 rounded-full text-white bg-blue-500 hover:bg-blue-700 mr-4"
+              onClick={() => setListOfSelectedFile([])}
+            >
+              Deselect
+            </button>
+            <button
+              className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4"
+              onClick={handle_DeleteManyFiles}
+            >
+              Delete
+            </button>
+          </div>
         </div>
       )}
 
