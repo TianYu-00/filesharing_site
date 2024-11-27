@@ -68,7 +68,6 @@ function Landing_MyFiles() {
     const sortedList = [...files].sort((a, b) => {
       const valueA = getValue(a);
       const valueB = getValue(b);
-      console.log("A:", valueA, "B:", valueB);
 
       if (valueA < valueB) return direction === "asc" ? -1 : 1;
       if (valueA > valueB) return direction === "asc" ? 1 : -1;
