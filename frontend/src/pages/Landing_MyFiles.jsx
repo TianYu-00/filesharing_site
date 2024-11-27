@@ -480,7 +480,25 @@ function Landing_MyFiles() {
         </Modal>
       )}
 
-      <table className="table-auto w-full text-white text-left">
+      {/* Selected Options */}
+      {listOfSelectedFile.length > 0 && (
+        <div className="max-w-full p-2 rounded-full border border-gray-700 mx-2">
+          <button
+            className="border border-blue-800 p-1 px-4 rounded-full text-white bg-blue-500 hover:bg-blue-700 mr-4"
+            onClick={() => {
+              setListOfSelectedFile([]);
+            }}
+          >
+            Deselect
+          </button>
+          <button className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4">
+            Delete
+          </button>
+        </div>
+      )}
+
+      {/* Table */}
+      <table className="table-auto w-full text-white text-left mt-2">
         <thead className="border-b-2 border-gray-500">
           <tr>
             <th className="px-2 py-2">
@@ -540,7 +558,7 @@ function Landing_MyFiles() {
                       onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
                     />
                   </td>
-                  <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-24 ">
+                  <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
                     {file.originalname}
                   </td>
                   <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
