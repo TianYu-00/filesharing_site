@@ -92,7 +92,7 @@ function Landing_MyFiles() {
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
-      setTimeout(() => navigate("/login"), 0);
+      setTimeout(() => navigate("/auth"), 0);
     }
   }, [user, isLoadingUser]);
 

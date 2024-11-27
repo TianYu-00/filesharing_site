@@ -37,8 +37,8 @@ function Landing_Download() {
           // console.log(response.data);
         }
       } catch (error) {
-        // console.error(error);
         toast.error(error.response?.data?.msg || "Failed to fetch info");
+        setDownloadLinkInfo(null);
       }
     };
     fetchDownloadLinkInfo();
@@ -140,6 +140,22 @@ function Landing_Download() {
       <Page_BoilerPlate>
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">{validation.message}</p>
+          <button
+            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
+            onClick={() => navigate("/")}
+          >
+            Return to home page
+          </button>
+        </div>
+      </Page_BoilerPlate>
+    );
+  }
+
+  if (!downloadLinkInfo) {
+    return (
+      <Page_BoilerPlate>
+        <div className="flex flex-col justify-center items-center">
+          <p className="text-red-500">Download link not found.</p>
           <button
             className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
