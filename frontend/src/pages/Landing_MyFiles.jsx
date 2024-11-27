@@ -43,13 +43,16 @@ function Landing_MyFiles() {
   const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
 
   // sort
-  const [fileSortingConfig, setFileSortingConfig] = useState({ sortByKey: "name", direction: "asc" });
+  const [fileSortingConfig, setFileSortingConfig] = useState({
+    sortByKey: null,
+    direction: "asc",
+  });
 
   // selected
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
 
   const sortedFiles = React.useMemo(() => {
-    if (!files.length) return [];
+    if (!files.length || !fileSortingConfig.sortByKey) return files;
 
     const { sortByKey, direction } = fileSortingConfig;
 
@@ -82,7 +85,7 @@ function Landing_MyFiles() {
     setFileSortingConfig((prevConfig) => {
       const isSameSortByKey = prevConfig.sortByKey === sortByKey;
       const newDirection = isSameSortByKey && prevConfig.direction === "asc" ? "desc" : "asc";
-      return { sortByKey, direction: newDirection };
+      return { sortByKey: isSameSortByKey ? prevConfig.sortByKey : sortByKey, direction: newDirection };
     });
   };
 
