@@ -279,7 +279,11 @@ function Landing_MyFiles() {
         setCreateLinkExpiresAt("");
         setCreateLinkDownloadLimit("");
         setCreateLinkPassword("");
-        setListOfDownloadLinks((prevLinks) => [...prevLinks, response.data]);
+        const newLinks = {
+          ...response.data,
+          password: !!tempPassword,
+        };
+        setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
         toast.success("Download link has been created");
       } else {
         // console.error("Failed to create download link");
