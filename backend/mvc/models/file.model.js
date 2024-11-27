@@ -79,7 +79,7 @@ exports.createDownloadLink = async (file_id, expires_at = null, password = null,
     // console.log(result.rows[0]);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return Promise.reject({ code: "DB_ERROR", message: "Error creating download link" });
   }
 };
@@ -319,5 +319,37 @@ exports.validateDownloadPassword = async (link_id, enteredPassword) => {
     return { isPasswordCorrect };
   } catch (err) {
     return Promise.reject({ code: "DB_ERROR", message: err.message });
+  }
+};
+
+exports.deleteManyFilesByFileIds = async (files) => {
+  try {
+    const fileIds = files.map((file) => file.id);
+
+    for (const file of files) {
+      const filePath = path.join(file.path);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      } else {
+        console.warn(`File not found: ${filePath}`);
+      }
+    }
+
+    const deleteFileInfoResult = await db.query(`DELETE FROM file_info WHERE id = ANY($1)`, [fileIds]);
+
+    const deleteDownloadLinksResult = await db.query(`DELETE FROM file_download_link WHERE file_id = ANY($1)`, [
+      fileIds,
+    ]);
+
+    return {
+      deletedFileCount: deleteFileInfoResult.rowCount,
+      deletedLinkCount: deleteDownloadLinksResult.rowCount,
+    };
+  } catch (err) {
+    console.error(err);
+    return Promise.reject({
+      code: "DB_ERROR",
+      message: "Error deleting files from database and disk",
+    });
   }
 };

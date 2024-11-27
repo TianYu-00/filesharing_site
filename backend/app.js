@@ -42,6 +42,14 @@ app.use((err, req, res, next) => {
       data: null,
     });
   }
+  // LINK_NOT_FOUND
+  else if (err.code === "LINK_NOT_FOUND") {
+    res.status(404).send({
+      success: false,
+      msg: err.message || "Link not found",
+      data: null,
+    });
+  }
   // DB_ERROR
   else if (err.code === "DB_ERROR") {
     res.status(500).send({

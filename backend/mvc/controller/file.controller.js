@@ -13,6 +13,7 @@ const {
   retrieveDownloadLinkInfo,
   patchDownloadLinkLimitCount,
   validateDownloadPassword,
+  deleteManyFilesByFileIds,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -230,6 +231,20 @@ exports.validateDownloadLinkPassword = async (req, res, next) => {
     const data = await validateDownloadPassword(link_id, password);
 
     res.json({ success: true, msg: "Password validated successfully", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.removeManyFilesByFileInfo = async (req, res, next) => {
+  try {
+    const { files } = req.body;
+    // console.log(file_ids);
+
+    const data = await deleteManyFilesByFileIds(files);
+
+    res.json({ success: true, msg: "Files has been deleted", data: data });
   } catch (err) {
     console.error(err);
     next(err);

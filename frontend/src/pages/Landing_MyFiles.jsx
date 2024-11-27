@@ -8,6 +8,7 @@ import {
   getDownloadLinksByFileId,
   createDownloadLinkByFileId,
   removeDownloadLinkByLinkId,
+  removeManyFilesByFileInfo,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { BsThreeDotsVertical, BsArrowUp, BsArrowDown } from "react-icons/bs";
@@ -292,9 +293,9 @@ function Landing_MyFiles() {
   };
 
   // debug
-  useEffect(() => {
-    console.log(listOfSelectedFile);
-  }, [listOfSelectedFile]);
+  // useEffect(() => {
+  //   console.log(listOfSelectedFile);
+  // }, [listOfSelectedFile]);
 
   const handle_FileSelectedCheckboxChange = (file, isChecked) => {
     setListOfSelectedFile((prevSelectedFiles) =>
@@ -304,6 +305,24 @@ function Landing_MyFiles() {
 
   const handle_FileSelectAll = (isChecked) => {
     setListOfSelectedFile(isChecked ? sortedFiles : []);
+  };
+
+  const handle_DeleteManyFiles = async () => {
+    try {
+      const response = await removeManyFilesByFileInfo(listOfSelectedFile);
+
+      if (response.success) {
+        setFiles((prevFiles) =>
+          prevFiles.filter((file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id))
+        );
+        setListOfSelectedFile([]);
+        toast.success(`${response?.data?.deletedFileCount} file(s) deleted successfully`);
+      } else {
+        toast.error(response.msg || "Failed to delete files");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+    }
   };
 
   return (
@@ -491,7 +510,12 @@ function Landing_MyFiles() {
           >
             Deselect
           </button>
-          <button className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4">
+          <button
+            className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4"
+            onClick={() => {
+              handle_DeleteManyFiles();
+            }}
+          >
             Delete
           </button>
         </div>

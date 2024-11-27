@@ -24,6 +24,12 @@ fileRouter.delete(
   fileController.removeDownloadLinkByLinkId
 );
 
+fileRouter.delete(
+  "/remove-many-files-by-body-file-info",
+  verifyUserAuthToken,
+  fileController.removeManyFilesByFileInfo
+);
+
 // for all
 fileRouter.post("/file-upload", fileController.postFile);
 fileRouter.get("/download-file-by-id/:file_id", fileController.getFile);

@@ -222,3 +222,14 @@ export const validateDownloadLinkPassword = async (link_id, password) => {
     throw error;
   }
 };
+
+export const removeManyFilesByFileInfo = async (files) => {
+  const data = { files: files };
+  try {
+    const response = await api.delete(`/files/remove-many-files-by-body-file-info`, { data });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
