@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
     });
   }
   // DUPLICATE_EMAIL
-  if (err.code === "DUPLICATE_EMAIL") {
+  else if (err.code === "DUPLICATE_EMAIL") {
     res.status(409).send({
       success: false,
       msg: err.message || "Please enter a different email.",
