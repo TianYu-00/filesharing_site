@@ -10,7 +10,7 @@ import {
   removeDownloadLinkByLinkId,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { BsThreeDotsVertical, BsArrowUp, BsArrowDown } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
@@ -43,6 +43,48 @@ function Landing_MyFiles() {
 
   // tooltips
   const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
+
+  // sort
+  const [fileSortingConfig, setFileSortingConfig] = useState({ sortByKey: "name", direction: "asc" });
+
+  const sortedFiles = React.useMemo(() => {
+    if (!files.length) return [];
+
+    const { sortByKey, direction } = fileSortingConfig;
+
+    const getValue = (file) => {
+      switch (sortByKey) {
+        case "name":
+          return file.originalname.toLowerCase();
+        case "created_at":
+          return new Date(file.created_at);
+        case "size":
+          return file.size;
+        default:
+          return file[sortByKey];
+      }
+    };
+
+    const sortedList = [...files].sort((a, b) => {
+      const valueA = getValue(a);
+      const valueB = getValue(b);
+      console.log("A:", valueA, "B:", valueB);
+
+      if (valueA < valueB) return direction === "asc" ? -1 : 1;
+      if (valueA > valueB) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sortedList;
+  }, [files, fileSortingConfig]);
+
+  const handle_FileSorting = (sortByKey) => {
+    setFileSortingConfig((prevConfig) => {
+      const isSameSortByKey = prevConfig.sortByKey === sortByKey;
+      const newDirection = isSameSortByKey && prevConfig.direction === "asc" ? "desc" : "asc";
+      return { sortByKey, direction: newDirection };
+    });
+  };
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
@@ -444,16 +486,46 @@ function Landing_MyFiles() {
       <table className="table-auto w-full text-white text-left">
         <thead className="border-b-2 border-gray-500">
           <tr>
-            <th className="px-2 py-2 ">Name</th>
-            <th className="px-2 py-2">Size</th>
-            <th className="px-2 py-2">Uploaded</th>
+            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("name")}>
+              <div className="flex items-center select-none">
+                Name
+                {fileSortingConfig.sortByKey === "name" &&
+                  (fileSortingConfig.direction === "asc" ? (
+                    <BsArrowUp className="ml-1 stroke-1" />
+                  ) : (
+                    <BsArrowDown className="ml-1 stroke-1" />
+                  ))}
+              </div>
+            </th>
+            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+              <div className="flex items-center select-none">
+                Size
+                {fileSortingConfig.sortByKey === "size" &&
+                  (fileSortingConfig.direction === "asc" ? (
+                    <BsArrowUp className="ml-1 stroke-1" />
+                  ) : (
+                    <BsArrowDown className="ml-1 stroke-1" />
+                  ))}
+              </div>
+            </th>
+            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+              <div className="flex items-center select-none">
+                Uploaded
+                {fileSortingConfig.sortByKey === "created_at" &&
+                  (fileSortingConfig.direction === "asc" ? (
+                    <BsArrowUp className="ml-1 stroke-1" />
+                  ) : (
+                    <BsArrowDown className="ml-1 stroke-1" />
+                  ))}
+              </div>
+            </th>
             <th className="px-2 py-2"></th>
           </tr>
         </thead>
 
-        <tbody className="">
-          {Array.isArray(files) && files.length > 0 ? (
-            files.map((file) => {
+        <tbody>
+          {sortedFiles.length > 0 ? (
+            sortedFiles.map((file) => {
               return (
                 <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
                   <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-24 ">
