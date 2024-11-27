@@ -22,6 +22,8 @@ function Landing_MyFiles() {
   const [files, setFiles] = useState([]);
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const fileMenuRef = useRef(null);
+  const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
+  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
 
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
@@ -37,15 +39,14 @@ function Landing_MyFiles() {
   // delete confirmation
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
 
-  const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
-
-  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
-
   // tooltips
   const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
 
   // sort
   const [fileSortingConfig, setFileSortingConfig] = useState({ sortByKey: "name", direction: "asc" });
+
+  // selected
+  const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
 
   const sortedFiles = React.useMemo(() => {
     if (!files.length) return [];
@@ -94,7 +95,6 @@ function Landing_MyFiles() {
   useEffect(() => {
     const getFiles = async () => {
       const allFiles = await fetchFilesByUserId(user.id);
-      //   console.log(allFiles.data);
       setFiles(allFiles.data);
     };
 
@@ -125,10 +125,6 @@ function Landing_MyFiles() {
   };
 
   const handle_FileMenuClick = (fileId, buttonElement) => {
-    // need to get button position
-    // calculate how much space between button - bottom
-    // if its less than x value make it up else down
-
     const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
     setOpenFileMenu(openFileMenu === fileId ? null : fileId);
     setFileMenuDropdownPosition(dropdownPosition);
@@ -142,18 +138,16 @@ function Landing_MyFiles() {
   const handle_FileDelete = async (id) => {
     try {
       const response = await deleteFileById(id);
-      // console.log(response);
+
       if (response.success) {
         setIsDeleteConfirmModalOpen(false);
         setCurrentSelectedFile(null);
         setFiles(files.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
-        // console.log("Failed to remove file");
         toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
-      // console.error("Error removing file:", err);
       toast.error(err?.response?.data?.msg || "Failed to delete file");
     }
   };
@@ -162,7 +156,6 @@ function Landing_MyFiles() {
     try {
       const file = files.find((currentFile) => currentFile.id === id);
       if (!file) {
-        // console.error("File not found");
         toast.error("File not found");
         return;
       }
@@ -196,20 +189,17 @@ function Landing_MyFiles() {
   const handle_FileRename = async () => {
     try {
       if (!currentSelectedFile) {
-        // console.error("Current selected file missing");
         toast.error("Current selected file is missing");
         return;
       }
 
       const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
       if (!file) {
-        // console.error("File not found");
         toast.error("File not found");
         return;
       }
 
       if (!fileRenameString) {
-        // console.error("File name string missing");
         toast.error("Filename can not empty");
         return;
       }
@@ -218,7 +208,6 @@ function Landing_MyFiles() {
         currentSelectedFile.originalname.lastIndexOf(".")
       );
 
-      // console.log(fileRenameString + extractedFileExtension);
       const newFileName = fileRenameString + extractedFileExtension;
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
@@ -236,11 +225,9 @@ function Landing_MyFiles() {
         setCurrentSelectedFile(null);
         toast.success("Renamed successfully");
       } else {
-        // console.error("Failed to rename file");
         toast.error("Failed to rename file");
       }
     } catch (err) {
-      // console.error("Failed to rename file", err);
       toast.error(err?.response?.data?.msg || "Failed to rename file");
     }
   };
@@ -252,18 +239,14 @@ function Landing_MyFiles() {
   };
 
   const fetchDownloadLinks = async (file_id) => {
-    // listOfDownloadLinks, setListOfDownloadLinks
     try {
       const response = await getDownloadLinksByFileId(file_id);
-      // console.log(response.data);
+
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      // console.error("Failed to fetch download link", err);
       toast.error(err?.response?.data?.msg || "Failed to fetch download links");
     }
   };
-
-  //
 
   const handle_CreateDownloadLink = async (e, file_id) => {
     e.preventDefault();
@@ -274,7 +257,6 @@ function Landing_MyFiles() {
 
       const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
       if (response.success) {
-        // console.log(response.data);
         setCreateLinkExpiresAt("");
         setCreateLinkDownloadLimit("");
         setCreateLinkPassword("");
@@ -285,31 +267,40 @@ function Landing_MyFiles() {
         setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
         toast.success("Download link has been created");
       } else {
-        // console.error("Failed to create download link");
         toast.error("Failed to create download link");
       }
     } catch (err) {
-      // console.error("Failed to create download link", err);
       toast.error(err?.response?.data?.msg || "Failed to create download link");
     }
   };
 
   const handle_DeleteDownloadLinkById = async (link_id) => {
     try {
-      // console.log(link_id);
       const response = await removeDownloadLinkByLinkId(link_id);
       if (response.success) {
-        // console.log("Download Link removed");
         setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
         toast.success("Download link has been deleted");
       } else {
-        // console.error("Failed to delete download link");
         toast.error("Failed to delete download link");
       }
     } catch (err) {
-      // console.error("Failed to delete download link", err);
       toast.error(err?.response?.data?.msg || "Failed to delete download link");
     }
+  };
+
+  // debug
+  useEffect(() => {
+    console.log(listOfSelectedFile);
+  }, [listOfSelectedFile]);
+
+  const handle_FileSelectedCheckboxChange = (file, isChecked) => {
+    setListOfSelectedFile((prevSelectedFiles) =>
+      isChecked ? [...prevSelectedFiles, file] : prevSelectedFiles.filter((selectedFile) => selectedFile.id !== file.id)
+    );
+  };
+
+  const handle_FileSelectAll = (isChecked) => {
+    setListOfSelectedFile(isChecked ? sortedFiles : []);
   };
 
   return (
@@ -489,6 +480,14 @@ function Landing_MyFiles() {
       <table className="table-auto w-full text-white text-left">
         <thead className="border-b-2 border-gray-500">
           <tr>
+            <th className="px-2 py-2">
+              <input
+                type="checkbox"
+                className=""
+                onChange={(e) => handle_FileSelectAll(e.target.checked)}
+                checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
+              />
+            </th>
             <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("name")}>
               <div className="flex items-center select-none">
                 Name
@@ -531,6 +530,13 @@ function Landing_MyFiles() {
             sortedFiles.map((file) => {
               return (
                 <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
+                  <td className="px-2 py-1 w-8">
+                    <input
+                      type="checkbox"
+                      checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
+                      onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
+                    />
+                  </td>
                   <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-24 ">
                     {file.originalname}
                   </td>
