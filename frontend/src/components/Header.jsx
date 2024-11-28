@@ -19,7 +19,7 @@ function Header() {
   };
 
   const menuAnimation = useSpring({
-    height: isMenuClicked ? "94vh" : "0",
+    height: isMenuClicked ? document.documentElement.scrollHeight + "px" : "0",
     opacity: isMenuClicked ? 1 : 0,
     overflow: "hidden",
   });
