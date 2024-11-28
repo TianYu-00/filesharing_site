@@ -383,7 +383,7 @@ function Landing_MyFiles() {
   }, [sortedFiles, submitSearchTerm]);
 
   return (
-    <div className="pt-20">
+    <div className="">
       {/* Delete Confirmation Modal */}
       {isDeleteConfirmationModalOpen && (
         <Modal
@@ -557,7 +557,7 @@ function Landing_MyFiles() {
       )}
 
       {/* Selected Options */}
-      <div ref={toolBarParentRef} className="max-w-full rounded-full h-14">
+      <div ref={toolBarParentRef} className="max-w-full rounded-full h-14 mx-2">
         <div
           ref={toolBarRef}
           className={`${
