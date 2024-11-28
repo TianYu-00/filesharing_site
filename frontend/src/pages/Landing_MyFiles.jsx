@@ -620,9 +620,9 @@ function Landing_MyFiles() {
                 Name
                 {fileSortingConfig.sortByKey === "name" &&
                   (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1" />
+                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
                   ) : (
-                    <BsArrowDown className="ml-1 stroke-1" />
+                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
                   ))}
               </div>
             </th>
@@ -631,9 +631,9 @@ function Landing_MyFiles() {
                 Size
                 {fileSortingConfig.sortByKey === "size" &&
                   (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1" />
+                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
                   ) : (
-                    <BsArrowDown className="ml-1 stroke-1" />
+                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
                   ))}
               </div>
             </th>
@@ -642,9 +642,9 @@ function Landing_MyFiles() {
                 Uploaded
                 {fileSortingConfig.sortByKey === "created_at" &&
                   (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1" />
+                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
                   ) : (
-                    <BsArrowDown className="ml-1 stroke-1" />
+                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
                   ))}
               </div>
             </th>
