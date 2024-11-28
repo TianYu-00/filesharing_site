@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useUser } from "../context/UserContext";
 import {
   fetchFilesByUserId,
@@ -11,7 +11,7 @@ import {
   removeManyFilesByFileInfo,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import { BsThreeDotsVertical, BsArrowUp, BsArrowDown } from "react-icons/bs";
+import { BsThreeDotsVertical, BsArrowUp, BsArrowDown, BsSearch } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
@@ -57,6 +57,10 @@ function Landing_MyFiles() {
   const toolBarRef = useRef(null);
   const toolBarParentRef = useRef(null);
 
+  // search
+  const [inputSearchTerm, setInputSearchTerm] = useState("");
+  const [submitSearchTerm, setSubmitSearchTerm] = useState("");
+
   useEffect(() => {
     const handleScroll = () => {
       if (toolBarParentRef.current && toolBarRef.current) {
@@ -82,7 +86,7 @@ function Landing_MyFiles() {
     };
   }, []);
 
-  const sortedFiles = React.useMemo(() => {
+  const sortedFiles = useMemo(() => {
     if (!files.length || !fileSortingConfig.sortByKey) return files;
 
     const { sortByKey, direction } = fileSortingConfig;
@@ -360,6 +364,14 @@ function Landing_MyFiles() {
     }
   };
 
+  const handle_OnClickSearchFileName = () => {
+    setSubmitSearchTerm(inputSearchTerm);
+  };
+
+  const filteredFiles = useMemo(() => {
+    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
+  }, [sortedFiles, submitSearchTerm]);
+
   return (
     <div className="pt-20">
       {/* Delete Confirmation Modal */}
@@ -535,29 +547,51 @@ function Landing_MyFiles() {
       )}
 
       {/* Selected Options */}
-      {listOfSelectedFile.length > 0 && (
-        <div ref={toolBarParentRef} className="max-w-full rounded-full h-14">
-          <div
-            ref={toolBarRef}
-            className={`${
-              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none" : ""
-            } max-w-full p-2 rounded-full border border-gray-700 bg-[#181a1b]`}
+      <div ref={toolBarParentRef} className="max-w-full rounded-full h-14">
+        <div
+          ref={toolBarRef}
+          className={`${
+            isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none" : ""
+          } max-w-full p-2 rounded-full border border-gray-700 bg-[#181a1b] flex flex-row`}
+        >
+          <button
+            className={`border p-1 px-4 rounded-full text-white mr-4 ${
+              listOfSelectedFile.length === 0
+                ? "bg-blue-300 border-blue-300 cursor-not-allowed"
+                : "bg-blue-500 border-blue-800 hover:bg-blue-700"
+            }`}
+            onClick={() => setListOfSelectedFile([])}
+            disabled={listOfSelectedFile.length === 0}
           >
+            Deselect
+          </button>
+          <button
+            className={`border p-1 px-4 rounded-full text-white mr-4 ${
+              listOfSelectedFile.length === 0
+                ? "bg-red-300 border-red-300 cursor-not-allowed"
+                : "bg-red-500 border-red-800 hover:bg-red-700"
+            }`}
+            onClick={handle_DeleteManyFiles}
+            disabled={listOfSelectedFile.length === 0}
+          >
+            Delete
+          </button>
+          <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
+            <input
+              type="text"
+              className="rounded-full pl-4 pr-12 w-full h-full focus:outline-none"
+              placeholder="Search"
+              onChange={(e) => setInputSearchTerm(e.target.value)}
+            />
             <button
-              className="border border-blue-800 p-1 px-4 rounded-full text-white bg-blue-500 hover:bg-blue-700 mr-4"
-              onClick={() => setListOfSelectedFile([])}
+              className="absolute right-0 text-black cursor-pointer h-full rounded-r-full"
+              onClick={handle_OnClickSearchFileName}
             >
-              Deselect
-            </button>
-            <button
-              className="border border-red-800 p-1 px-4 rounded-full text-white bg-red-500 hover:bg-red-700 mr-4"
-              onClick={handle_DeleteManyFiles}
-            >
-              Delete
+              <BsSearch className="mx-4 stroke-1" />
             </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Table */}
       <table className="table-auto w-full text-white text-left mt-2">
@@ -609,8 +643,8 @@ function Landing_MyFiles() {
         </thead>
 
         <tbody>
-          {sortedFiles.length > 0 ? (
-            sortedFiles.map((file) => {
+          {filteredFiles.length > 0 ? (
+            filteredFiles.map((file) => {
               return (
                 <tr
                   key={file.id}
