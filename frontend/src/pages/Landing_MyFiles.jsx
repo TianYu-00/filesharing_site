@@ -337,6 +337,11 @@ function Landing_MyFiles() {
     setListOfSelectedFile(isChecked ? sortedFiles : []);
   };
 
+  const handle_RowClickSelected = (file) => {
+    const isSelected = listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id);
+    handle_FileSelectedCheckboxChange(file, !isSelected);
+  };
+
   const handle_DeleteManyFiles = async () => {
     try {
       const response = await removeManyFilesByFileInfo(listOfSelectedFile);
@@ -607,12 +612,17 @@ function Landing_MyFiles() {
           {sortedFiles.length > 0 ? (
             sortedFiles.map((file) => {
               return (
-                <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
+                <tr
+                  key={file.id}
+                  className="hover:bg-neutral-900 border-b border-gray-500 cursor-pointer"
+                  onClick={() => handle_RowClickSelected(file)}
+                >
                   <td className="px-2 py-1 w-8">
                     <input
                       type="checkbox"
                       checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
                       onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </td>
                   <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
@@ -624,7 +634,10 @@ function Landing_MyFiles() {
                     <div className="relative flex justify-end pr-2">
                       <button
                         className="p-2 rounded-md hover:text-black hover:bg-gray-100"
-                        onClick={(e) => handle_FileMenuClick(file.id, e.target)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handle_FileMenuClick(file.id, e.target);
+                        }}
                       >
                         <BsThreeDotsVertical size={17} className="" />
                       </button>
@@ -634,6 +647,7 @@ function Landing_MyFiles() {
                             fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
                           } bg-neutral-700 shadow-lg rounded z-10`}
                           ref={fileMenuRef}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <button
                             className="p-2 hover:bg-neutral-800 w-full text-left rounded"
