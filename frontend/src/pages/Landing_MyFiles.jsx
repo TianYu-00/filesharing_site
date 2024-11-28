@@ -372,6 +372,10 @@ function Landing_MyFiles() {
     return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
   }, [sortedFiles, submitSearchTerm]);
 
+  const handle_Unsort = () => {
+    setFileSortingConfig({ sortByKey: null, direction: "asc" });
+  };
+
   return (
     <div className="pt-20">
       {/* Delete Confirmation Modal */}
@@ -575,6 +579,17 @@ function Landing_MyFiles() {
             disabled={listOfSelectedFile.length === 0}
           >
             Delete
+          </button>
+          <button
+            className={`border p-1 px-4 rounded-full text-white mr-4 bg-blue-500 ${
+              !fileSortingConfig.sortByKey
+                ? "bg-blue-300 border-blue-300 cursor-not-allowed"
+                : "bg-blue-500 border-blue-800 hover:bg-blue-700"
+            }`}
+            onClick={handle_Unsort}
+            disabled={!fileSortingConfig.sortByKey}
+          >
+            Unsort
           </button>
           <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
             <input
