@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useUser } from "../context/UserContext";
 import {
   fetchFilesByUserId,
@@ -8,13 +8,23 @@ import {
   getDownloadLinksByFileId,
   createDownloadLinkByFileId,
   removeDownloadLinkByLinkId,
+  removeManyFilesByFileInfo,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  BsThreeDotsVertical,
+  BsArrowUp,
+  BsArrowDown,
+  BsSearch,
+  BsList,
+  BsTrashFill,
+  BsFolderFill,
+  BsStarFill,
+} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
-import { BsFillTrashFill } from "react-icons/bs";
 import { toast } from "react-toastify";
+import { Tooltip } from "react-tooltip";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -22,6 +32,8 @@ function Landing_MyFiles() {
   const [files, setFiles] = useState([]);
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const fileMenuRef = useRef(null);
+  const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
+  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
 
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
@@ -34,19 +46,108 @@ function Landing_MyFiles() {
   const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
   const [createLinkPassword, setCreateLinkPassword] = useState("");
 
-  const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
+  // delete confirmation
+  const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+
+  // tooltips
+  const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
+
+  // sort
+  const [fileSortingConfig, setFileSortingConfig] = useState({
+    sortByKey: null,
+    direction: "asc",
+  });
+
+  // selected
+  const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
+
+  // sticky options
+  const [isToolBarSticky, setIsToolBarSticky] = useState(false);
+  const toolBarRef = useRef(null);
+  const toolBarParentRef = useRef(null);
+
+  // search
+  const [inputSearchTerm, setInputSearchTerm] = useState("");
+  const [submitSearchTerm, setSubmitSearchTerm] = useState("");
+
+  // sidebar
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (toolBarParentRef.current) {
+        const parentRect = toolBarParentRef.current.getBoundingClientRect();
+        setIsToolBarSticky(parentRect.top < 0);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const sortedFiles = useMemo(() => {
+    if (!files.length || !fileSortingConfig.sortByKey) return files;
+
+    const { sortByKey, direction } = fileSortingConfig;
+
+    const getValue = (file) => {
+      switch (sortByKey) {
+        case "name":
+          return file.originalname.toLowerCase();
+        case "created_at":
+          return new Date(file.created_at);
+        case "size":
+          return file.size;
+        default:
+          return file[sortByKey];
+      }
+    };
+
+    const sortedList = [...files].sort((a, b) => {
+      const valueA = getValue(a);
+      const valueB = getValue(b);
+
+      if (valueA < valueB) return direction === "asc" ? -1 : 1;
+      if (valueA > valueB) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sortedList;
+  }, [files, fileSortingConfig]);
+
+  const handle_FileSorting = (sortByKey) => {
+    setFileSortingConfig((prevConfig) => {
+      let newSortByKey = sortByKey;
+      let newDirection = "asc";
+
+      if (prevConfig.sortByKey === sortByKey) {
+        if (prevConfig.direction === "asc") {
+          newDirection = "desc";
+        } else if (prevConfig.direction === "desc") {
+          newSortByKey = "";
+          newDirection = "";
+        }
+      }
+
+      return { sortByKey: newSortByKey, direction: newDirection };
+    });
+  };
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
-      setTimeout(() => navigate("/login"), 0);
+      setTimeout(() => navigate("/auth"), 0);
     }
   }, [user, isLoadingUser]);
 
   useEffect(() => {
     const getFiles = async () => {
       const allFiles = await fetchFilesByUserId(user.id);
-      //   console.log(allFiles.data);
       setFiles(allFiles.data);
+      console.log(user);
     };
 
     if (user) {
@@ -68,23 +169,37 @@ function Landing_MyFiles() {
     };
   }, []);
 
-  const toggleFileMenu = (id) => {
-    setOpenFileMenu(openFileMenu === id ? null : id);
+  const getFileButtonDropdownPosition = (buttonElement) => {
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+
+    return spaceBelow < 200 ? "up" : "down";
+  };
+
+  const handle_FileMenuClick = (fileId, buttonElement) => {
+    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
+    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
+    setFileMenuDropdownPosition(dropdownPosition);
+  };
+
+  const handle_OnClickDelete = async (file) => {
+    setCurrentSelectedFile(file);
+    setIsDeleteConfirmModalOpen(true);
   };
 
   const handle_FileDelete = async (id) => {
     try {
       const response = await deleteFileById(id);
-      // console.log(response);
+
       if (response.success) {
+        setIsDeleteConfirmModalOpen(false);
+        setCurrentSelectedFile(null);
         setFiles(files.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
-        // console.log("Failed to remove file");
         toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
-      // console.error("Error removing file:", err);
       toast.error(err?.response?.data?.msg || "Failed to delete file");
     }
   };
@@ -93,7 +208,6 @@ function Landing_MyFiles() {
     try {
       const file = files.find((currentFile) => currentFile.id === id);
       if (!file) {
-        // console.error("File not found");
         toast.error("File not found");
         return;
       }
@@ -120,26 +234,24 @@ function Landing_MyFiles() {
 
   const handle_OnClickFileRename = async (file) => {
     setCurrentSelectedFile(file);
+    setFileRenameString(file.originalname.split(".").slice(0, -1).join("."));
     setIsRenameModalOpen(true);
   };
 
   const handle_FileRename = async () => {
     try {
       if (!currentSelectedFile) {
-        // console.error("Current selected file missing");
         toast.error("Current selected file is missing");
         return;
       }
 
       const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
       if (!file) {
-        // console.error("File not found");
         toast.error("File not found");
         return;
       }
 
       if (!fileRenameString) {
-        // console.error("File name string missing");
         toast.error("Filename can not empty");
         return;
       }
@@ -148,7 +260,6 @@ function Landing_MyFiles() {
         currentSelectedFile.originalname.lastIndexOf(".")
       );
 
-      // console.log(fileRenameString + extractedFileExtension);
       const newFileName = fileRenameString + extractedFileExtension;
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
@@ -166,11 +277,9 @@ function Landing_MyFiles() {
         setCurrentSelectedFile(null);
         toast.success("Renamed successfully");
       } else {
-        // console.error("Failed to rename file");
         toast.error("Failed to rename file");
       }
     } catch (err) {
-      // console.error("Failed to rename file", err);
       toast.error(err?.response?.data?.msg || "Failed to rename file");
     }
   };
@@ -182,18 +291,14 @@ function Landing_MyFiles() {
   };
 
   const fetchDownloadLinks = async (file_id) => {
-    // listOfDownloadLinks, setListOfDownloadLinks
     try {
       const response = await getDownloadLinksByFileId(file_id);
-      // console.log(response.data);
+
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      // console.error("Failed to fetch download link", err);
       toast.error(err?.response?.data?.msg || "Failed to fetch download links");
     }
   };
-
-  //
 
   const handle_CreateDownloadLink = async (e, file_id) => {
     e.preventDefault();
@@ -204,44 +309,118 @@ function Landing_MyFiles() {
 
       const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
       if (response.success) {
-        // console.log(response.data);
         setCreateLinkExpiresAt("");
         setCreateLinkDownloadLimit("");
         setCreateLinkPassword("");
-        setListOfDownloadLinks((prevLinks) => [...prevLinks, response.data]);
+        const newLinks = {
+          ...response.data,
+          password: !!tempPassword,
+        };
+        setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
         toast.success("Download link has been created");
       } else {
-        // console.error("Failed to create download link");
         toast.error("Failed to create download link");
       }
     } catch (err) {
-      // console.error("Failed to create download link", err);
       toast.error(err?.response?.data?.msg || "Failed to create download link");
     }
   };
 
   const handle_DeleteDownloadLinkById = async (link_id) => {
     try {
-      // console.log(link_id);
       const response = await removeDownloadLinkByLinkId(link_id);
       if (response.success) {
-        // console.log("Download Link removed");
         setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
         toast.success("Download link has been deleted");
       } else {
-        // console.error("Failed to delete download link");
         toast.error("Failed to delete download link");
       }
     } catch (err) {
-      // console.error("Failed to delete download link", err);
       toast.error(err?.response?.data?.msg || "Failed to delete download link");
     }
   };
 
+  // debug
+  // useEffect(() => {
+  //   console.log(listOfSelectedFile);
+  // }, [listOfSelectedFile]);
+
+  const handle_FileSelectedCheckboxChange = (file, isChecked) => {
+    setListOfSelectedFile((prevSelectedFiles) =>
+      isChecked ? [...prevSelectedFiles, file] : prevSelectedFiles.filter((selectedFile) => selectedFile.id !== file.id)
+    );
+  };
+
+  const handle_FileSelectAll = (isChecked) => {
+    setListOfSelectedFile(isChecked ? sortedFiles : []);
+  };
+
+  const handle_RowClickSelected = (file) => {
+    const isSelected = listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id);
+    handle_FileSelectedCheckboxChange(file, !isSelected);
+  };
+
+  const handle_DeleteManyFiles = async () => {
+    try {
+      const response = await removeManyFilesByFileInfo(listOfSelectedFile);
+
+      if (response.success) {
+        setFiles((prevFiles) =>
+          prevFiles.filter((file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id))
+        );
+        setListOfSelectedFile([]);
+        toast.success(`${response?.data?.deletedFileCount} file(s) deleted successfully`);
+      } else {
+        toast.error(response.msg || "Failed to delete files");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+    }
+  };
+
+  const handle_OnClickSearchFileName = () => {
+    setSubmitSearchTerm(inputSearchTerm);
+  };
+
+  const filteredFiles = useMemo(() => {
+    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
+  }, [sortedFiles, submitSearchTerm]);
+
   return (
-    <div className="pt-20">
-      {/* MyFiles Landing Page */}
-      {/* <div className="flex justify-center text-white">MyFiles Landing Page</div> */}
+    <div className="">
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmationModalOpen && (
+        <Modal
+          isOpen={isDeleteConfirmationModalOpen}
+          onClose={() => {
+            setIsDeleteConfirmModalOpen(false);
+            setCurrentSelectedFile(null);
+          }}
+          modalTitle={`Delete Confirmation`}
+        >
+          <p className="text-white text-lg mb-4">Are you sure you want to delete the file?</p>
+          <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
+          <div className="flex justify-center items-align space-x-6">
+            <button
+              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-700 transition duration-500 ease-in-out"
+              onClick={() => {
+                setIsDeleteConfirmModalOpen(false);
+                setCurrentSelectedFile(null);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-700 transition duration-500 ease-in-out"
+              onClick={() => {
+                handle_FileDelete(currentSelectedFile.id);
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* Rename Modal */}
       {isRenameModalOpen && (
@@ -255,13 +434,13 @@ function Landing_MyFiles() {
           modalTitle={`Rename: ${currentSelectedFile.originalname}`}
         >
           <input
-            className="p-1"
+            className="my-2 p-1 rounded mx-1"
             onChange={(e) => setFileRenameString(e.target.value)}
             value={fileRenameString}
-            placeholder="enter new name here"
+            placeholder="Enter new name here"
           />
           <button
-            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-green-500 p-1 rounded mx-4"
+            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-blue-700 px-2 p-1 rounded font-bold ml-2"
             onClick={() => handle_FileRename()}
           >
             Update
@@ -302,10 +481,20 @@ function Landing_MyFiles() {
                           onClick={async () => {
                             const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
                             await navigator.clipboard.writeText(fullUrl);
+                            setManageLink_LinkTooltip("Link copied!");
+                            setTimeout(() => setManageLink_LinkTooltip("Click to copy link"), 2000);
                           }}
+                          data-tooltip-id="id_managelink_link"
+                          data-tooltip-content={manageLink_LinkTooltip}
                         >
                           {currentLink.download_url}
                         </div>
+                        <Tooltip
+                          id="id_managelink_link"
+                          style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
+                          opacity={0.9}
+                          place="bottom"
+                        />
                         <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                           {fileDateFormatter(currentLink.expires_at)[2]}
                         </div>
@@ -333,34 +522,34 @@ function Landing_MyFiles() {
 
             <form className="grid">
               {/* Expires At */}
-              <label className="text-white">Expires At</label>
+              <label className="text-white mx-3">Expires At</label>
               <input
                 type="datetime-local"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 value={createLinkExpiresAt}
                 onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
               ></input>
               {/* Download Limit  */}
-              <label className="text-white">Download Limit</label>
+              <label className="text-white mx-3">Download Limit</label>
               <input
                 type="number"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 value={createLinkDownloadLimit}
                 onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
               ></input>
               {/* Password */}
-              <label className="text-white">Link Password</label>
+              <label className="text-white mx-3">Link Password</label>
               <input
                 type="password"
-                className="mb-2 p-1 rounded"
+                className="mb-2 p-1 rounded mx-3"
                 autoComplete="new-password"
                 value={createLinkPassword}
                 onChange={(e) => setCreateLinkPassword(e.target.value)}
               ></input>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end mx-3">
                 <button
-                  className="text-white bg-blue-500 hover:bg-green-500 p-2 rounded"
+                  className="text-white bg-blue-500 hover:bg-blue-700 p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
                   onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
                 >
                   Create Link
@@ -371,85 +560,218 @@ function Landing_MyFiles() {
         </Modal>
       )}
 
-      <table className="table-auto w-full text-white text-left">
-        <thead className="border-b-2 border-gray-500">
-          <tr>
-            <th className="px-2 py-2 ">Name</th>
-            <th className="px-2 py-2">Size</th>
-            <th className="px-2 py-2">Uploaded</th>
-            <th className="px-2 py-2"></th>
-          </tr>
-        </thead>
+      {/* Selected Options ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+      <div ref={toolBarParentRef} className="max-w-full rounded-full h-14 mx-2">
+        <div
+          ref={toolBarRef}
+          className={`${
+            isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none" : ""
+          } max-w-full p-2 rounded-full border border-gray-700 bg-[#181a1b] flex flex-row`}
+        >
+          <button className="bg-blue-500 rounded-full mr-4" onClick={() => setIsSideBarOpen(!isSideBarOpen)}>
+            <BsList className="mx-2 text-white" size={20} />
+          </button>
 
-        <tbody className="">
-          {Array.isArray(files) && files.length > 0 ? (
-            files.map((file) => {
-              return (
-                <tr key={file.id} className="hover:bg-neutral-900 border-b border-gray-500">
-                  <td className="px-2 py-1 ">{file.originalname}</td>
-                  <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
-                  <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
-                  <td className="px-2 py-1 ">
-                    <div className="relative flex justify-end">
-                      <button className="p-2 rounded-full hover:bg-black" onClick={() => toggleFileMenu(file.id)}>
-                        <BsThreeDotsVertical size={17} />
-                      </button>
-                      {openFileMenu === file.id && (
-                        <div className="absolute right-0 mt-8 bg-neutral-700 shadow-lg rounded z-10" ref={fileMenuRef}>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_FileDownload(file.id)}
+          <button
+            className={`border p-1 px-4 rounded-full text-white mr-4 ${
+              listOfSelectedFile.length === 0
+                ? "bg-blue-300 border-blue-300 cursor-not-allowed"
+                : "bg-blue-500 border-blue-800 hover:bg-blue-700"
+            }`}
+            onClick={() => setListOfSelectedFile([])}
+            disabled={listOfSelectedFile.length === 0}
+          >
+            Deselect
+          </button>
+
+          <button
+            className={`border p-1 px-4 rounded-full text-white mr-4 ${
+              listOfSelectedFile.length === 0
+                ? "bg-red-300 border-red-300 cursor-not-allowed"
+                : "bg-red-500 border-red-800 hover:bg-red-700"
+            }`}
+            onClick={handle_DeleteManyFiles}
+            disabled={listOfSelectedFile.length === 0}
+          >
+            Delete
+          </button>
+
+          <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
+            <input
+              type="text"
+              className="rounded-full pl-4 pr-12 w-full h-full focus:outline-none"
+              placeholder="Search"
+              onChange={(e) => setInputSearchTerm(e.target.value)}
+            />
+            <button
+              className="absolute right-0 text-black cursor-pointer h-full rounded-r-full"
+              onClick={handle_OnClickSearchFileName}
+            >
+              <BsSearch className="mx-4 stroke-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-row w-full">
+        {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+        {isSideBarOpen && (
+          <div className="flex flex-col text-white bg-[#121211] border border-gray-700">
+            <div className="p-2">
+              <div className="">{user?.username}</div>
+              <div className="">{user?.email}</div>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsFolderFill />
+                <span className="pl-1">All Files</span>
+              </button>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsStarFill />
+                <span className="pl-1">Favourite</span>
+              </button>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsTrashFill />
+                <span className="pl-1">Trash</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+        <table className={`table-auto w-full text-white text-left mt-2 w-full`}>
+          <thead className="border-b-2 border-gray-500">
+            <tr>
+              <th className="px-2 py-2">
+                <input
+                  type="checkbox"
+                  className=""
+                  onChange={(e) => handle_FileSelectAll(e.target.checked)}
+                  checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
+                />
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("name")}>
+                <div className="flex items-center select-none">
+                  Name
+                  {fileSortingConfig.sortByKey === "name" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+                <div className="flex items-center select-none">
+                  Size
+                  {fileSortingConfig.sortByKey === "size" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+                <div className="flex items-center select-none">
+                  Uploaded
+                  {fileSortingConfig.sortByKey === "created_at" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredFiles.length > 0 ? (
+              filteredFiles.map((file) => {
+                return (
+                  <tr
+                    key={file.id}
+                    className="hover:bg-neutral-900 border-b border-gray-500 cursor-pointer"
+                    onClick={() => handle_RowClickSelected(file)}
+                  >
+                    <td className="px-2 py-1 w-8">
+                      <input
+                        type="checkbox"
+                        checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
+                        onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </td>
+                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
+                      {file.originalname}
+                    </td>
+                    <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
+                    <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
+                    <td className="px-2 py-1 ">
+                      <div className="relative flex justify-end pr-2">
+                        <button
+                          className="p-2 rounded-md hover:text-black hover:bg-gray-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handle_FileMenuClick(file.id, e.target);
+                          }}
+                        >
+                          <BsThreeDotsVertical size={17} className="" />
+                        </button>
+                        {openFileMenu === file.id && (
+                          <div
+                            className={`absolute right-0 mt-1 ${
+                              fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                            } bg-neutral-700 shadow-lg rounded z-10`}
+                            ref={fileMenuRef}
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            Download
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_OnClickFileRename(file)}
-                          >
-                            Rename
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_OnClickManageLink(file)}
-                          >
-                            Manage Link
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_FileDelete(file.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <></>
-          )}
-        </tbody>
-      </table>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_FileDownload(file.id)}
+                            >
+                              Download
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_OnClickFileRename(file)}
+                            >
+                              Rename
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_OnClickManageLink(file)}
+                            >
+                              Manage Link
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              // onClick={() => handle_FileDelete(file.id)}
+                              onClick={() => handle_OnClickDelete(file)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <></>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
 export default Landing_MyFiles;
-
-// Notes:
-// Some things i want:
-// Original Name, Size, Created At, Dropdown menu
-// Now i need some notification or alerts of some sort to help with user feedbacks
-
-// Download - Download the file directly 🔴
-
-// Rename - Rename the file (need to create api call for this: patch files/update/:file_id) 🔴
-
-// Manage link - Where i handle download link generation, link password protections, set download limits for the link. Maybe create a modal for it. Lots to do, maybe do this last when im finished with the other buttons. 🔴
-
-// Delete - Delete file 🟢
-
-// NOTE: NEED TO ADD SOME USER VISUAL FEEDBACKS but for now, just work on my features.
-// prob should change err to error too for the new habit of using try catch snippets @.@

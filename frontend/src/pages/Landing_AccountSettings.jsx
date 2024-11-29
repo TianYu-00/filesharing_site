@@ -31,7 +31,7 @@ function Landing_AccountSettings() {
 
   useEffect(() => {
     if (!user && !isLoadingUser) {
-      setTimeout(() => navigate("/login"), 0);
+      setTimeout(() => navigate("/auth"), 0);
     }
   }, [user, isLoadingUser]);
 
@@ -77,15 +77,20 @@ function Landing_AccountSettings() {
 
   return (
     <Page_BoilerPlate>
-      <div className="flex justify-center">
-        <div className="border grid gap-4 p-4 w-full max-w-[500px] rounded-2xl bg-white text-black">
+      <div className="flex justify-center w-full">
+        <div className="grid gap-4 p-4 w-full max-w-[500px] rounded-2xl md:bg-white md:text-black text-white">
           <p>Manage Your Account Information</p>
-          <p className="flex font-bold text-2xl">Edit Account</p>
+          <p className="flex font-bold text-2xl md:text-black text-white">Edit Account</p>
 
           <form onSubmit={handleSubmit}>
             {/* User ID */}
             <div className="relative mb-4">
-              <input type="text" disabled value={user?.id || ""} className="pl-8 pr-4 py-2 border rounded-md w-full" />
+              <input
+                type="text"
+                disabled
+                value={user?.id || ""}
+                className="pl-8 pr-4 py-2 border rounded-md w-full bg-gray-300 text-black"
+              />
               <BsPersonVcardFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
 
@@ -96,7 +101,7 @@ function Landing_AccountSettings() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
-                className="pl-8 pr-4 py-2 border rounded-md w-full"
+                className="pl-8 pr-4 py-2 border rounded-md w-full text-black"
                 autoComplete="username"
               />
               <BsFillPersonFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -109,7 +114,7 @@ function Landing_AccountSettings() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email"
-                className="pl-8 pr-4 py-2 border rounded-md w-full"
+                className="pl-8 pr-4 py-2 border rounded-md w-full text-black"
                 autoComplete="email"
               />
               <BsEnvelopeFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -121,7 +126,7 @@ function Landing_AccountSettings() {
                 type="text"
                 disabled
                 value={dateFormatter(user?.created_at) || ""}
-                className="pl-8 pr-4 py-2 border rounded-md w-full"
+                className="pl-8 pr-4 py-2 border rounded-md w-full bg-gray-300 text-black"
               />
               <BsCalendarDateFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
@@ -133,7 +138,7 @@ function Landing_AccountSettings() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="current password"
-                className="pl-8 pr-4 py-2 border rounded-md w-full"
+                className="pl-8 pr-4 py-2 border rounded-md w-full text-black"
                 autoComplete="current-password"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -146,14 +151,17 @@ function Landing_AccountSettings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="new password"
-                className="pl-8 pr-4 py-2 border rounded-md w-full"
+                className="pl-8 pr-4 py-2 border rounded-md w-full text-black"
                 autoComplete="new-password"
               />
               <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
 
             {/* Save Button */}
-            <button type="submit" className="mt-4 bg-blue-500 text-white py-2 px-4 rounded">
+            <button
+              type="submit"
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
+            >
               Save Changes
             </button>
           </form>

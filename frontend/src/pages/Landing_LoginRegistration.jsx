@@ -43,7 +43,7 @@ function Landing_Auth() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
         <h1 className="text-center text-2xl font-bold mb-2">Welcome to DropBoxer</h1>
         <p className="text-center text-gray-600 mb-6">Login or create an account to get started</p>
@@ -132,7 +132,10 @@ function Landing_Auth() {
             </div>
           )}
 
-          <button type="submit" className="w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-900">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-500 ease-in-out"
+          >
             {isLogin ? "Login" : "Register"}
           </button>
         </form>

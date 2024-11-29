@@ -144,7 +144,7 @@ exports.patchUserPasswordByEmail = async (userEmail, userNewPassword) => {
 
     return endResult.rows[0];
   } catch (err) {
-    return Promise.reject({ code: "DATABASE_ERROR", message: err.message });
+    return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
 };
 

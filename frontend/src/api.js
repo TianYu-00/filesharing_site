@@ -10,7 +10,7 @@ const api = axios.create({
 
 export const uploadFile = async (formData, onUploadProgress) => {
   try {
-    const response = await api.post("/files/upload", formData, {
+    const response = await api.post("/files/file-upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -25,7 +25,7 @@ export const uploadFile = async (formData, onUploadProgress) => {
 
 export const fetchFileInfo = async (download_link) => {
   try {
-    const response = await api.get(`/files/info-by-link/${download_link}`);
+    const response = await api.get(`/files/file-info-by-link/${download_link}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -35,7 +35,7 @@ export const fetchFileInfo = async (download_link) => {
 
 export const downloadFileByID = async (file_id) => {
   try {
-    const response = await api.get(`/files/download/${file_id}`, { responseType: "blob" });
+    const response = await api.get(`/files/download-file-by-id/${file_id}`, { responseType: "blob" });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -142,7 +142,7 @@ export const fetchFilesByUserId = async (user_id) => {
 
 export const deleteFileById = async (file_id) => {
   try {
-    const response = await api.delete(`/files/delete/${file_id}`);
+    const response = await api.delete(`/files/delete-file-by-file-id/${file_id}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -153,7 +153,7 @@ export const deleteFileById = async (file_id) => {
 export const renameFileById = async (file_id, newFileName) => {
   try {
     const data = { newFileName: newFileName };
-    const response = await api.patch(`/files/rename/${file_id}`, data);
+    const response = await api.patch(`/files/rename-file-by-file-id/${file_id}`, data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -163,7 +163,7 @@ export const renameFileById = async (file_id, newFileName) => {
 
 export const getDownloadLinksByFileId = async (file_id) => {
   try {
-    const response = await api.get(`/files/download-link/${file_id}`);
+    const response = await api.get(`/files/download-link-by-file-id/${file_id}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -174,7 +174,7 @@ export const getDownloadLinksByFileId = async (file_id) => {
 export const createDownloadLinkByFileId = async (file_id, expires_at, download_limit, password) => {
   const data = { expires_at: expires_at, download_limit: download_limit, password: password };
   try {
-    const response = await api.post(`/files/create-download-link/${file_id}`, data);
+    const response = await api.post(`/files/create-download-link-by-file-id/${file_id}`, data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -184,7 +184,7 @@ export const createDownloadLinkByFileId = async (file_id, expires_at, download_l
 
 export const removeDownloadLinkByLinkId = async (link_id) => {
   try {
-    const response = await api.delete(`/files/remove-download-link/${link_id}`);
+    const response = await api.delete(`/files/remove-download-link-by-link-id/${link_id}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -194,7 +194,7 @@ export const removeDownloadLinkByLinkId = async (link_id) => {
 
 export const fetchDownloadLinkInfoByDownloadLink = async (download_link) => {
   try {
-    const response = await api.get(`/files/download-link-info/${download_link}`);
+    const response = await api.get(`/files/download-link-info-by-link/${download_link}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -204,7 +204,7 @@ export const fetchDownloadLinkInfoByDownloadLink = async (download_link) => {
 
 export const increaseDownloadLinkCountByLinkId = async (link_id) => {
   try {
-    const response = await api.patch(`/files/increase-download-count/${link_id}`);
+    const response = await api.patch(`/files/increase-download-count-by-link-id/${link_id}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -215,7 +215,18 @@ export const increaseDownloadLinkCountByLinkId = async (link_id) => {
 export const validateDownloadLinkPassword = async (link_id, password) => {
   const data = { password: password };
   try {
-    const response = await api.post(`/files/validate-download-password/${link_id}`, data);
+    const response = await api.post(`/files/validate-download-password-by-link-id/${link_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const removeManyFilesByFileInfo = async (files) => {
+  const data = { files: files };
+  try {
+    const response = await api.delete(`/files/remove-many-files-by-body-file-info`, { data });
     return response.data;
   } catch (error) {
     console.error(error);

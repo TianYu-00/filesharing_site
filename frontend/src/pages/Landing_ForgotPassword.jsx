@@ -29,13 +29,13 @@ function Landing_ForgotPassword() {
           onSubmit={handle_ForgetPassword}
         >
           <div className="flex flex-col">
-            <p className="text-left font-bold text-3xl text-center">Forgot password?</p>
-            <p className="text-left mt-3 text-center">Enter your email to get a password reset link.</p>
+            <p className="text-center text-2xl font-bold mb-2">Forgot password?</p>
+            <p className="text-center text-gray-600 mb-6">Enter your email to get a password reset link.</p>
           </div>
-          <div className="flex flex-col">
-            <label className="text-left font-semibold">Email</label>
+          <div className="flex flex-col items-start">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
-              className="border p-2 border-black rounded"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="email"
               placeholder="123456789@dropboxer.com"
               autoComplete="email"
@@ -44,7 +44,10 @@ function Landing_ForgotPassword() {
             />
           </div>
 
-          <button className="w-full border border bg-black text-white font-semibold p-2 rounded" type="submit">
+          <button
+            className="w-full border border bg-blue-500 text-white font-semibold p-2 rounded hover:bg-blue-700 transition duration-500 ease-in-out"
+            type="submit"
+          >
             Reset Password
           </button>
         </form>
@@ -54,11 +57,3 @@ function Landing_ForgotPassword() {
 }
 
 export default Landing_ForgotPassword;
-
-// Password reset flow
-
-/*
-- Enter their email
-- Submit the form
-
-*/
