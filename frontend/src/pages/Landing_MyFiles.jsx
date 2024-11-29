@@ -11,7 +11,16 @@ import {
   removeManyFilesByFileInfo,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import { BsThreeDotsVertical, BsArrowUp, BsArrowDown, BsSearch } from "react-icons/bs";
+import {
+  BsThreeDotsVertical,
+  BsArrowUp,
+  BsArrowDown,
+  BsSearch,
+  BsList,
+  BsTrashFill,
+  BsFolderFill,
+  BsStarFill,
+} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
@@ -61,20 +70,14 @@ function Landing_MyFiles() {
   const [inputSearchTerm, setInputSearchTerm] = useState("");
   const [submitSearchTerm, setSubmitSearchTerm] = useState("");
 
+  // sidebar
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => {
-      if (toolBarParentRef.current && toolBarRef.current) {
+      if (toolBarParentRef.current) {
         const parentRect = toolBarParentRef.current.getBoundingClientRect();
-
-        const shouldToolBarStick = parentRect.top < 0;
-
-        const shouldToolBarUnstick = parentRect.top >= 0;
-
-        if (shouldToolBarStick) {
-          setIsToolBarSticky(true);
-        } else if (shouldToolBarUnstick) {
-          setIsToolBarSticky(false);
-        }
+        setIsToolBarSticky(parentRect.top < 0);
       }
     };
 
@@ -144,6 +147,7 @@ function Landing_MyFiles() {
     const getFiles = async () => {
       const allFiles = await fetchFilesByUserId(user.id);
       setFiles(allFiles.data);
+      console.log(user);
     };
 
     if (user) {
@@ -556,7 +560,7 @@ function Landing_MyFiles() {
         </Modal>
       )}
 
-      {/* Selected Options */}
+      {/* Selected Options ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
       <div ref={toolBarParentRef} className="max-w-full rounded-full h-14 mx-2">
         <div
           ref={toolBarRef}
@@ -564,6 +568,10 @@ function Landing_MyFiles() {
             isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none" : ""
           } max-w-full p-2 rounded-full border border-gray-700 bg-[#181a1b] flex flex-row`}
         >
+          <button className="bg-blue-500 rounded-full mr-4" onClick={() => setIsSideBarOpen(!isSideBarOpen)}>
+            <BsList className="mx-2 text-white" size={20} />
+          </button>
+
           <button
             className={`border p-1 px-4 rounded-full text-white mr-4 ${
               listOfSelectedFile.length === 0
@@ -575,6 +583,7 @@ function Landing_MyFiles() {
           >
             Deselect
           </button>
+
           <button
             className={`border p-1 px-4 rounded-full text-white mr-4 ${
               listOfSelectedFile.length === 0
@@ -586,6 +595,7 @@ function Landing_MyFiles() {
           >
             Delete
           </button>
+
           <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
             <input
               type="text"
@@ -603,133 +613,163 @@ function Landing_MyFiles() {
         </div>
       </div>
 
-      {/* Table */}
-      <table className="table-auto w-full text-white text-left mt-2">
-        <thead className="border-b-2 border-gray-500">
-          <tr>
-            <th className="px-2 py-2">
-              <input
-                type="checkbox"
-                className=""
-                onChange={(e) => handle_FileSelectAll(e.target.checked)}
-                checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
-              />
-            </th>
-            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("name")}>
-              <div className="flex items-center select-none">
-                Name
-                {fileSortingConfig.sortByKey === "name" &&
-                  (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                  ) : (
-                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                  ))}
-              </div>
-            </th>
-            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("size")}>
-              <div className="flex items-center select-none">
-                Size
-                {fileSortingConfig.sortByKey === "size" &&
-                  (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                  ) : (
-                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                  ))}
-              </div>
-            </th>
-            <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
-              <div className="flex items-center select-none">
-                Uploaded
-                {fileSortingConfig.sortByKey === "created_at" &&
-                  (fileSortingConfig.direction === "asc" ? (
-                    <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                  ) : (
-                    <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                  ))}
-              </div>
-            </th>
-            <th className="px-2 py-2"></th>
-          </tr>
-        </thead>
+      <div className="flex flex-row w-full">
+        {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+        {isSideBarOpen && (
+          <div className="flex flex-col text-white bg-[#121211] border border-gray-700">
+            <div className="p-2">
+              <div className="">{user?.username}</div>
+              <div className="">{user?.email}</div>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsFolderFill />
+                <span className="pl-1">All Files</span>
+              </button>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsStarFill />
+                <span className="pl-1">Favourite</span>
+              </button>
+            </div>
+            <div className="">
+              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+                <BsTrashFill />
+                <span className="pl-1">Trash</span>
+              </button>
+            </div>
+          </div>
+        )}
 
-        <tbody>
-          {filteredFiles.length > 0 ? (
-            filteredFiles.map((file) => {
-              return (
-                <tr
-                  key={file.id}
-                  className="hover:bg-neutral-900 border-b border-gray-500 cursor-pointer"
-                  onClick={() => handle_RowClickSelected(file)}
-                >
-                  <td className="px-2 py-1 w-8">
-                    <input
-                      type="checkbox"
-                      checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
-                      onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </td>
-                  <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
-                    {file.originalname}
-                  </td>
-                  <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
-                  <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
-                  <td className="px-2 py-1 ">
-                    <div className="relative flex justify-end pr-2">
-                      <button
-                        className="p-2 rounded-md hover:text-black hover:bg-gray-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handle_FileMenuClick(file.id, e.target);
-                        }}
-                      >
-                        <BsThreeDotsVertical size={17} className="" />
-                      </button>
-                      {openFileMenu === file.id && (
-                        <div
-                          className={`absolute right-0 mt-1 ${
-                            fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
-                          } bg-neutral-700 shadow-lg rounded z-10`}
-                          ref={fileMenuRef}
-                          onClick={(e) => e.stopPropagation()}
+        {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+        <table className={`table-auto w-full text-white text-left mt-2 w-full`}>
+          <thead className="border-b-2 border-gray-500">
+            <tr>
+              <th className="px-2 py-2">
+                <input
+                  type="checkbox"
+                  className=""
+                  onChange={(e) => handle_FileSelectAll(e.target.checked)}
+                  checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
+                />
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("name")}>
+                <div className="flex items-center select-none">
+                  Name
+                  {fileSortingConfig.sortByKey === "name" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+                <div className="flex items-center select-none">
+                  Size
+                  {fileSortingConfig.sortByKey === "size" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+                <div className="flex items-center select-none">
+                  Uploaded
+                  {fileSortingConfig.sortByKey === "created_at" &&
+                    (fileSortingConfig.direction === "asc" ? (
+                      <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                    ) : (
+                      <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                    ))}
+                </div>
+              </th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredFiles.length > 0 ? (
+              filteredFiles.map((file) => {
+                return (
+                  <tr
+                    key={file.id}
+                    className="hover:bg-neutral-900 border-b border-gray-500 cursor-pointer"
+                    onClick={() => handle_RowClickSelected(file)}
+                  >
+                    <td className="px-2 py-1 w-8">
+                      <input
+                        type="checkbox"
+                        checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
+                        onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </td>
+                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
+                      {file.originalname}
+                    </td>
+                    <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
+                    <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
+                    <td className="px-2 py-1 ">
+                      <div className="relative flex justify-end pr-2">
+                        <button
+                          className="p-2 rounded-md hover:text-black hover:bg-gray-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handle_FileMenuClick(file.id, e.target);
+                          }}
                         >
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_FileDownload(file.id)}
+                          <BsThreeDotsVertical size={17} className="" />
+                        </button>
+                        {openFileMenu === file.id && (
+                          <div
+                            className={`absolute right-0 mt-1 ${
+                              fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                            } bg-neutral-700 shadow-lg rounded z-10`}
+                            ref={fileMenuRef}
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            Download
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_OnClickFileRename(file)}
-                          >
-                            Rename
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            onClick={() => handle_OnClickManageLink(file)}
-                          >
-                            Manage Link
-                          </button>
-                          <button
-                            className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                            // onClick={() => handle_FileDelete(file.id)}
-                            onClick={() => handle_OnClickDelete(file)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <></>
-          )}
-        </tbody>
-      </table>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_FileDownload(file.id)}
+                            >
+                              Download
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_OnClickFileRename(file)}
+                            >
+                              Rename
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              onClick={() => handle_OnClickManageLink(file)}
+                            >
+                              Manage Link
+                            </button>
+                            <button
+                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                              // onClick={() => handle_FileDelete(file.id)}
+                              onClick={() => handle_OnClickDelete(file)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <></>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
