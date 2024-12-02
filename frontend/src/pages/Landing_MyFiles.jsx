@@ -73,6 +73,18 @@ function Landing_MyFiles() {
   // sidebar
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
+  // button
+  const [buttonMenu, setButtonMenu] = useState({
+    download: true,
+    rename: true,
+    manage_link: true,
+    delete: false,
+    favourite: true,
+    unfavourite: false,
+    trash: true,
+    restore: false,
+  });
+
   useEffect(() => {
     const handleScroll = () => {
       if (toolBarParentRef.current) {
@@ -386,6 +398,45 @@ function Landing_MyFiles() {
     return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
   }, [sortedFiles, submitSearchTerm]);
 
+  const handle_AllFiles = () => {
+    setButtonMenu({
+      download: true,
+      rename: true,
+      manage_link: true,
+      delete: false,
+      favourite: true,
+      unfavourite: false,
+      trash: true,
+      restore: false,
+    });
+  };
+
+  const handle_AllFavourite = () => {
+    setButtonMenu({
+      download: true,
+      rename: true,
+      manage_link: true,
+      delete: false,
+      favourite: false,
+      unfavourite: true,
+      trash: true,
+      restore: false,
+    });
+  };
+
+  const handle_AllTrash = () => {
+    setButtonMenu({
+      download: true,
+      rename: false,
+      manage_link: false,
+      delete: true,
+      favourite: false,
+      unfavourite: false,
+      trash: false,
+      restore: true,
+    });
+  };
+
   return (
     <div className="">
       {/* Delete Confirmation Modal */}
@@ -622,19 +673,34 @@ function Landing_MyFiles() {
               <div className="">{user?.email}</div>
             </div>
             <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+              <button
+                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                onClick={() => {
+                  handle_AllFiles();
+                }}
+              >
                 <BsFolderFill />
                 <span className="pl-1">All Files</span>
               </button>
             </div>
             <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+              <button
+                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                onClick={() => {
+                  handle_AllFavourite();
+                }}
+              >
                 <BsStarFill />
                 <span className="pl-1">Favourite</span>
               </button>
             </div>
             <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
+              <button
+                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                onClick={() => {
+                  handle_AllTrash();
+                }}
+              >
                 <BsTrashFill />
                 <span className="pl-1">Trash</span>
               </button>
@@ -732,31 +798,51 @@ function Landing_MyFiles() {
                             ref={fileMenuRef}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_FileDownload(file.id)}
-                            >
-                              Download
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_OnClickFileRename(file)}
-                            >
-                              Rename
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_OnClickManageLink(file)}
-                            >
-                              Manage Link
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              // onClick={() => handle_FileDelete(file.id)}
-                              onClick={() => handle_OnClickDelete(file)}
-                            >
-                              Delete
-                            </button>
+                            {buttonMenu.download && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_FileDownload(file.id)}
+                              >
+                                Download
+                              </button>
+                            )}
+
+                            {buttonMenu.rename && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickFileRename(file)}
+                              >
+                                Rename
+                              </button>
+                            )}
+                            {buttonMenu.manage_link && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickManageLink(file)}
+                              >
+                                Manage Link
+                              </button>
+                            )}
+                            {buttonMenu.delete && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickDelete(file)}
+                              >
+                                Delete
+                              </button>
+                            )}
+                            {buttonMenu.favourite && (
+                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Favourite</button>
+                            )}
+                            {buttonMenu.unfavourite && (
+                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Unfavourite</button>
+                            )}
+                            {buttonMenu.trash && (
+                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Trash</button>
+                            )}
+                            {buttonMenu.restore && (
+                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Restore</button>
+                            )}
                           </div>
                         )}
                       </div>
