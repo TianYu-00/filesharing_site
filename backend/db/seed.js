@@ -49,7 +49,9 @@ async function createFileInfoTable() {
       path TEXT,
       size INTEGER,
       user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      favourite BOOLEAN DEFAULT FALSE NOT NULL,
+      trash BOOLEAN DEFAULT FALSE NOT NULL
     );
   `);
 }
