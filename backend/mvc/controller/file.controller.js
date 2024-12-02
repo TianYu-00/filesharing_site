@@ -256,7 +256,7 @@ exports.favouriteFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
     const { favourite } = req.body;
-    if (!favourite) {
+    if (favourite === undefined) {
       return res.status(404).json({ success: false, msg: "Missing favourite body state", data: null });
     }
     const data = await favouriteFileByFileId(file_id, favourite);
