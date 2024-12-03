@@ -22,6 +22,7 @@ import {
   BsTrashFill,
   BsFolderFill,
   BsStarFill,
+  BsStar,
 } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
@@ -489,7 +490,7 @@ function Landing_MyFiles() {
       const response = await updateFavouriteFileById(file_id, favouriteState);
 
       if (response.success) {
-        toast.success("File updated successfully");
+        // toast.success("File updated successfully");
 
         const updatedAllFiles = allFiles.map((file) =>
           file.id === file_id ? { ...file, favourite: favouriteState } : file
@@ -875,13 +876,36 @@ function Landing_MyFiles() {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </td>
-                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
+                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20">
                       {file.originalname}
                     </td>
                     <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
                     <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                     <td className="px-2 py-1 ">
                       <div className="relative flex justify-end pr-2">
+                        {pageState !== "trash" &&
+                          (file.favourite ? (
+                            <button
+                              className="justify-center items-center flex text-yellow-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handle_favouriteState(file.id, false);
+                              }}
+                            >
+                              <BsStarFill />
+                            </button>
+                          ) : (
+                            <button
+                              className="justify-center items-center flex text-yellow-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handle_favouriteState(file.id, true);
+                              }}
+                            >
+                              <BsStar />
+                            </button>
+                          ))}
+
                         <button
                           className="p-2 rounded-md hover:text-black hover:bg-gray-100"
                           onClick={(e) => {
@@ -891,6 +915,7 @@ function Landing_MyFiles() {
                         >
                           <BsThreeDotsVertical size={17} className="" />
                         </button>
+
                         {openFileMenu === file.id && (
                           <div
                             className={`absolute right-0 mt-1 ${
