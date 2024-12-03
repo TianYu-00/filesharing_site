@@ -733,17 +733,19 @@ function Landing_MyFiles() {
             Deselect
           </button>
 
-          <button
-            className={`border p-1 px-4 rounded-full text-white mr-4 ${
-              listOfSelectedFile.length === 0
-                ? "bg-red-300 border-red-300 cursor-not-allowed"
-                : "bg-red-500 border-red-800 hover:bg-red-700"
-            }`}
-            onClick={handle_DeleteManyFiles}
-            disabled={listOfSelectedFile.length === 0}
-          >
-            Delete
-          </button>
+          {pageState === "trash" && (
+            <button
+              className={`border p-1 px-4 rounded-full text-white mr-4 ${
+                listOfSelectedFile.length === 0
+                  ? "bg-red-300 border-red-300 cursor-not-allowed"
+                  : "bg-red-500 border-red-800 hover:bg-red-700"
+              }`}
+              onClick={handle_DeleteManyFiles}
+              disabled={listOfSelectedFile.length === 0}
+            >
+              Delete
+            </button>
+          )}
 
           <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
             <input
