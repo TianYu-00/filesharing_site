@@ -9,6 +9,7 @@ import {
   createDownloadLinkByFileId,
   removeDownloadLinkByLinkId,
   removeManyFilesByFileInfo,
+  updateFavouriteFileById,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import {
@@ -29,7 +30,8 @@ import { Tooltip } from "react-tooltip";
 function Landing_MyFiles() {
   const navigate = useNavigate();
   const { user, isLoadingUser } = useUser();
-  const [files, setFiles] = useState([]);
+  const [allFiles, setAllFiles] = useState([]);
+  const [displayFiles, setDisplayFiles] = useState([]);
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const fileMenuRef = useRef(null);
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
@@ -85,6 +87,9 @@ function Landing_MyFiles() {
     restore: false,
   });
 
+  // page state
+  const [pageState, setPageState] = useState("all");
+
   useEffect(() => {
     const handleScroll = () => {
       if (toolBarParentRef.current) {
@@ -102,7 +107,7 @@ function Landing_MyFiles() {
   }, []);
 
   const sortedFiles = useMemo(() => {
-    if (!files.length || !fileSortingConfig.sortByKey) return files;
+    if (!displayFiles.length || !fileSortingConfig.sortByKey) return displayFiles;
 
     const { sortByKey, direction } = fileSortingConfig;
 
@@ -119,7 +124,7 @@ function Landing_MyFiles() {
       }
     };
 
-    const sortedList = [...files].sort((a, b) => {
+    const sortedList = [...displayFiles].sort((a, b) => {
       const valueA = getValue(a);
       const valueB = getValue(b);
 
@@ -129,7 +134,7 @@ function Landing_MyFiles() {
     });
 
     return sortedList;
-  }, [files, fileSortingConfig]);
+  }, [displayFiles, fileSortingConfig]);
 
   const handle_FileSorting = (sortByKey) => {
     setFileSortingConfig((prevConfig) => {
@@ -158,8 +163,12 @@ function Landing_MyFiles() {
   useEffect(() => {
     const getFiles = async () => {
       const allFiles = await fetchFilesByUserId(user.id);
-      setFiles(allFiles.data);
-      console.log(user);
+      setAllFiles(allFiles.data);
+      // setDisplayFiles(allFiles.data);
+      const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
+      // console.log(allFilesWithoutTrash);
+      setDisplayFiles(allFilesWithoutTrash);
+      // console.log(user);
     };
 
     if (user) {
@@ -206,7 +215,7 @@ function Landing_MyFiles() {
       if (response.success) {
         setIsDeleteConfirmModalOpen(false);
         setCurrentSelectedFile(null);
-        setFiles(files.filter((file) => file.id !== id));
+        setDisplayFiles(displayFiles.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
         toast.error(response?.msg || "Failed to delete file");
@@ -218,7 +227,7 @@ function Landing_MyFiles() {
 
   const handle_FileDownload = async (id) => {
     try {
-      const file = files.find((currentFile) => currentFile.id === id);
+      const file = displayFiles.find((currentFile) => currentFile.id === id);
       if (!file) {
         toast.error("File not found");
         return;
@@ -257,7 +266,7 @@ function Landing_MyFiles() {
         return;
       }
 
-      const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
+      const file = displayFiles.find((currentFile) => currentFile.id === currentSelectedFile.id);
       if (!file) {
         toast.error("File not found");
         return;
@@ -275,14 +284,14 @@ function Landing_MyFiles() {
       const newFileName = fileRenameString + extractedFileExtension;
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
-        const updatedFiles = files.map((currentFile) => {
+        const updatedFiles = displayFiles.map((currentFile) => {
           if (currentFile.id === currentSelectedFile.id) {
             return { ...currentFile, originalname: newFileName };
           }
           return currentFile;
         });
 
-        setFiles(updatedFiles);
+        setDisplayFiles(updatedFiles);
 
         setIsRenameModalOpen(false);
         setFileRenameString("");
@@ -377,7 +386,7 @@ function Landing_MyFiles() {
       const response = await removeManyFilesByFileInfo(listOfSelectedFile);
 
       if (response.success) {
-        setFiles((prevFiles) =>
+        setDisplayFiles((prevFiles) =>
           prevFiles.filter((file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id))
         );
         setListOfSelectedFile([]);
@@ -399,6 +408,18 @@ function Landing_MyFiles() {
   }, [sortedFiles, submitSearchTerm]);
 
   const handle_AllFiles = () => {
+    setPageState("all");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.trash !== true);
+    setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
       rename: true,
@@ -412,6 +433,18 @@ function Landing_MyFiles() {
   };
 
   const handle_AllFavourite = () => {
+    setPageState("favourite");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.favourite === true);
+    setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
       rename: true,
@@ -425,6 +458,16 @@ function Landing_MyFiles() {
   };
 
   const handle_AllTrash = () => {
+    setPageState("trash");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
     setButtonMenu({
       download: true,
       rename: false,
@@ -435,6 +478,38 @@ function Landing_MyFiles() {
       trash: false,
       restore: true,
     });
+  };
+
+  const handle_favouriteState = async (file_id, favouriteState) => {
+    try {
+      const response = await updateFavouriteFileById(file_id, favouriteState);
+
+      if (response.success) {
+        toast.success("File updated successfully");
+
+        const updatedAllFiles = allFiles.map((file) =>
+          file.id === file_id ? { ...file, favourite: favouriteState } : file
+        );
+
+        const updatedAllDisplayFiles = displayFiles.reduce((updatedFiles, file) => {
+          if (file.id === file_id) {
+            if (pageState === "all" || favouriteState) {
+              updatedFiles.push({ ...file, favourite: favouriteState });
+            }
+          } else {
+            updatedFiles.push(file);
+          }
+          return updatedFiles;
+        }, []);
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedAllDisplayFiles);
+      } else {
+        toast.error("Failed to update file");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Failed to update file");
+    }
   };
 
   return (
@@ -652,6 +727,7 @@ function Landing_MyFiles() {
               type="text"
               className="rounded-full pl-4 pr-12 w-full h-full focus:outline-none"
               placeholder="Search"
+              value={inputSearchTerm}
               onChange={(e) => setInputSearchTerm(e.target.value)}
             />
             <button
@@ -709,10 +785,10 @@ function Landing_MyFiles() {
         )}
 
         {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
-        <table className={`table-auto w-full text-white text-left mt-2 w-full`}>
+        <table className={`table-auto w-full text-white text-left mt-2 w-full h-fit`}>
           <thead className="border-b-2 border-gray-500">
             <tr>
-              <th className="px-2 py-2">
+              <th className="px-2 py-2 w-8">
                 <input
                   type="checkbox"
                   className=""
@@ -831,11 +907,20 @@ function Landing_MyFiles() {
                                 Delete
                               </button>
                             )}
-                            {buttonMenu.favourite && (
-                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Favourite</button>
-                            )}
-                            {buttonMenu.unfavourite && (
-                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Unfavourite</button>
+                            {buttonMenu.favourite && !file?.favourite ? (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_favouriteState(file.id, true)}
+                              >
+                                Favourite
+                              </button>
+                            ) : (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_favouriteState(file.id, false)}
+                              >
+                                Unfavourite
+                              </button>
                             )}
                             {buttonMenu.trash && (
                               <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Trash</button>

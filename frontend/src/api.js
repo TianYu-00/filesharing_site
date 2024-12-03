@@ -233,3 +233,14 @@ export const removeManyFilesByFileInfo = async (files) => {
     throw error;
   }
 };
+
+export const updateFavouriteFileById = async (file_id, favouriteState) => {
+  const data = { favourite: favouriteState };
+  try {
+    const response = await api.patch(`/files/update-favourite-file-by-file-id/${file_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
