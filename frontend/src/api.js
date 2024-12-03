@@ -244,3 +244,14 @@ export const updateFavouriteFileById = async (file_id, favouriteState) => {
     throw error;
   }
 };
+
+export const updateTrashFileById = async (file_id, trashState) => {
+  const data = { trash: trashState };
+  try {
+    const response = await api.patch(`/files/update-trash-file-by-file-id/${file_id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

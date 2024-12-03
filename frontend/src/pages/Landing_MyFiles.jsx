@@ -10,6 +10,7 @@ import {
   removeDownloadLinkByLinkId,
   removeManyFilesByFileInfo,
   updateFavouriteFileById,
+  updateTrashFileById,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import {
@@ -215,6 +216,7 @@ function Landing_MyFiles() {
       if (response.success) {
         setIsDeleteConfirmModalOpen(false);
         setCurrentSelectedFile(null);
+        setAllFiles(allFiles.filter((file) => file.id !== id));
         setDisplayFiles(displayFiles.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
@@ -443,7 +445,7 @@ function Landing_MyFiles() {
     });
     setInputSearchTerm("");
     setSubmitSearchTerm("");
-    const filteredFiles = allFiles.filter((file) => file.favourite === true);
+    const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
     setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
@@ -468,6 +470,8 @@ function Landing_MyFiles() {
     });
     setInputSearchTerm("");
     setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.trash === true);
+    setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
       rename: false,
@@ -504,6 +508,25 @@ function Landing_MyFiles() {
 
         setAllFiles(updatedAllFiles);
         setDisplayFiles(updatedAllDisplayFiles);
+      } else {
+        toast.error("Failed to update file");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Failed to update file");
+    }
+  };
+
+  const handle_trashState = async (file_id, trashState) => {
+    try {
+      const response = await updateTrashFileById(file_id, trashState);
+      if (response.success) {
+        toast.success("File updated successfully");
+        const updatedAllFiles = allFiles.map((file) => (file.id === file_id ? { ...file, trash: trashState } : file));
+
+        const updatedDisplayFiles = displayFiles.filter((file) => file.id !== file_id);
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
       } else {
         toast.error("Failed to update file");
       }
@@ -907,26 +930,39 @@ function Landing_MyFiles() {
                                 Delete
                               </button>
                             )}
-                            {buttonMenu.favourite && !file?.favourite ? (
-                              <button
-                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                                onClick={() => handle_favouriteState(file.id, true)}
-                              >
-                                Favourite
-                              </button>
-                            ) : (
-                              <button
-                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                                onClick={() => handle_favouriteState(file.id, false)}
-                              >
-                                Unfavourite
-                              </button>
-                            )}
+
+                            {!file?.trash &&
+                              (buttonMenu.favourite && !file?.favourite ? (
+                                <button
+                                  className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                  onClick={() => handle_favouriteState(file.id, true)}
+                                >
+                                  Favourite
+                                </button>
+                              ) : (
+                                <button
+                                  className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                  onClick={() => handle_favouriteState(file.id, false)}
+                                >
+                                  Unfavourite
+                                </button>
+                              ))}
+
                             {buttonMenu.trash && (
-                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Trash</button>
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_trashState(file.id, true)}
+                              >
+                                Trash
+                              </button>
                             )}
                             {buttonMenu.restore && (
-                              <button className="p-2 hover:bg-neutral-800 w-full text-left rounded">Restore</button>
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_trashState(file.id, false)}
+                              >
+                                Restore
+                              </button>
                             )}
                           </div>
                         )}
