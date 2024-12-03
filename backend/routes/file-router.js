@@ -31,7 +31,7 @@ fileRouter.delete(
 );
 
 fileRouter.patch("/update-favourite-file-by-file-id/:file_id", verifyUserAuthToken, fileController.favouriteFileById);
-// fileRouter.patch("/trash-file-by-file-id/:file_id", verifyUserAuthToken, fileController);
+fileRouter.patch("/update-trash-file-by-file-id/:file_id", verifyUserAuthToken, fileController.trashFileById);
 
 // for all
 fileRouter.post("/file-upload", fileController.postFile);

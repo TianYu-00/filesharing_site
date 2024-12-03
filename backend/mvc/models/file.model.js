@@ -365,6 +365,34 @@ exports.favouriteFileByFileId = async (file_id, favouriteState) => {
     const values = [favouriteState, file_id];
 
     const result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    return result.rows[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.trashFileByFileId = async (file_id, trashState) => {
+  try {
+    const query = `
+    UPDATE file_info
+    SET trash = $1
+    WHERE id = $2
+    RETURNING *;
+  `;
+    const values = [trashState, file_id];
+
+    const result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    if (trashState) {
+      await db.query(`DELETE FROM file_download_link WHERE file_id = $1`, [file_id]);
+    }
 
     return result.rows[0];
   } catch (err) {
