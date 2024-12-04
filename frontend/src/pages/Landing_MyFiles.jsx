@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
+import { useSpring, animated } from "@react-spring/web";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -539,6 +540,14 @@ function Landing_MyFiles() {
     }
   };
 
+  const sideBarDrawerAnimation = useSpring({
+    transform: isSideBarOpen ? "translateX(0)" : "translateX(-100%)",
+    opacity: isSideBarOpen ? 1 : 0,
+    config: { tension: 300, friction: 30 },
+    immediate: !isSideBarOpen,
+  });
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
     <div className="">
       {/* Delete Confirmation Modal */}
@@ -773,52 +782,47 @@ function Landing_MyFiles() {
         {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
         {isSideBarOpen && (
           <div
-            className={`fixed top-0 left-0 w-full h-screen z-10 bg-black bg-opacity-80 z-50 ${
+            className={`fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-80 ${
               isToolBarSticky ? "top-12" : ""
             }`}
-            onClick={() => {
-              setIsSideBarOpen(false);
-            }}
+            onClick={() => setIsSideBarOpen(false)}
           >
-            <div className={`flex flex-col text-white bg-[#121211] w-fit h-full p-4`}>
+            <animated.div
+              className={`flex flex-col text-white bg-[#121211] w-fit h-full p-4 `}
+              style={sideBarDrawerAnimation}
+            >
               <div className="p-2 border-b border-gray-500 py-4">
-                <div className="">{user?.username}</div>
-                <div className="">{user?.email}</div>
+                <div>{user?.username}</div>
+                <div>{user?.email}</div>
               </div>
-              <div className="">
+              <div>
                 <button
                   className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                  onClick={() => {
-                    handle_AllFiles();
-                  }}
+                  onClick={handle_AllFiles}
                 >
                   <BsFolderFill />
                   <span className="pl-4">All Files</span>
                 </button>
               </div>
-              <div className="">
+              <div>
                 <button
                   className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                  onClick={() => {
-                    handle_AllFavourite();
-                  }}
+                  onClick={handle_AllFavourite}
                 >
                   <BsStarFill />
                   <span className="pl-4">Favourite</span>
                 </button>
               </div>
-              <div className="">
+              <div>
                 <button
                   className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                  onClick={() => {
-                    handle_AllTrash();
-                  }}
+                  onClick={handle_AllTrash}
                 >
                   <BsTrashFill />
                   <span className="pl-4">Trash</span>
                 </button>
               </div>
-            </div>
+            </animated.div>
           </div>
         )}
 
