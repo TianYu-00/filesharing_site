@@ -95,8 +95,8 @@ function Landing_MyFiles() {
   useEffect(() => {
     const handleScroll = () => {
       if (toolBarParentRef.current) {
-        const parentRect = toolBarParentRef.current.getBoundingClientRect();
-        setIsToolBarSticky(parentRect.top < 0);
+        const toolbarRect = toolBarParentRef.current.getBoundingClientRect();
+        setIsToolBarSticky(toolbarRect.top < 0);
       }
     };
 
@@ -433,6 +433,7 @@ function Landing_MyFiles() {
       trash: true,
       restore: false,
     });
+    setIsSideBarOpen(false);
   };
 
   const handle_AllFavourite = () => {
@@ -458,6 +459,7 @@ function Landing_MyFiles() {
       trash: true,
       restore: false,
     });
+    setIsSideBarOpen(false);
   };
 
   const handle_AllTrash = () => {
@@ -483,6 +485,7 @@ function Landing_MyFiles() {
       trash: false,
       restore: true,
     });
+    setIsSideBarOpen(false);
   };
 
   const handle_favouriteState = async (file_id, favouriteState) => {
@@ -766,46 +769,55 @@ function Landing_MyFiles() {
         </div>
       </div>
 
-      <div className="flex flex-row w-full">
+      <div className="w-full">
         {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
         {isSideBarOpen && (
-          <div className="flex flex-col text-white bg-[#121211] border border-gray-700">
-            <div className="p-2">
-              <div className="">{user?.username}</div>
-              <div className="">{user?.email}</div>
-            </div>
-            <div className="">
-              <button
-                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                onClick={() => {
-                  handle_AllFiles();
-                }}
-              >
-                <BsFolderFill />
-                <span className="pl-1">All Files</span>
-              </button>
-            </div>
-            <div className="">
-              <button
-                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                onClick={() => {
-                  handle_AllFavourite();
-                }}
-              >
-                <BsStarFill />
-                <span className="pl-1">Favourite</span>
-              </button>
-            </div>
-            <div className="">
-              <button
-                className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
-                onClick={() => {
-                  handle_AllTrash();
-                }}
-              >
-                <BsTrashFill />
-                <span className="pl-1">Trash</span>
-              </button>
+          <div
+            className={`fixed top-0 left-0 w-full h-screen z-10 bg-black bg-opacity-80 z-50 ${
+              isToolBarSticky ? "top-12" : ""
+            }`}
+            onClick={() => {
+              setIsSideBarOpen(false);
+            }}
+          >
+            <div className={`flex flex-col text-white bg-[#121211] w-fit h-full p-4`}>
+              <div className="p-2 border-b border-gray-500 py-4">
+                <div className="">{user?.username}</div>
+                <div className="">{user?.email}</div>
+              </div>
+              <div className="">
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={() => {
+                    handle_AllFiles();
+                  }}
+                >
+                  <BsFolderFill />
+                  <span className="pl-4">All Files</span>
+                </button>
+              </div>
+              <div className="">
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={() => {
+                    handle_AllFavourite();
+                  }}
+                >
+                  <BsStarFill />
+                  <span className="pl-4">Favourite</span>
+                </button>
+              </div>
+              <div className="">
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={() => {
+                    handle_AllTrash();
+                  }}
+                >
+                  <BsTrashFill />
+                  <span className="pl-4">Trash</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
