@@ -33,11 +33,11 @@ exports.uploadFile = async (req) => {
       try {
         const result = await db.query(
           `
-            INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-            RETURNING id
-          `,
-          [fieldname, originalname, encoding, mimetype, destination, filename, filePath, size, userId]
+            INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id, favourite, trash) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+            RETURNING *
+          ;`,
+          [fieldname, originalname, encoding, mimetype, destination, filename, filePath, size, userId, false, false]
         );
 
         const fileId = result.rows[0].id;
@@ -50,7 +50,7 @@ exports.uploadFile = async (req) => {
           downloadLink = await exports.createDownloadLink(fileId, tempExpires);
         }
 
-        resolve({ file: req.file, fileId, downloadLink });
+        resolve({ file: result.rows[0], fileId, downloadLink });
       } catch (dbError) {
         reject({ code: "DB_ERROR", message: "Error inserting file info into database" });
       }
@@ -351,5 +351,51 @@ exports.deleteManyFilesByFileIds = async (files) => {
       code: "DB_ERROR",
       message: "Error deleting files from database and disk",
     });
+  }
+};
+
+exports.favouriteFileByFileId = async (file_id, favouriteState) => {
+  try {
+    const query = `
+    UPDATE file_info
+    SET favourite = $1
+    WHERE id = $2
+    RETURNING *;
+  `;
+    const values = [favouriteState, file_id];
+
+    const result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    return result.rows[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.trashFileByFileId = async (file_id, trashState) => {
+  try {
+    const query = `
+    UPDATE file_info
+    SET trash = $1
+    WHERE id = $2
+    RETURNING *;
+  `;
+    const values = [trashState, file_id];
+
+    const result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
+    }
+
+    if (trashState) {
+      await db.query(`DELETE FROM file_download_link WHERE file_id = $1`, [file_id]);
+    }
+
+    return result.rows[0];
+  } catch (err) {
+    console.error(err);
   }
 };

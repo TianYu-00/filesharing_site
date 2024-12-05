@@ -9,6 +9,8 @@ import {
   createDownloadLinkByFileId,
   removeDownloadLinkByLinkId,
   removeManyFilesByFileInfo,
+  updateFavouriteFileById,
+  updateTrashFileById,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import {
@@ -20,16 +22,19 @@ import {
   BsTrashFill,
   BsFolderFill,
   BsStarFill,
+  BsStar,
 } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
+import { useSpring, animated } from "@react-spring/web";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
   const { user, isLoadingUser } = useUser();
-  const [files, setFiles] = useState([]);
+  const [allFiles, setAllFiles] = useState([]);
+  const [displayFiles, setDisplayFiles] = useState([]);
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const fileMenuRef = useRef(null);
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
@@ -73,11 +78,26 @@ function Landing_MyFiles() {
   // sidebar
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
+  // button
+  const [buttonMenu, setButtonMenu] = useState({
+    download: true,
+    rename: true,
+    manage_link: true,
+    delete: false,
+    favourite: true,
+    unfavourite: false,
+    trash: true,
+    restore: false,
+  });
+
+  // page state
+  const [pageState, setPageState] = useState("all");
+
   useEffect(() => {
     const handleScroll = () => {
       if (toolBarParentRef.current) {
-        const parentRect = toolBarParentRef.current.getBoundingClientRect();
-        setIsToolBarSticky(parentRect.top < 0);
+        const toolbarRect = toolBarParentRef.current.getBoundingClientRect();
+        setIsToolBarSticky(toolbarRect.top < 0);
       }
     };
 
@@ -90,7 +110,7 @@ function Landing_MyFiles() {
   }, []);
 
   const sortedFiles = useMemo(() => {
-    if (!files.length || !fileSortingConfig.sortByKey) return files;
+    if (!displayFiles.length || !fileSortingConfig.sortByKey) return displayFiles;
 
     const { sortByKey, direction } = fileSortingConfig;
 
@@ -107,7 +127,7 @@ function Landing_MyFiles() {
       }
     };
 
-    const sortedList = [...files].sort((a, b) => {
+    const sortedList = [...displayFiles].sort((a, b) => {
       const valueA = getValue(a);
       const valueB = getValue(b);
 
@@ -117,7 +137,7 @@ function Landing_MyFiles() {
     });
 
     return sortedList;
-  }, [files, fileSortingConfig]);
+  }, [displayFiles, fileSortingConfig]);
 
   const handle_FileSorting = (sortByKey) => {
     setFileSortingConfig((prevConfig) => {
@@ -146,8 +166,12 @@ function Landing_MyFiles() {
   useEffect(() => {
     const getFiles = async () => {
       const allFiles = await fetchFilesByUserId(user.id);
-      setFiles(allFiles.data);
-      console.log(user);
+      setAllFiles(allFiles.data);
+      // setDisplayFiles(allFiles.data);
+      const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
+      // console.log(allFilesWithoutTrash);
+      setDisplayFiles(allFilesWithoutTrash);
+      // console.log(user);
     };
 
     if (user) {
@@ -194,7 +218,8 @@ function Landing_MyFiles() {
       if (response.success) {
         setIsDeleteConfirmModalOpen(false);
         setCurrentSelectedFile(null);
-        setFiles(files.filter((file) => file.id !== id));
+        setAllFiles(allFiles.filter((file) => file.id !== id));
+        setDisplayFiles(displayFiles.filter((file) => file.id !== id));
         toast.success(response?.msg || "File has been removed");
       } else {
         toast.error(response?.msg || "Failed to delete file");
@@ -206,7 +231,7 @@ function Landing_MyFiles() {
 
   const handle_FileDownload = async (id) => {
     try {
-      const file = files.find((currentFile) => currentFile.id === id);
+      const file = displayFiles.find((currentFile) => currentFile.id === id);
       if (!file) {
         toast.error("File not found");
         return;
@@ -245,7 +270,7 @@ function Landing_MyFiles() {
         return;
       }
 
-      const file = files.find((currentFile) => currentFile.id === currentSelectedFile.id);
+      const file = displayFiles.find((currentFile) => currentFile.id === currentSelectedFile.id);
       if (!file) {
         toast.error("File not found");
         return;
@@ -263,14 +288,14 @@ function Landing_MyFiles() {
       const newFileName = fileRenameString + extractedFileExtension;
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
-        const updatedFiles = files.map((currentFile) => {
+        const updatedFiles = displayFiles.map((currentFile) => {
           if (currentFile.id === currentSelectedFile.id) {
             return { ...currentFile, originalname: newFileName };
           }
           return currentFile;
         });
 
-        setFiles(updatedFiles);
+        setDisplayFiles(updatedFiles);
 
         setIsRenameModalOpen(false);
         setFileRenameString("");
@@ -365,7 +390,7 @@ function Landing_MyFiles() {
       const response = await removeManyFilesByFileInfo(listOfSelectedFile);
 
       if (response.success) {
-        setFiles((prevFiles) =>
+        setDisplayFiles((prevFiles) =>
           prevFiles.filter((file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id))
         );
         setListOfSelectedFile([]);
@@ -386,6 +411,143 @@ function Landing_MyFiles() {
     return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
   }, [sortedFiles, submitSearchTerm]);
 
+  const handle_AllFiles = () => {
+    setPageState("all");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.trash !== true);
+    setDisplayFiles(filteredFiles);
+    setButtonMenu({
+      download: true,
+      rename: true,
+      manage_link: true,
+      delete: false,
+      favourite: true,
+      unfavourite: false,
+      trash: true,
+      restore: false,
+    });
+    setIsSideBarOpen(false);
+  };
+
+  const handle_AllFavourite = () => {
+    setPageState("favourite");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
+    setDisplayFiles(filteredFiles);
+    setButtonMenu({
+      download: true,
+      rename: true,
+      manage_link: true,
+      delete: false,
+      favourite: false,
+      unfavourite: true,
+      trash: true,
+      restore: false,
+    });
+    setIsSideBarOpen(false);
+  };
+
+  const handle_AllTrash = () => {
+    setPageState("trash");
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setInputSearchTerm("");
+    setSubmitSearchTerm("");
+    const filteredFiles = allFiles.filter((file) => file.trash === true);
+    setDisplayFiles(filteredFiles);
+    setButtonMenu({
+      download: true,
+      rename: false,
+      manage_link: false,
+      delete: true,
+      favourite: false,
+      unfavourite: false,
+      trash: false,
+      restore: true,
+    });
+    setIsSideBarOpen(false);
+  };
+
+  const handle_favouriteState = async (file_id, favouriteState) => {
+    try {
+      const response = await updateFavouriteFileById(file_id, favouriteState);
+
+      if (response.success) {
+        // toast.success("File updated successfully");
+
+        const updatedAllFiles = allFiles.map((file) =>
+          file.id === file_id ? { ...file, favourite: favouriteState } : file
+        );
+
+        const updatedAllDisplayFiles = displayFiles.reduce((updatedFiles, file) => {
+          if (file.id === file_id) {
+            if (pageState === "all" || favouriteState) {
+              updatedFiles.push({ ...file, favourite: favouriteState });
+            }
+          } else {
+            updatedFiles.push(file);
+          }
+          return updatedFiles;
+        }, []);
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedAllDisplayFiles);
+      } else {
+        toast.error("Failed to update file");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Failed to update file");
+    }
+  };
+
+  const handle_trashState = async (file_id, trashState) => {
+    try {
+      const response = await updateTrashFileById(file_id, trashState);
+      if (response.success) {
+        toast.success("File updated successfully");
+        const updatedAllFiles = allFiles.map((file) => (file.id === file_id ? { ...file, trash: trashState } : file));
+
+        const updatedDisplayFiles = displayFiles.filter((file) => file.id !== file_id);
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
+      } else {
+        toast.error("Failed to update file");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || "Failed to update file");
+    }
+  };
+
+  const sideBarDrawerAnimation = useSpring({
+    transform: isSideBarOpen ? "translateX(0)" : "translateX(-100%)",
+    opacity: isSideBarOpen ? 1 : 0,
+    config: { tension: 300, friction: 30 },
+    immediate: !isSideBarOpen,
+  });
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
     <div className="">
       {/* Delete Confirmation Modal */}
@@ -584,23 +746,26 @@ function Landing_MyFiles() {
             Deselect
           </button>
 
-          <button
-            className={`border p-1 px-4 rounded-full text-white mr-4 ${
-              listOfSelectedFile.length === 0
-                ? "bg-red-300 border-red-300 cursor-not-allowed"
-                : "bg-red-500 border-red-800 hover:bg-red-700"
-            }`}
-            onClick={handle_DeleteManyFiles}
-            disabled={listOfSelectedFile.length === 0}
-          >
-            Delete
-          </button>
+          {pageState === "trash" && (
+            <button
+              className={`border p-1 px-4 rounded-full text-white mr-4 ${
+                listOfSelectedFile.length === 0
+                  ? "bg-red-300 border-red-300 cursor-not-allowed"
+                  : "bg-red-500 border-red-800 hover:bg-red-700"
+              }`}
+              onClick={handle_DeleteManyFiles}
+              disabled={listOfSelectedFile.length === 0}
+            >
+              Delete
+            </button>
+          )}
 
           <div className="relative h-8 border rounded-full flex items-center bg-white border-gray-500">
             <input
               type="text"
               className="rounded-full pl-4 pr-12 w-full h-full focus:outline-none"
               placeholder="Search"
+              value={inputSearchTerm}
               onChange={(e) => setInputSearchTerm(e.target.value)}
             />
             <button
@@ -613,40 +778,59 @@ function Landing_MyFiles() {
         </div>
       </div>
 
-      <div className="flex flex-row w-full">
+      <div className="w-full">
         {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
         {isSideBarOpen && (
-          <div className="flex flex-col text-white bg-[#121211] border border-gray-700">
-            <div className="p-2">
-              <div className="">{user?.username}</div>
-              <div className="">{user?.email}</div>
-            </div>
-            <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
-                <BsFolderFill />
-                <span className="pl-1">All Files</span>
-              </button>
-            </div>
-            <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
-                <BsStarFill />
-                <span className="pl-1">Favourite</span>
-              </button>
-            </div>
-            <div className="">
-              <button className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black">
-                <BsTrashFill />
-                <span className="pl-1">Trash</span>
-              </button>
-            </div>
+          <div
+            className={`fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-80 ${
+              isToolBarSticky ? "top-12" : ""
+            }`}
+            onClick={() => setIsSideBarOpen(false)}
+          >
+            <animated.div
+              className={`flex flex-col text-white bg-[#121211] w-fit h-full p-4 `}
+              style={sideBarDrawerAnimation}
+            >
+              <div className="p-2 border-b border-gray-500 py-4">
+                <div>{user?.username}</div>
+                <div>{user?.email}</div>
+              </div>
+              <div>
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={handle_AllFiles}
+                >
+                  <BsFolderFill />
+                  <span className="pl-4">All Files</span>
+                </button>
+              </div>
+              <div>
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={handle_AllFavourite}
+                >
+                  <BsStarFill />
+                  <span className="pl-4">Favourite</span>
+                </button>
+              </div>
+              <div>
+                <button
+                  className="w-full text-left rounded-lg p-3 flex items-center hover:bg-black"
+                  onClick={handle_AllTrash}
+                >
+                  <BsTrashFill />
+                  <span className="pl-4">Trash</span>
+                </button>
+              </div>
+            </animated.div>
           </div>
         )}
 
         {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
-        <table className={`table-auto w-full text-white text-left mt-2 w-full`}>
+        <table className={`table-auto w-full text-white text-left mt-2 w-full h-fit`}>
           <thead className="border-b-2 border-gray-500">
             <tr>
-              <th className="px-2 py-2">
+              <th className="px-2 py-2 w-8">
                 <input
                   type="checkbox"
                   className=""
@@ -708,13 +892,36 @@ function Landing_MyFiles() {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </td>
-                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20 ">
+                    <td className="px-2 py-1 whitespace-nowrap overflow-hidden truncate max-w-20">
                       {file.originalname}
                     </td>
                     <td className="px-2 py-1 ">{fileSizeFormatter(file.size)}</td>
                     <td className="px-2 py-1 ">{fileDateFormatter(file.created_at)[1]}</td>
                     <td className="px-2 py-1 ">
                       <div className="relative flex justify-end pr-2">
+                        {pageState !== "trash" &&
+                          (file.favourite ? (
+                            <button
+                              className="justify-center items-center flex text-yellow-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handle_favouriteState(file.id, false);
+                              }}
+                            >
+                              <BsStarFill />
+                            </button>
+                          ) : (
+                            <button
+                              className="justify-center items-center flex text-yellow-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handle_favouriteState(file.id, true);
+                              }}
+                            >
+                              <BsStar />
+                            </button>
+                          ))}
+
                         <button
                           className="p-2 rounded-md hover:text-black hover:bg-gray-100"
                           onClick={(e) => {
@@ -724,6 +931,7 @@ function Landing_MyFiles() {
                         >
                           <BsThreeDotsVertical size={17} className="" />
                         </button>
+
                         {openFileMenu === file.id && (
                           <div
                             className={`absolute right-0 mt-1 ${
@@ -732,31 +940,73 @@ function Landing_MyFiles() {
                             ref={fileMenuRef}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_FileDownload(file.id)}
-                            >
-                              Download
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_OnClickFileRename(file)}
-                            >
-                              Rename
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              onClick={() => handle_OnClickManageLink(file)}
-                            >
-                              Manage Link
-                            </button>
-                            <button
-                              className="p-2 hover:bg-neutral-800 w-full text-left rounded"
-                              // onClick={() => handle_FileDelete(file.id)}
-                              onClick={() => handle_OnClickDelete(file)}
-                            >
-                              Delete
-                            </button>
+                            {buttonMenu.download && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_FileDownload(file.id)}
+                              >
+                                Download
+                              </button>
+                            )}
+
+                            {buttonMenu.rename && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickFileRename(file)}
+                              >
+                                Rename
+                              </button>
+                            )}
+                            {buttonMenu.manage_link && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickManageLink(file)}
+                              >
+                                Manage Link
+                              </button>
+                            )}
+                            {buttonMenu.delete && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_OnClickDelete(file)}
+                              >
+                                Delete
+                              </button>
+                            )}
+
+                            {!file?.trash &&
+                              (buttonMenu.favourite && !file?.favourite ? (
+                                <button
+                                  className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                  onClick={() => handle_favouriteState(file.id, true)}
+                                >
+                                  Favourite
+                                </button>
+                              ) : (
+                                <button
+                                  className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                  onClick={() => handle_favouriteState(file.id, false)}
+                                >
+                                  Unfavourite
+                                </button>
+                              ))}
+
+                            {buttonMenu.trash && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_trashState(file.id, true)}
+                              >
+                                Trash
+                              </button>
+                            )}
+                            {buttonMenu.restore && (
+                              <button
+                                className="p-2 hover:bg-neutral-800 w-full text-left rounded"
+                                onClick={() => handle_trashState(file.id, false)}
+                              >
+                                Restore
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

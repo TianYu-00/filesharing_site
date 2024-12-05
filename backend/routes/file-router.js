@@ -30,6 +30,9 @@ fileRouter.delete(
   fileController.removeManyFilesByFileInfo
 );
 
+fileRouter.patch("/update-favourite-file-by-file-id/:file_id", verifyUserAuthToken, fileController.favouriteFileById);
+fileRouter.patch("/update-trash-file-by-file-id/:file_id", verifyUserAuthToken, fileController.trashFileById);
+
 // for all
 fileRouter.post("/file-upload", fileController.postFile);
 fileRouter.get("/download-file-by-id/:file_id", fileController.getFile);

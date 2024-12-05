@@ -14,6 +14,8 @@ const {
   patchDownloadLinkLimitCount,
   validateDownloadPassword,
   deleteManyFilesByFileIds,
+  favouriteFileByFileId,
+  trashFileByFileId,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -245,6 +247,38 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
     const data = await deleteManyFilesByFileIds(files);
 
     res.json({ success: true, msg: "Files has been deleted", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.favouriteFileById = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const { favourite } = req.body;
+    if (favourite === undefined) {
+      return res.status(404).json({ success: false, msg: "Missing favourite body state", data: null });
+    }
+    const data = await favouriteFileByFileId(file_id, favourite);
+
+    res.json({ success: true, msg: "File has been updated successfully", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+exports.trashFileById = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const { trash } = req.body;
+    if (trash === undefined) {
+      return res.status(404).json({ success: false, msg: "Missing trash body state", data: null });
+    }
+    const data = await trashFileByFileId(file_id, trash);
+
+    res.json({ success: true, msg: "File has been updated successfully", data: data });
   } catch (err) {
     console.error(err);
     next(err);
