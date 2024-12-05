@@ -29,8 +29,8 @@ Additional Ideas:
 
 - File auto delete after 24 hours if was uploaded by guest (not logged in) ✅
 
-- Trash
-- Favourite
+- Trash ✅
+- Favourite ✅
 
 - Styling 🟠
 - User visual feedbacks 🟠
