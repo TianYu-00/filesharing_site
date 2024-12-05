@@ -27,7 +27,7 @@ const App = () => {
           newestOnTop
           closeOnClick
           rtl={false}
-          pauseOnFocusLoss
+          pauseOnFocusLoss={false}
           draggable={false}
           pauseOnHover={true}
           theme="dark"
