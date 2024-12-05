@@ -136,9 +136,23 @@ const signUserAuthJWTAndCreateCookie = (res, userData, isRememberMe) => {
   });
 };
 
-const passwordResetRateLimiter = rateLimit({
+const emailSendingSuccessfulRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 1,
+  message: "Email has already been sent, Please wait and try again after a minute.",
+  handler: (req, res) => {
+    const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
+    return res.status(429).json({
+      success: false,
+      msg: `Too many email sending requests. Please wait ${coolDown} seconds.`,
+      data: { coolDown },
+    });
+  },
+});
+
+const emailSendingRequestRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
   message: "Too many password reset requests. Please wait and try again after a minute.",
   handler: (req, res) => {
     const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
@@ -151,49 +165,45 @@ const passwordResetRateLimiter = rateLimit({
 });
 
 exports.sendPasswordResetLink = [
-  passwordResetRateLimiter,
+  emailSendingRequestRateLimiter,
   async (req, res, next) => {
     try {
-      // 300 = 5min
       const seconds = 900;
       const { email } = req.body;
-      // console.log(email);
       const user = await getUserByEmail(email);
+
       if (!user) {
         return res.status(404).json({ success: false, msg: "User not found", data: null });
       }
-      // console.log(user);
 
       const token = jwt.sign({ email }, process.env.JWT_USER_PASSWORD_RESET_SECRET, { expiresIn: seconds });
-
       const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${token}`;
 
-      // console.log(resetLink);
-
       const textContent = `
-    Hello,
-  
-    We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
-  
-    ${resetLink}
-  
-    Link will expire in 15 minutes.
-  
-    If you did not request a password reset, please ignore this email.
-  
-    Please note: This is an automated message. Do not reply to this email as it won't be monitored.
-  
-    If you have any issues, feel free to contact our support team.
-  
-    Thanks,
-    The DropBoxer Team
-  `;
+        Hello,
+
+        We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
+
+        ${resetLink}
+
+        The link will expire in 15 minutes.
+
+        If you did not request a password reset, please ignore this email.
+
+        Please note: This is an automated message. Do not reply to this email as it won't be monitored.
+
+        If you have any issues, feel free to contact our support team.
+
+        Thanks,
+        The DropBoxer Team
+      `;
 
       const response = await sendEmail(email, "DropBoxer Password Reset", textContent);
-      // console.log(response);
 
       if (response.success) {
-        res.status(200).json({ success: true, msg: response.message, data: null });
+        emailSendingSuccessfulRateLimiter(req, res, () => {
+          res.status(200).json({ success: true, msg: response.message, data: null });
+        });
       } else {
         res.status(500).json({ success: false, msg: response.message, data: null });
       }
