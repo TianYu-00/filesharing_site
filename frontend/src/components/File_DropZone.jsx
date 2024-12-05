@@ -74,7 +74,7 @@ function FileDropZone({ onFileSelect }) {
           <>
             <p className="my-2">or</p>
             <button
-              className="border border-blue-500 hover:bg-blue-500 p-2 rounded pointer-events-auto"
+              className="bg-blue-500 hover:bg-blue-600 p-2 rounded pointer-events-auto"
               onClick={() => {
                 handleClick();
                 console.log("button has been click");
