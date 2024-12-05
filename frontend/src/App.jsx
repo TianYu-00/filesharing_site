@@ -23,11 +23,12 @@ const App = () => {
         <ToastContainer
           position="bottom-right"
           autoClose={3200}
+          limit={3}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
           rtl={false}
-          pauseOnFocusLoss
+          pauseOnFocusLoss={false}
           draggable={false}
           pauseOnHover={true}
           theme="dark"

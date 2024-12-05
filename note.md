@@ -34,6 +34,7 @@ Additional Ideas:
 
 - Styling 🟠
 - User visual feedbacks 🟠
+- Access Tokens + Refresh Tokens
 
 
 ## checking db
@@ -47,3 +48,25 @@ Additional Ideas:
 ```
 SELECT * FROM table_name;
 ```
+
+## Access Tokens + Refresh Tokens
+Thought process:
+- User login/registration
+- Create a Refresh token (30 days)
+- Use the Refresh token to generate a Access token (1 hour)
+- Store both Refresh + Access token in http only cookie
+- Access token cookie contains userData + jti
+- Refresh token cookie purely contains Refresh token + jti
+- When user logs out Access token needs to be black listed until expired
+- When user logs out Refresh token needs to be black listed until expired
+- Or use token white listing but i think black listing saves a lot more resources.
+- How the table would look like:
+```
+{
+    blacklisted_tokens: [
+        {id: 1, jti: "xxx", expires_at: timezone, user_id: 1, blacklisted_at: timezone }, 
+    ]
+}
+```
+- Prob should add cronjob to remove any expired blacklisted tokens from database to prevent clutter
+- When Access token expires, it would get the Refresh token from cookie and then call a function to generate a new Access token.

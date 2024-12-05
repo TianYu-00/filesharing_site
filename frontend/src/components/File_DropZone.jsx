@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { BsCloudUploadFill } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 function FileDropZone({ onFileSelect }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -20,12 +22,12 @@ function FileDropZone({ onFileSelect }) {
     const droppedFiles = event.dataTransfer.files;
 
     if (hasFolders(droppedItems)) {
-      alert("Folders cannot be dropped. Please select a single file.");
+      toast.error("Folders cannot be dropped.");
       return;
     }
 
     if (droppedFiles.length > 1) {
-      alert("Only one file can be dropped at a time.");
+      toast.error("Only one file can be dropped at a time.");
       return;
     }
 
@@ -60,12 +62,28 @@ function FileDropZone({ onFileSelect }) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleClick}
-      className={`min-h-[300px] w-full p-4 border-2 border-dashed rounded cursor-pointer transition-colors duration-500
-    ${isDragging ? "bg-slate-400" : "bg-slate-600 hover:bg-slate-400"} mt-8`}
+      className={`min-h-[300px] w-full p-4 border-2 border-dashed rounded transition-colors duration-500
+    ${isDragging ? "bg-slate-400" : "bg-slate-600"} mt-8`}
     >
-      <div className="flex justify-center items-center min-h-[300px] pointer-events-none">
-        {isDragging ? <p>Drop file here...</p> : <p>Drag and drop a file here, or click to select a file</p>}
+      <div className="flex flex-col justify-center items-center min-h-[300px] pointer-events-none">
+        <BsCloudUploadFill size={50} />
+
+        {isDragging ? <p>Drop it...</p> : <p>Drag & Drop a file here</p>}
+
+        {!isDragging && (
+          <>
+            <p className="my-2">or</p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 p-2 rounded pointer-events-auto"
+              onClick={() => {
+                handleClick();
+                console.log("button has been click");
+              }}
+            >
+              Browse File
+            </button>
+          </>
+        )}
       </div>
       <input id="file-input" type="file" onChange={handleFileInputChange} className="hidden" />
     </div>
