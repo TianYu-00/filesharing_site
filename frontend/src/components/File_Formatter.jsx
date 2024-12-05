@@ -1,9 +1,10 @@
 export function fileSizeFormatter(bytes) {
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-  const decimalPlaces = 2;
-  if (bytes === 0) return "0 Bytes";
+  const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  if (bytes === 0) return "0.00 B";
+
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return parseFloat((bytes / Math.pow(1024, i)).toFixed(decimalPlaces)) + " " + sizes[i];
+  const size = bytes / Math.pow(1024, i);
+  return size.toFixed(2) + " " + sizes[i];
 }
 
 export function fileDateFormatter(isoDateTime) {
