@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 function Landing_Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,33 +13,37 @@ function Landing_Auth() {
   const [rememberMe, setRememberMe] = useState(false);
   const { userLogin, userRegister } = useUser();
   const navigate = useNavigate();
+  const [isAttemptingToAuth, setIsAttemptingToAuth] = useState(false);
 
   const handleAuth = async (event) => {
     try {
       event.preventDefault();
-
+      setIsAttemptingToAuth(true);
       if (isLogin) {
         const loginResponse = await userLogin(email, password, rememberMe);
         if (!loginResponse.success) {
           toast.error(loginResponse.response.data.msg);
+          setIsAttemptingToAuth(false);
         } else {
           navigate("/home");
         }
       } else {
         if (password !== confirmPassword) {
           toast.error("Passwords do not match");
+          setIsAttemptingToAuth(false);
           return;
         }
         const registerResponse = await userRegister(username, email, password);
         if (!registerResponse.success) {
           toast.error(registerResponse.response.data.msg);
+          setIsAttemptingToAuth(false);
         } else {
           navigate("/home");
         }
       }
     } catch (error) {
-      // console.log(error);
       toast.error("An unknown error occurred. Please try again");
+      setIsAttemptingToAuth(false);
     }
   };
 
@@ -134,9 +139,21 @@ function Landing_Auth() {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-500 ease-in-out"
+            disabled={isAttemptingToAuth}
+            className={`w-full bg-blue-500 text-white py-2 rounded-md font-semibold ${
+              !isAttemptingToAuth ? "hover:bg-blue-700" : ""
+            } transition duration-500 ease-in-out`}
           >
-            {isLogin ? "Login" : "Register"}
+            {isAttemptingToAuth ? (
+              <>
+                <Loader />
+                {isLogin ? "Authenticating..." : "Registering..."}
+              </>
+            ) : isLogin ? (
+              "Login"
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
 
