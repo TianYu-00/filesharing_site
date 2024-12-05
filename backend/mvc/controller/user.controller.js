@@ -139,12 +139,13 @@ const signUserAuthJWTAndCreateCookie = (res, userData, isRememberMe) => {
 const passwordResetRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 1,
-  message: "Too many password reset requests from this IP, please try again after a minute.",
+  message: "Too many password reset requests. Please wait and try again after a minute.",
   handler: (req, res) => {
+    const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
     return res.status(429).json({
       success: false,
-      msg: "Too many password reset requests. Please wait and try again after a minute.",
-      data: null,
+      msg: `Too many password reset requests. Please wait ${coolDown} seconds.`,
+      data: { coolDown },
     });
   },
 });
