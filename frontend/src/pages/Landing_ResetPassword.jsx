@@ -3,6 +3,7 @@ import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyPasswordResetToken, changeUserPassword } from "../api";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 function Landing_ResetPassword() {
   const [email, setEmail] = useState("");
@@ -10,16 +11,18 @@ function Landing_ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isTokenValid, setIsTokenValid] = useState(false);
   const location = useLocation();
-
   const params = new URLSearchParams(location.search);
   const token = params.get("token");
-
   const navigate = useNavigate();
+  const [isValidatingToken, setIsValidatingToken] = useState(true);
+  const [isAttemptingToResetPassword, setIsAttemptingToResetPassword] = useState(false);
+  const [isPasswordResetSuccessful, setIsPasswordResetSuccessful] = useState(false);
 
   useEffect(() => {
     const verifyToken = async () => {
       if (token) {
         try {
+          setIsValidatingToken(true);
           const response = await verifyPasswordResetToken(token);
           if (response.success && response.data.isValid) {
             setIsTokenValid(true);
@@ -31,6 +34,8 @@ function Landing_ResetPassword() {
         } catch (error) {
           setIsTokenValid(false);
           // toast.error(error?.response?.data?.msg || "Failed to verify password reset token");
+        } finally {
+          setIsValidatingToken(false);
         }
       }
     };
@@ -52,10 +57,12 @@ function Landing_ResetPassword() {
     }
 
     try {
+      setIsAttemptingToResetPassword(true);
       const response = await changeUserPassword(email, password);
       if (response.success) {
         toast.success("Password has been changed");
         toast.info("Navigating to login page");
+        setIsPasswordResetSuccessful(true);
         setTimeout(() => {
           navigate("/auth");
         }, 3000);
@@ -64,8 +71,21 @@ function Landing_ResetPassword() {
       }
     } catch (error) {
       toast.error(error?.response?.data?.msg || "Failed to change password");
+    } finally {
+      setIsAttemptingToResetPassword(false);
     }
   };
+
+  if (isValidatingToken) {
+    return (
+      <Page_BoilerPlate>
+        <div className="flex flex-col justify-center items-center">
+          <Loader size={10} />
+          <p className="mt-5">Validating Token...</p>
+        </div>
+      </Page_BoilerPlate>
+    );
+  }
 
   if (!isTokenValid) {
     return (
@@ -84,12 +104,9 @@ function Landing_ResetPassword() {
   }
 
   return (
-    <Page_BoilerPlate>
-      <div className="flex justify-center">
-        <form
-          className="border grid gap-4 p-4 w-full max-w-[500px] rounded-2xl bg-white text-black"
-          onSubmit={handle_PasswordReset}
-        >
+    <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
+      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
+        <form className="space-y-4" onSubmit={handle_PasswordReset}>
           <div className="flex flex-col">
             <p className="text-center text-2xl font-bold mb-2">Reset Password</p>
             <p className="text-center text-gray-600 mb-6">Enter your new password to reset for {email}.</p>
@@ -118,15 +135,26 @@ function Landing_ResetPassword() {
           </div>
 
           <button
-            className="w-full border border bg-blue-500 hover:bg-blue-700 text-white font-semibold p-2 rounded transition duration-500 ease-in-out"
+            className={`w-full border border bg-blue-500 ${
+              !isAttemptingToResetPassword && !isPasswordResetSuccessful ? "hover:bg-blue-700" : ""
+            } text-white font-semibold p-2 rounded transition duration-500 ease-in-out`}
             type="submit"
-            disabled={!isTokenValid}
+            disabled={isAttemptingToResetPassword || isPasswordResetSuccessful}
           >
-            Reset Password
+            {isAttemptingToResetPassword ? (
+              <>
+                <Loader />
+                Resetting...
+              </>
+            ) : !isPasswordResetSuccessful ? (
+              "Reset Password"
+            ) : (
+              "Password has been reset"
+            )}
           </button>
         </form>
       </div>
-    </Page_BoilerPlate>
+    </div>
   );
 }
 
