@@ -13,6 +13,8 @@ import { useUser } from "../context/UserContext";
 
 import { toast } from "react-toastify";
 
+import PageExitAlert from "../components/PageExitAlert";
+
 // rfce snippet
 
 function Home() {
@@ -22,6 +24,7 @@ function Home() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [isUploadClicked, setIsUploadClicked] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   //
   const [downloadButtonToolTipContent, setDownloadButtonToolTipContent] = useState("Redirect to download page");
@@ -64,6 +67,8 @@ function Home() {
       }
 
       setIsUploadClicked(true);
+      setIsUploading(true);
+
       const uploadResponse = await uploadFile(formData, (progressEvent) => {
         const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percentCount);
@@ -72,8 +77,10 @@ function Home() {
       toast.success("Uploaded successfully");
       // console.log("Server response:", uploadResponse);
       setDownloadLink(uploadResponse.data.downloadLink.download_url);
+      setIsUploading(false);
     } catch (error) {
       setIsUploadClicked(false);
+      setIsUploading(false);
       toast.error("Failed to upload");
     }
   };
@@ -101,11 +108,11 @@ function Home() {
       {isUploadClicked &&
         (uploadProgress === 100 ? (
           <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-green-500 font-bold">File has been uploaded</p>
+            <p className="text-green-500 font-bold">File uploaded successfully</p>
           </div>
         ) : (
           <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-orange-500 font-bold">File is being uploaded...</p>
+            <p className="text-orange-300 font-bold">File is being uploaded...</p>
           </div>
         ))}
 
@@ -136,7 +143,7 @@ function Home() {
         </div>
       )}
 
-      {uploadProgress > 0 && (
+      {isUploadClicked && (
         <div className="w-full mx-auto flex mt-2">
           <progress
             value={uploadProgress}
@@ -148,16 +155,18 @@ function Home() {
         </div>
       )}
 
+      {isUploading && <PageExitAlert />}
+
       {downloadLink && (
         <div>
           {/* DOWNLOAD */}
           <button
-            className="m-2"
+            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
             onClick={handle_DownloadRedirect}
             data-tooltip-id="id_download_button"
             data-tooltip-content={downloadButtonToolTipContent}
           >
-            <BsBoxArrowRight className="" size={30} />
+            <BsBoxArrowRight size={25} />
           </button>
           <Tooltip
             id="id_download_button"
@@ -168,12 +177,12 @@ function Home() {
 
           {/* COPY */}
           <button
-            className="m-2"
+            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
             onClick={copyLinkToClipBoard}
             data-tooltip-id="id_link_button"
             data-tooltip-content={linkButtonToolTipContent}
           >
-            <BsLink45Deg className="" size={30} />
+            <BsLink45Deg size={25} />
           </button>
           <Tooltip
             id="id_link_button"
@@ -184,12 +193,12 @@ function Home() {
 
           {/* Reselect File */}
           <button
-            className="m-2"
+            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
             onClick={handle_ReselectFile}
             data-tooltip-id="id_reselect_button"
             data-tooltip-content={reselectButtonToolTipContent}
           >
-            <BsPlusLg className="" size={30} />
+            <BsPlusLg size={25} />
           </button>
           <Tooltip
             id="id_reselect_button"
