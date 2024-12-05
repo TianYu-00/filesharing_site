@@ -827,200 +827,196 @@ function Landing_MyFiles() {
 
         {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
         <div className="w-full p-4">
-          <div className="rounded-lg overflow-hidden">
-            <table className={`table-auto w-full text-white text-left w-full h-fit `}>
-              <thead className="border-b-2 border-gray-500 bg-[#181A1B] text-gray-300">
-                <tr>
-                  <th className="px-2 py-4 w-8">
-                    <input
-                      type="checkbox"
-                      className=""
-                      onChange={(e) => handle_FileSelectAll(e.target.checked)}
-                      checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
-                    />
-                  </th>
-                  <th className="px-2 py-4 cursor-pointer w-1/2" onClick={() => handle_FileSorting("name")}>
-                    <div className="flex items-center select-none">
-                      NAME
-                      {fileSortingConfig.sortByKey === "name" &&
-                        (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                        ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                        ))}
-                    </div>
-                  </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("size")}>
-                    <div className="flex items-center select-none">
-                      SIZE
-                      {fileSortingConfig.sortByKey === "size" &&
-                        (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                        ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                        ))}
-                    </div>
-                  </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
-                    <div className="flex items-center select-none">
-                      UPLOADED
-                      {fileSortingConfig.sortByKey === "created_at" &&
-                        (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
-                        ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
-                        ))}
-                    </div>
-                  </th>
-                  <th className="px-2 py-4"></th>
-                </tr>
-              </thead>
+          <table className={`table-auto w-full text-white text-left w-full h-fit `}>
+            <thead className="border-b-2 border-gray-500 bg-[#181A1B] text-gray-300">
+              <tr>
+                <th className="px-2 py-4 w-8">
+                  <input
+                    type="checkbox"
+                    className=""
+                    onChange={(e) => handle_FileSelectAll(e.target.checked)}
+                    checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
+                  />
+                </th>
+                <th className="px-2 py-4 cursor-pointer w-1/2" onClick={() => handle_FileSorting("name")}>
+                  <div className="flex items-center select-none">
+                    NAME
+                    {fileSortingConfig.sortByKey === "name" &&
+                      (fileSortingConfig.direction === "asc" ? (
+                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                      ) : (
+                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                      ))}
+                  </div>
+                </th>
+                <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+                  <div className="flex items-center select-none">
+                    SIZE
+                    {fileSortingConfig.sortByKey === "size" &&
+                      (fileSortingConfig.direction === "asc" ? (
+                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                      ) : (
+                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                      ))}
+                  </div>
+                </th>
+                <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+                  <div className="flex items-center select-none">
+                    UPLOADED
+                    {fileSortingConfig.sortByKey === "created_at" &&
+                      (fileSortingConfig.direction === "asc" ? (
+                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                      ) : (
+                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                      ))}
+                  </div>
+                </th>
+                <th className="px-2 py-4"></th>
+              </tr>
+            </thead>
 
-              <tbody>
-                {filteredFiles.length > 0 ? (
-                  filteredFiles.map((file) => {
-                    return (
-                      <tr
-                        key={file.id}
-                        className="hover:bg-neutral-900 border-b border-neutral-700 cursor-pointer text-gray-400"
-                        onClick={() => handle_RowClickSelected(file)}
-                      >
-                        <td className="px-2 py-3 w-8">
-                          <input
-                            type="checkbox"
-                            checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
-                            onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </td>
-                        <td className="px-2 whitespace-nowrap overflow-hidden truncate max-w-20">
-                          {file.originalname}
-                        </td>
-                        <td className="px-2">{fileSizeFormatter(file.size)}</td>
-                        <td className="px-2">{fileDateFormatter(file.created_at)[1]}</td>
-                        <td className="px-2">
-                          <div className="relative flex justify-end pr-2">
-                            {pageState !== "trash" &&
-                              (file.favourite ? (
-                                <button
-                                  className="justify-center items-center flex text-yellow-500"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handle_favouriteState(file.id, false);
-                                  }}
-                                >
-                                  <BsStarFill />
-                                </button>
-                              ) : (
-                                <button
-                                  className="justify-center items-center flex text-yellow-500"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handle_favouriteState(file.id, true);
-                                  }}
-                                >
-                                  <BsStar />
-                                </button>
-                              ))}
-
-                            <button
-                              className="p-2 rounded-md hover:text-black hover:bg-gray-100"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handle_FileMenuClick(file.id, e.target);
-                              }}
-                            >
-                              <BsThreeDotsVertical size={17} className="" />
-                            </button>
-
-                            {openFileMenu === file.id && (
-                              <div
-                                className={`absolute right-0 mt-1 ${
-                                  fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
-                                } bg-neutral-900 shadow-lg rounded z-10 text-white`}
-                                ref={fileMenuRef}
-                                onClick={(e) => e.stopPropagation()}
+            <tbody>
+              {filteredFiles.length > 0 ? (
+                filteredFiles.map((file) => {
+                  return (
+                    <tr
+                      key={file.id}
+                      className="hover:bg-neutral-900 border-b border-neutral-700 cursor-pointer text-gray-400"
+                      onClick={() => handle_RowClickSelected(file)}
+                    >
+                      <td className="px-2 py-3 w-8">
+                        <input
+                          type="checkbox"
+                          checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
+                          onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </td>
+                      <td className="px-2 whitespace-nowrap overflow-hidden truncate max-w-20">{file.originalname}</td>
+                      <td className="px-2">{fileSizeFormatter(file.size)}</td>
+                      <td className="px-2">{fileDateFormatter(file.created_at)[1]}</td>
+                      <td className="px-2">
+                        <div className="relative flex justify-end pr-2">
+                          {pageState !== "trash" &&
+                            (file.favourite ? (
+                              <button
+                                className="justify-center items-center flex text-yellow-500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handle_favouriteState(file.id, false);
+                                }}
                               >
-                                {buttonMenu.download && (
-                                  <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_FileDownload(file.id)}
-                                  >
-                                    Download
-                                  </button>
-                                )}
+                                <BsStarFill />
+                              </button>
+                            ) : (
+                              <button
+                                className="justify-center items-center flex text-yellow-500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handle_favouriteState(file.id, true);
+                                }}
+                              >
+                                <BsStar />
+                              </button>
+                            ))}
 
-                                {buttonMenu.rename && (
-                                  <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_OnClickFileRename(file)}
-                                  >
-                                    Rename
-                                  </button>
-                                )}
-                                {buttonMenu.manage_link && (
-                                  <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_OnClickManageLink(file)}
-                                  >
-                                    Manage Link
-                                  </button>
-                                )}
-                                {buttonMenu.delete && (
-                                  <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_OnClickDelete(file)}
-                                  >
-                                    Delete
-                                  </button>
-                                )}
+                          <button
+                            className="p-2 rounded-md hover:text-black hover:bg-gray-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handle_FileMenuClick(file.id, e.target);
+                            }}
+                          >
+                            <BsThreeDotsVertical size={17} className="" />
+                          </button>
 
-                                {!file?.trash &&
-                                  (buttonMenu.favourite && !file?.favourite ? (
-                                    <button
-                                      className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                      onClick={() => handle_favouriteState(file.id, true)}
-                                    >
-                                      Favourite
-                                    </button>
-                                  ) : (
-                                    <button
-                                      className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                      onClick={() => handle_favouriteState(file.id, false)}
-                                    >
-                                      Unfavourite
-                                    </button>
-                                  ))}
+                          {openFileMenu === file.id && (
+                            <div
+                              className={`absolute right-0 mt-1 ${
+                                fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                              } bg-neutral-900 shadow-lg rounded z-10 text-white w-40`}
+                              ref={fileMenuRef}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {buttonMenu.download && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_FileDownload(file.id)}
+                                >
+                                  Download
+                                </button>
+                              )}
 
-                                {buttonMenu.trash && (
+                              {buttonMenu.rename && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_OnClickFileRename(file)}
+                                >
+                                  Rename
+                                </button>
+                              )}
+                              {buttonMenu.manage_link && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_OnClickManageLink(file)}
+                                >
+                                  Manage Link
+                                </button>
+                              )}
+                              {buttonMenu.delete && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_OnClickDelete(file)}
+                                >
+                                  Delete
+                                </button>
+                              )}
+
+                              {!file?.trash &&
+                                (buttonMenu.favourite && !file?.favourite ? (
                                   <button
                                     className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_trashState(file.id, true)}
+                                    onClick={() => handle_favouriteState(file.id, true)}
                                   >
-                                    Trash
+                                    Favourite
                                   </button>
-                                )}
-                                {buttonMenu.restore && (
+                                ) : (
                                   <button
                                     className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
-                                    onClick={() => handle_trashState(file.id, false)}
+                                    onClick={() => handle_favouriteState(file.id, false)}
                                   >
-                                    Restore
+                                    Unfavourite
                                   </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <></>
-                )}
-              </tbody>
-            </table>
-          </div>
+                                ))}
+
+                              {buttonMenu.trash && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_trashState(file.id, true)}
+                                >
+                                  Trash
+                                </button>
+                              )}
+                              {buttonMenu.restore && (
+                                <button
+                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  onClick={() => handle_trashState(file.id, false)}
+                                >
+                                  Restore
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <></>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
