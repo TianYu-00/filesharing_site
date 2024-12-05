@@ -198,15 +198,15 @@ exports.sendPasswordResetLink = [
         The DropBoxer Team
       `;
 
-      const response = await sendEmail(email, "DropBoxer Password Reset", textContent);
+      emailSendingSuccessfulRateLimiter(req, res, async () => {
+        const response = await sendEmail(email, "DropBoxer Password Reset", textContent);
 
-      if (response.success) {
-        emailSendingSuccessfulRateLimiter(req, res, () => {
+        if (response.success) {
           res.status(200).json({ success: true, msg: response.message, data: null });
-        });
-      } else {
-        res.status(500).json({ success: false, msg: response.message, data: null });
-      }
+        } else {
+          res.status(500).json({ success: false, msg: response.message, data: null });
+        }
+      });
     } catch (err) {
       next(err);
     }
