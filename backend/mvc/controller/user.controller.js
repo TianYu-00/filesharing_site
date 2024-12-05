@@ -73,6 +73,30 @@ exports.editUserById = async (req, res, next) => {
 
     const body = req.body;
     const data = await updateUser(user_id, body);
+
+    const existingToken = req.cookies.userAuthToken;
+    const decodedToken = jwt.decode(existingToken);
+
+    res.clearCookie("userAuthToken", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "None",
+      secure: true,
+    });
+
+    const expiresInSecond = decodedToken.exp - Math.floor(Date.now() / 1000);
+    const newToken = jwt.sign({ userData: data }, process.env.JWT_USER_AUTH_SECRET, {
+      expiresIn: expiresInSecond,
+    });
+
+    res.cookie("userAuthToken", newToken, {
+      httpOnly: true,
+      maxAge: expiresInSecond * 1000,
+      path: "/",
+      sameSite: "None",
+      secure: true,
+    });
+
     res.json({ success: true, msg: "User has been updated", data: data });
   } catch (err) {
     next(err);
