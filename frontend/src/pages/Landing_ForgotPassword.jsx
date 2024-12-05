@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { sendPasswordResetLink } from "../api";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 function Landing_ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isResetCoolDown, setIsResetCoolDown] = useState(false);
   const [cooldownTimeLeft, setCooldownTimeLeft] = useState(0);
+  const [isAttemptingToSendEmail, setIsAttemptingToSendEmail] = useState(false);
 
   const startCooldownTimer = useCallback(() => {
     let timer;
@@ -36,9 +38,12 @@ function Landing_ForgotPassword() {
     }
 
     try {
+      setIsAttemptingToSendEmail(true);
       const response = await sendPasswordResetLink(email);
       if (response.success) {
         toast.success(response.msg);
+        setIsResetCoolDown(true);
+        setCooldownTimeLeft(60);
       } else {
         toast.error(response.msg);
       }
@@ -47,10 +52,12 @@ function Landing_ForgotPassword() {
       if (coolDown) {
         setIsResetCoolDown(true);
         setCooldownTimeLeft(coolDown);
-        toast.error(`Please wait ${coolDown} seconds before trying again.`);
+        toast.error(error?.response?.data?.msg || "Too many requests, please try again later");
       } else {
         toast.error(error?.response?.data?.msg || "Failed to send password reset link");
       }
+    } finally {
+      setIsAttemptingToSendEmail(false);
     }
   };
 
@@ -81,7 +88,16 @@ function Landing_ForgotPassword() {
             type="submit"
             disabled={isResetCoolDown}
           >
-            {isResetCoolDown ? `Please wait... (${cooldownTimeLeft}s)` : "Request Password Reset"}
+            {isAttemptingToSendEmail ? (
+              <>
+                <Loader />
+                Validating...
+              </>
+            ) : isResetCoolDown ? (
+              `Please wait... (${cooldownTimeLeft}s)`
+            ) : (
+              "Request Password Reset"
+            )}
           </button>
         </form>
       </div>
