@@ -50,7 +50,7 @@ const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTes
       }
     } else {
       if (response.statusCode === 202) {
-        console.log("Email is accepted.");
+        console.log("Email request is accepted.", emailTo);
         result = { success: true, message: "Email has been sent.", data: null };
       } else {
         console.log("Unexpected response status:", response.statusCode);

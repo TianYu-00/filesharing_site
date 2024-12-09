@@ -46,7 +46,7 @@ export const downloadFileByID = async (file_id) => {
 export const registerUser = async (username, email, password) => {
   const data = { username: username, email: email, password: password };
   try {
-    const response = await api.post("/users/register", data);
+    const response = await api.post("/auth/register", data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -57,7 +57,7 @@ export const registerUser = async (username, email, password) => {
 export const loginUser = async (email, password, isRememberMe) => {
   const data = { email: email, password: password, isRememberMe: isRememberMe };
   try {
-    const response = await api.post("/users/login", data);
+    const response = await api.post("/auth/login", data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -78,18 +78,18 @@ export const editUser = async (user_id, { username, email, currentPassword, newP
 
 export const verifyUser = async () => {
   try {
-    const response = await api.get(`/authVerify`);
+    const response = await api.get(`/auth/test`);
     // console.log(response);
     return response.data;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     throw error;
   }
 };
 
 export const logoutUser = async () => {
   try {
-    const response = await api.post(`/users/logout`);
+    const response = await api.post(`/auth/logout`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -100,7 +100,7 @@ export const logoutUser = async () => {
 export const sendPasswordResetLink = async (userEmail) => {
   try {
     const data = { email: userEmail };
-    const response = await api.post(`/users/send-password-reset-link`, data);
+    const response = await api.post(`/auth/forgot-password`, data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -110,8 +110,8 @@ export const sendPasswordResetLink = async (userEmail) => {
 
 export const verifyPasswordResetToken = async (token) => {
   try {
-    const data = { token: token };
-    const response = await api.post(`/users/verify-password-reset-token`, data);
+    const data = { forgotPasswordToken: token };
+    const response = await api.post(`/auth/test-forgot-password-token`, data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -119,10 +119,10 @@ export const verifyPasswordResetToken = async (token) => {
   }
 };
 
-export const changeUserPassword = async (email, password) => {
+export const changeUserPassword = async (email, password, token) => {
   try {
-    const data = { email: email, password: password };
-    const response = await api.patch(`/reset-password`, data);
+    const data = { email: email, password: password, forgotPasswordToken: token };
+    const response = await api.patch(`/auth/reset-password`, data);
     return response.data;
   } catch (error) {
     console.error(error);

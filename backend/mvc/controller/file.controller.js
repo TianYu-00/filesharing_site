@@ -32,21 +32,16 @@ exports.getAllFilesInfo = async (req, res, next) => {
 // For /upload
 exports.postFile = async (req, res, next) => {
   try {
-    const token = req.cookies.userAuthToken;
-
-    let userId = null;
-
+    const token = req.cookies.accessToken;
+    req.userId = null;
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_USER_AUTH_SECRET);
-
-        userId = decoded.userData?.id;
+        const decoded = jwt.verify(token, process.env.JWT_USER_ACCESS_TOKEN_SECRET);
+        req.userId = decoded.userData?.id;
       } catch (err) {
-        // console.log(err);
         return res.status(401).json({ success: false, msg: "Invalid or expired token", data: null });
       }
     }
-    req.userId = userId;
 
     const { file, fileId, downloadLink } = await uploadFile(req);
 
@@ -149,12 +144,6 @@ exports.renameFileById = async (req, res, next) => {
     console.log(err);
     next(err);
   }
-};
-
-const getUserInfoFromCookie = async (req) => {
-  const token = req.cookies.userAuthToken;
-  const decoded = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
-  return decoded.userData;
 };
 
 exports.createDownloadLinkByFileId = async (req, res, next) => {
