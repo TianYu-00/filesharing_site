@@ -80,22 +80,22 @@ function Landing_AccountSettings() {
 
   return (
     <div className="flex justify-center w-full mt-10">
-      <div className="grid gap-4 p-4 w-full max-w-[750px] rounded-lg md:bg-[#181A1B]">
+      <div className="grid gap-4 p-4 w-full max-w-[750px] rounded-lg">
         <form onSubmit={handleSubmit}>
-          <div className="p-4 bg-[#131515] rounded-lg">
+          <div className="p-4 bg-card rounded-lg">
             {/* User Information */}
-            <p className="flex font-bold text-xl text-white mb-4">User Information</p>
+            <p className="flex font-bold text-xl text-copy-primary mb-4">User Information</p>
             <table className="w-full table-auto">
               <tbody>
                 <tr>
-                  <td className="text-white pr-4 w-2/6">User ID</td>
+                  <td className="text-copy-primary pr-4 w-2/6">User ID</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary">
                       <input
                         type="text"
                         disabled
                         value={user?.id || ""}
-                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-[#1E2022] text-white border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full border-gray-600 bg-card"
                       />
                       <BsPersonVcardFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     </div>
@@ -103,15 +103,15 @@ function Landing_AccountSettings() {
                 </tr>
 
                 <tr>
-                  <td className="text-white pr-4 w-2/6">Username</td>
+                  <td className="text-copy-primary pr-4 w-2/6">Username</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary">
                       <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="username"
-                        className="pl-8 pr-4 py-2 border rounded-md w-full text-white bg-[#121212] border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
                         autoComplete="off"
                       />
                       <BsFillPersonFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -120,15 +120,15 @@ function Landing_AccountSettings() {
                 </tr>
 
                 <tr>
-                  <td className="text-white pr-4 w-2/6">Email</td>
+                  <td className="text-copy-primary pr-4 w-2/6">Email</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary">
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="email"
-                        className="pl-8 pr-4 py-2 border rounded-md w-full text-white bg-[#121212] border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
                         autoComplete="new-email"
                       />
                       <BsEnvelopeFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -137,14 +137,14 @@ function Landing_AccountSettings() {
                 </tr>
 
                 <tr>
-                  <td className="text-white pr-4 w-2/6">Created At</td>
+                  <td className="text-copy-primary pr-4 w-2/6">Created At</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary ">
                       <input
                         type="text"
                         disabled
                         value={dateFormatter(user?.created_at) || ""}
-                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-[#1E2022] text-white border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full border-gray-600 bg-card"
                       />
                       <BsCalendarDateFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     </div>
@@ -155,20 +155,20 @@ function Landing_AccountSettings() {
           </div>
 
           {/* Password Management */}
-          <div className="p-4 bg-[#131515] rounded-lg mt-4">
-            <p className="font-bold text-xl text-white mb-4">Password Management</p>
+          <div className="p-4 bg-card rounded-lg mt-4">
+            <p className="font-bold text-xl text-copy-primary mb-4">Password Management</p>
             <table className="w-full table-auto">
               <tbody>
                 <tr>
-                  <td className="text-white pr-4 w-2/6">Current Password</td>
+                  <td className="text-copy-primary pr-4 w-2/6">Current Password</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary">
                       <input
                         type="password"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         placeholder="current password"
-                        className="pl-8 pr-4 py-2 border rounded-md w-full text-white bg-[#121212] border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
                         autoComplete="new-password"
                       />
                       <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -177,15 +177,15 @@ function Landing_AccountSettings() {
                 </tr>
 
                 <tr>
-                  <td className="text-white pr-4 w-2/6">New Password</td>
+                  <td className="text-copy-primary pr-4 w-2/6">New Password</td>
                   <td>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 text-copy-primary">
                       <input
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="new password"
-                        className="pl-8 pr-4 py-2 border rounded-md w-full text-white bg-[#121212] border-gray-600"
+                        className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
                         autoComplete="new-password"
                       />
                       <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -199,7 +199,7 @@ function Landing_AccountSettings() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
+              className="mt-4 bg-cta text-cta-text py-2 px-4 rounded hover:bg-cta-active font-bold transition duration-500 ease-in-out"
             >
               Save Changes
             </button>

@@ -41,7 +41,7 @@ const App = () => {
           pauseOnFocusLoss={false}
           draggable={false}
           pauseOnHover={true}
-          theme="dark"
+          theme={theme}
           transition:Bounce
         />
         <div className={theme}>
