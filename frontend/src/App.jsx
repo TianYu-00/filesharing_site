@@ -45,17 +45,19 @@ const App = () => {
           transition:Bounce
         />
         <div className={theme}>
-          <Header toggleTheme={toggleTheme} theme={theme} />
-          <Routes>
-            <Route path="/" element={<Landing_Home />} />
-            <Route path="/home" element={<Landing_Home />} />
-            <Route path="/auth" element={<Landing_LoginRegistration />} />
-            <Route path="/account" element={<Landing_AccountSettings />} />
-            <Route path="/password-reset" element={<Landing_ForgotPassword />} />
-            <Route path="/password-reset-confirm" element={<Landing_ResetPassword />} />
-            <Route path="/files/download/:file_id" element={<Landing_Download />} />
-            <Route path="/my-files" element={<Landing_MyFiles />} />
-          </Routes>
+          <div className="min-h-screen">
+            <Header toggleTheme={toggleTheme} theme={theme} />
+            <Routes>
+              <Route path="/" element={<Landing_Home />} />
+              <Route path="/home" element={<Landing_Home />} />
+              <Route path="/auth" element={<Landing_LoginRegistration />} />
+              <Route path="/account" element={<Landing_AccountSettings />} />
+              <Route path="/password-reset" element={<Landing_ForgotPassword />} />
+              <Route path="/password-reset-confirm" element={<Landing_ResetPassword />} />
+              <Route path="/files/download/:file_id" element={<Landing_Download />} />
+              <Route path="/my-files" element={<Landing_MyFiles />} />
+            </Routes>
+          </div>
         </div>
       </BrowserRouter>
     </UserProvider>
