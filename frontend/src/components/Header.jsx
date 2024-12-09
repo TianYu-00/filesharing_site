@@ -4,8 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { BsList } from "react-icons/bs";
 import { useUser } from "../context/UserContext";
 import { useSpring, animated } from "@react-spring/web";
+import ToggleSwitch from "./ToggleSwitch";
 
-function Header() {
+function Header({ toggleTheme, theme }) {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
   const { user, userLogout, userVerify } = useUser();
   const navigate = useNavigate();
@@ -33,10 +34,13 @@ function Header() {
           </div>
           <div className="flex-grow flex items-center justify-end text-white">
             {user ? (
-              <div className="mr-5">Logged in as {user.username}</div>
+              <div className="mr-2">Logged in as {user.username}</div>
             ) : (
-              <div className="mr-5">Not logged in</div>
+              <div className="mr-2">Not logged in</div>
             )}
+            <div className="mx-2">
+              <ToggleSwitch isToggled={theme === "light"} toggleSwitch={toggleTheme} />
+            </div>
             <button onClick={handle_MenuClick} className="hover:text-blue-500">
               <BsList size={30} />
             </button>
