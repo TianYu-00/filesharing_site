@@ -34,7 +34,8 @@ Additional Ideas:
 
 - Styling 🟠
 - User visual feedbacks 🟠
-- Access Tokens + Refresh Tokens
+- Access Tokens + Refresh Tokens 🟠
+- Work on isRememberMe (Unfinished)
 
 
 ## checking db
@@ -53,10 +54,10 @@ SELECT * FROM table_name;
 Thought process:
 - User login/registration
 - Create a Refresh token (30 days)
-- Use the Refresh token to generate a Access token (1 hour)
+- Use the Refresh token to generate a Access token (15 min)
 - Store both Refresh + Access token in http only cookie
-- Access token cookie contains userData + jti
-- Refresh token cookie purely contains Refresh token + jti
+- Access token cookie contains Access token(userData + jti + token type) 
+- Refresh token cookie contains Refresh token(jti + userId + token type)
 - When user logs out Access token needs to be black listed until expired
 - When user logs out Refresh token needs to be black listed until expired
 - Or use token white listing but i think black listing saves a lot more resources.
@@ -64,7 +65,7 @@ Thought process:
 ```
 {
     blacklisted_tokens: [
-        {id: 1, jti: "xxx", expires_at: timezone, user_id: 1, blacklisted_at: timezone }, 
+        {id: 1, jti: "xxx", expires_at: timezone, user_id: 1, blacklisted_at: timezone, token_type: "xxx" }, 
     ]
 }
 ```

@@ -7,6 +7,7 @@ async function createTables({ users }) {
   try {
     await cleanUploadsFolder();
 
+    await db.query("DROP TABLE IF EXISTS blacklisted_tokens CASCADE;");
     await db.query("DROP TABLE IF EXISTS file_download_link CASCADE;");
     await db.query("DROP TABLE IF EXISTS file_info CASCADE;");
     await db.query("DROP TABLE IF EXISTS users CASCADE;");
@@ -14,6 +15,7 @@ async function createTables({ users }) {
     await createUsersTable();
     await createFileInfoTable();
     await createFileDownloadLinksTable();
+    await createTokenBlacklistTable();
 
     await insertUsers(users);
 
@@ -67,6 +69,19 @@ async function createFileDownloadLinksTable() {
       password VARCHAR(255),
       download_count INTEGER DEFAULT 0,
       download_limit INTEGER DEFAULT NULL
+    );
+  `);
+}
+
+async function createTokenBlacklistTable() {
+  await db.query(`
+    CREATE TABLE blacklisted_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      jti VARCHAR(255) NOT NULL,
+      token_type VARCHAR(255) NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      blacklisted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
 }

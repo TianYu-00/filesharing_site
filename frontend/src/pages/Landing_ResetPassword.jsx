@@ -24,7 +24,7 @@ function Landing_ResetPassword() {
         try {
           setIsValidatingToken(true);
           const response = await verifyPasswordResetToken(token);
-          if (response.success && response.data.isValid) {
+          if (response.success) {
             setIsTokenValid(true);
             // console.log("token is valid");
             setEmail(response.data.email);
@@ -32,6 +32,7 @@ function Landing_ResetPassword() {
             toast.error("Invalid or expired token");
           }
         } catch (error) {
+          // console.log(error);
           setIsTokenValid(false);
           // toast.error(error?.response?.data?.msg || "Failed to verify password reset token");
         } finally {
@@ -58,7 +59,7 @@ function Landing_ResetPassword() {
 
     try {
       setIsAttemptingToResetPassword(true);
-      const response = await changeUserPassword(email, password);
+      const response = await changeUserPassword(email, password, token);
       if (response.success) {
         toast.success("Password has been changed");
         toast.info("Navigating to login page");

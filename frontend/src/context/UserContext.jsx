@@ -56,7 +56,6 @@ export const UserProvider = ({ children }) => {
         // console.log(result.msg);
       }
     } catch (error) {
-      console.log(error.message);
     } finally {
       setIsLoadingUser(false);
     }
