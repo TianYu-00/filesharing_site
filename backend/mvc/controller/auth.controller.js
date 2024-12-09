@@ -50,16 +50,21 @@ exports.attemptRegister = async (req, res, next) => {
 
 exports.attemptLogin = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, isRememberMe } = req.body;
 
     const data = await authenticateUser({ email, password });
 
     req.user = data;
 
-    const refreshExpireInSeconds = 2592000;
-    const accessExpireInSeconds = 900;
-    // const refreshExpireInSeconds = 10;
-    // const accessExpireInSeconds = 10;
+    let refreshExpireInSeconds;
+
+    if (isRememberMe) {
+      refreshExpireInSeconds = 2592000; // 30 days
+    } else {
+      refreshExpireInSeconds = 3600; // 1 hour
+    }
+
+    const accessExpireInSeconds = 900; // 15 min
 
     const refreshToken = await createRefreshToken(data.id, refreshExpireInSeconds);
     const accessToken = await createAccessToken(data, accessExpireInSeconds);
