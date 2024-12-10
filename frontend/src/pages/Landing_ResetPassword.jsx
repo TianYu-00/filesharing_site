@@ -81,8 +81,8 @@ function Landing_ResetPassword() {
     return (
       <Page_BoilerPlate>
         <div className="flex flex-col justify-center items-center">
-          <Loader size={10} />
-          <p className="mt-5">Validating Token...</p>
+          <Loader />
+          <p className="mt-5 text-copy-secondary">Validating Token...</p>
         </div>
       </Page_BoilerPlate>
     );
@@ -92,9 +92,9 @@ function Landing_ResetPassword() {
     return (
       <Page_BoilerPlate>
         <div className="flex flex-col justify-center items-center">
-          <p className="text-red-500">Password reset link has expired</p>
+          <p className="text-red-500">Reset link has expired</p>
           <button
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold p-2 rounded mt-10 max-w-md transition duration-500 ease-in-out"
+            className="w-full bg-cta hover:bg-cta-active text-cta-text font-semibold p-2 rounded mt-10 max-w-md transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -106,15 +106,15 @@ function Landing_ResetPassword() {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
+      <div className="bg-card rounded-lg shadow-md p-6 w-full max-w-md">
         <form className="space-y-4" onSubmit={handle_PasswordReset}>
           <div className="flex flex-col">
-            <p className="text-center text-2xl font-bold mb-2">Reset Password</p>
-            <p className="text-center text-gray-600 mb-6">Enter your new password to reset for {email}.</p>
+            <p className="text-center text-2xl font-bold mb-2 text-copy-primary">Reset Password</p>
+            <p className="text-center text-copy-secondary mb-6">Enter your new password to reset for {email}.</p>
           </div>
 
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80">Password</label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
@@ -125,7 +125,7 @@ function Landing_ResetPassword() {
           </div>
 
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80">Confirm Password</label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
@@ -136,9 +136,9 @@ function Landing_ResetPassword() {
           </div>
 
           <button
-            className={`w-full border border bg-blue-500 ${
-              !isAttemptingToResetPassword && !isPasswordResetSuccessful ? "hover:bg-blue-700" : ""
-            } text-white font-semibold p-2 rounded transition duration-500 ease-in-out`}
+            className={`w-full bg-cta text-cta-text py-2 rounded-md font-semibold ${
+              !isAttemptingToResetPassword && !isPasswordResetSuccessful ? "hover:bg-cta-active" : ""
+            } transition duration-500 ease-in-out`}
             type="submit"
             disabled={isAttemptingToResetPassword || isPasswordResetSuccessful}
           >

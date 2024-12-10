@@ -216,7 +216,7 @@ exports.resetPassword = async (req, res, next) => {
 exports.verifyForgotPasswordToken = async (req, res, next) => {
   try {
     const data = req.userEmail;
-    res.json({ success: true, msg: "Verified successfully", data: data });
+    res.json({ success: true, msg: "Verified successfully", data: { email: data } });
   } catch (err) {
     next(err);
   }
