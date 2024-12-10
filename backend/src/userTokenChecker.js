@@ -36,7 +36,10 @@ const userTokenChecker = async (req, res, next) => {
       req.userData = decodedNewAccessToken.userData;
       return next();
     } catch (err) {
-      return next(err);
+      return next({
+        code: "NOT_LOGGED_IN",
+        message: "User session expired",
+      });
     }
   }
 };

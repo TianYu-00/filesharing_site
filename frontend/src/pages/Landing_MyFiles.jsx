@@ -29,6 +29,7 @@ import Modal from "../components/Modal";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
 import { useSpring, animated } from "@react-spring/web";
+import useErrorChecker from "../components/UseErrorChecker";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -92,6 +93,9 @@ function Landing_MyFiles() {
 
   // page state
   const [pageState, setPageState] = useState("all");
+
+  // error handler
+  const checkError = useErrorChecker();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -165,13 +169,17 @@ function Landing_MyFiles() {
 
   useEffect(() => {
     const getFiles = async () => {
-      const allFiles = await fetchFilesByUserId(user.id);
-      setAllFiles(allFiles.data);
-      // setDisplayFiles(allFiles.data);
-      const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
-      // console.log(allFilesWithoutTrash);
-      setDisplayFiles(allFilesWithoutTrash);
-      // console.log(user);
+      try {
+        const allFiles = await fetchFilesByUserId(user.id);
+        setAllFiles(allFiles.data);
+        // setDisplayFiles(allFiles.data);
+        const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
+        // console.log(allFilesWithoutTrash);
+        setDisplayFiles(allFilesWithoutTrash);
+        // console.log(user);
+      } catch (err) {
+        checkError(err);
+      }
     };
 
     if (user) {
@@ -225,7 +233,8 @@ function Landing_MyFiles() {
         toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to delete file");
+      // toast.error(err?.response?.data?.msg || "Failed to delete file");
+      checkError(err);
     }
   };
 
@@ -253,7 +262,8 @@ function Landing_MyFiles() {
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to download file");
+      // toast.error(err?.response?.data?.msg || "Failed to download file");
+      checkError(err);
     }
   };
 
@@ -305,7 +315,8 @@ function Landing_MyFiles() {
         toast.error("Failed to rename file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to rename file");
+      // toast.error(err?.response?.data?.msg || "Failed to rename file");
+      checkError(err);
     }
   };
 
@@ -321,7 +332,8 @@ function Landing_MyFiles() {
 
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to fetch download links");
+      // toast.error(err?.response?.data?.msg || "Failed to fetch download links");
+      checkError(err);
     }
   };
 
@@ -347,7 +359,8 @@ function Landing_MyFiles() {
         toast.error("Failed to create download link");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to create download link");
+      // toast.error(err?.response?.data?.msg || "Failed to create download link");
+      checkError(err);
     }
   };
 
@@ -361,7 +374,8 @@ function Landing_MyFiles() {
         toast.error("Failed to delete download link");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to delete download link");
+      // toast.error(err?.response?.data?.msg || "Failed to delete download link");
+      checkError(err);
     }
   };
 
@@ -402,7 +416,8 @@ function Landing_MyFiles() {
         toast.error(response.msg || "Failed to delete files");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+      checkError(err);
     }
   };
 
@@ -520,7 +535,8 @@ function Landing_MyFiles() {
         toast.error("Failed to update file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to update file");
+      // toast.error(err?.response?.data?.msg || "Failed to update file");
+      checkError(err);
     }
   };
 
@@ -539,7 +555,8 @@ function Landing_MyFiles() {
         toast.error("Failed to update file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to update file");
+      // toast.error(err?.response?.data?.msg || "Failed to update file");
+      checkError(err);
     }
   };
 
