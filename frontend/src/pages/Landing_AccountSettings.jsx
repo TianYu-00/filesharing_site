@@ -12,6 +12,7 @@ import {
 import { editUser } from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import useErrorChecker from "../components/UseErrorChecker";
 
 function Landing_AccountSettings() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function Landing_AccountSettings() {
   const [email, setEmail] = useState(user?.email || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const checkError = useErrorChecker();
 
   useEffect(() => {
     if (user) {
@@ -71,7 +73,8 @@ function Landing_AccountSettings() {
         setUserInfo(changeResponse.data);
       }
     } catch (err) {
-      toast.error(err.response?.data?.msg || "Failed. Please try again");
+      checkError(err);
+      // toast.error(err.response?.data?.msg || "Failed. Please try again");
     } finally {
       setNewPassword("");
       setCurrentPassword("");
