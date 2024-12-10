@@ -6,10 +6,6 @@ const userTokenChecker = async (req, res, next) => {
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;
 
-  if (!accessToken || !refreshToken) {
-    return res.status(401).json({ success: false, msg: "Tokens are missing" });
-  }
-
   try {
     const decodedAccessToken = jwt.verify(accessToken, process.env.JWT_USER_ACCESS_TOKEN_SECRET);
     await compareBlackListedToken(decodedAccessToken);
