@@ -141,7 +141,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">{validation.message}</p>
           <button
-            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
+            className="w-full bg-cta text-cta-text font-semibold p-2 rounded mt-10 max-w-sm hover:bg-cta-active transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -157,7 +157,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">Download link not found.</p>
           <button
-            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
+            className="w-full bg-cta text-cta-text font-semibold p-2 rounded mt-10 max-w-sm hover:bg-cta-active transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -179,14 +179,14 @@ function Landing_Download() {
         >
           <input
             type="text"
-            className="border p-2 text-black"
+            className="border p-2 text-black rounded-md"
             value={passwordState.entered}
             onChange={(e) => setPasswordState((prev) => ({ ...prev, entered: e.target.value }))}
             placeholder="Enter password"
           />
           <button
             type="submit"
-            className="bg-blue-500 mt-4 p-2 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
+            className="bg-cta mt-4 p-2 rounded text-cta-text hover:bg-cta-active font-bold transition duration-500 ease-in-out"
           >
             Submit Password
           </button>
