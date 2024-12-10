@@ -63,14 +63,14 @@ function Landing_ForgotPassword() {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
-        <h1 className="text-center text-2xl font-bold mb-2">Forgot Password</h1>
-        <p className="text-center text-gray-600 mb-6">
+      <div className="bg-card rounded-lg shadow-md p-6 w-full max-w-md">
+        <h1 className="text-center text-2xl font-bold mb-2 text-copy-primary">Forgot Password</h1>
+        <p className="text-center text-copy-secondary mb-6">
           Enter your email and we'll send you a link to reset your password.
         </p>
         <form className="space-y-4" onSubmit={handle_ForgetPassword}>
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-copy-primary/80">Email</label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="email"
@@ -82,8 +82,8 @@ function Landing_ForgotPassword() {
           </div>
 
           <button
-            className={`w-full bg-blue-500 text-white py-2 rounded-md font-semibold transition duration-500 ease-in-out ${
-              isResetCoolDown ? "bg-blue-300 cursor-not-allowed" : "hover:bg-blue-700"
+            className={`w-full bg-cta text-white py-2 rounded-md font-semibold transition duration-500 ease-in-out ${
+              isResetCoolDown ? "bg-cta/40 cursor-not-allowed" : "hover:bg-cta-active"
             }`}
             type="submit"
             disabled={isResetCoolDown}
