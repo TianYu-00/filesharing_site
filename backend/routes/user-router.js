@@ -4,14 +4,15 @@ const userRouter = express.Router();
 
 const checkAdminRole = require("../src/checkAdminRole");
 const userTokenChecker = require("../src/userTokenChecker");
+const isLoggedInChecker = require("../src/isLoggedInChecker");
 
 // admin only
-userRouter.get("/", userTokenChecker, checkAdminRole, userController.fetchAllUsers);
+userRouter.get("/", userTokenChecker, isLoggedInChecker, checkAdminRole, userController.fetchAllUsers);
 
 // should be protected
-userRouter.get("/:user_id", userTokenChecker, userController.fetchUserById);
-userRouter.patch("/:user_id", userTokenChecker, userController.editUserById);
-userRouter.get("/:user_id/files", userTokenChecker, userController.fetchAllFilesBelongToUserId);
+userRouter.get("/:user_id", userTokenChecker, isLoggedInChecker, userController.fetchUserById);
+userRouter.patch("/:user_id", userTokenChecker, isLoggedInChecker, userController.editUserById);
+userRouter.get("/:user_id/files", userTokenChecker, isLoggedInChecker, userController.fetchAllFilesBelongToUserId);
 
 // for all
 

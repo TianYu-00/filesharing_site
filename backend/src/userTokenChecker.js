@@ -3,24 +3,23 @@ const { createAccessToken, createCookie, compareBlackListedToken } = require("..
 const { getUser } = require("../mvc/models/user.model");
 
 const userTokenChecker = async (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
-  const refreshToken = req.cookies.refreshToken;
+  const accessToken = req.cookies?.accessToken;
+  const refreshToken = req.cookies?.refreshToken;
 
   try {
     const decodedAccessToken = jwt.verify(accessToken, process.env.JWT_USER_ACCESS_TOKEN_SECRET);
     await compareBlackListedToken(decodedAccessToken);
     req.userData = decodedAccessToken.userData;
-    return next();
-  } catch (err) {
+  } catch (accessErr) {
+    if (!refreshToken) return next();
+
     try {
       const decodedRefreshToken = jwt.verify(refreshToken, process.env.JWT_USER_REFRESH_TOKEN_SECRET);
       await compareBlackListedToken(decodedRefreshToken);
 
       const userId = decodedRefreshToken.userId;
 
-      if (!userId) {
-        return res.status(401).json({ success: false, msg: "Refresh token is invalid (missing userId)" });
-      }
+      if (!userId) return next();
 
       const userData = await getUser(userId);
 
@@ -34,14 +33,12 @@ const userTokenChecker = async (req, res, next) => {
 
       const decodedNewAccessToken = jwt.decode(newAccessToken);
       req.userData = decodedNewAccessToken.userData;
+    } catch (refreshErr) {
       return next();
-    } catch (err) {
-      return next({
-        code: "NOT_LOGGED_IN",
-        message: "User session expired",
-      });
     }
   }
+
+  return next();
 };
 
 module.exports = userTokenChecker;
