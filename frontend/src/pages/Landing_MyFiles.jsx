@@ -144,6 +144,7 @@ function Landing_MyFiles() {
   }, [displayFiles, fileSortingConfig]);
 
   const handle_FileSorting = (sortByKey) => {
+    setOpenFileMenu(null);
     setFileSortingConfig((prevConfig) => {
       let newSortByKey = sortByKey;
       let newDirection = "asc";
@@ -189,7 +190,7 @@ function Landing_MyFiles() {
 
   useEffect(() => {
     const handle_OutOfContentClick = (event) => {
-      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target) && !event.target.closest("tr")) {
         setOpenFileMenu(null);
       }
     };
@@ -395,7 +396,8 @@ function Landing_MyFiles() {
   };
 
   const handle_RowClickSelected = (file) => {
-    if (openFileMenu === null) {
+    if (openFileMenu !== null) {
+      setOpenFileMenu(null);
       return;
     }
     const isSelected = listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id);
@@ -898,7 +900,7 @@ function Landing_MyFiles() {
                   return (
                     <tr
                       key={file.id}
-                      className="hover:bg-card/50 border-b border-border/50 cursor-pointer text-copy-primary/60"
+                      className="hover:bg-card/50 border-b border-border/50 cursor-pointer text-copy-primary/60 select-none"
                       onClick={() => handle_RowClickSelected(file)}
                     >
                       <td className="px-2 py-3 w-8">
