@@ -68,7 +68,7 @@ function Landing_Download() {
     try {
       const response = await validateDownloadLinkPassword(downloadLinkInfo.id, passwordState.entered);
       if (response.success) {
-        setPasswordState({ needed: false, correct: true, entered: "" });
+        setPasswordState({ needed: false, correct: true, entered: passwordState.entered });
         fetchFile();
       } else {
         setPasswordState((prev) => ({ ...prev, correct: false }));
@@ -82,7 +82,8 @@ function Landing_Download() {
   const handle_DownloadFile = async () => {
     try {
       await increaseDownloadLinkCountByLinkId(downloadLinkInfo.id);
-      const fileBlob = await downloadFileByID(file.id);
+
+      const fileBlob = await downloadFileByID(file.id, download_link, passwordState.entered);
       const url = URL.createObjectURL(new Blob([fileBlob]));
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
