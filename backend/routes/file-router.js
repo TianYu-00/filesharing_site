@@ -4,15 +4,26 @@ const fileRouter = express.Router();
 
 const checkAdminRole = require("../src/checkAdminRole");
 const userTokenChecker = require("../src/userTokenChecker");
+const isLoggedInChecker = require("../src/isLoggedInChecker");
 
 // admin only
-fileRouter.get("/", userTokenChecker, checkAdminRole, fileController.getAllFilesInfo); // not used
-fileRouter.get("/info/:file_id", userTokenChecker, checkAdminRole, fileController.getFileInfo); // not used
+fileRouter.get("/", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getAllFilesInfo);
+fileRouter.get("/info/:file_id", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getFileInfo);
 
 // should be protected
-fileRouter.delete("/delete-file-by-file-id/:file_id", userTokenChecker, fileController.deleteFile);
-fileRouter.patch("/rename-file-by-file-id/:file_id", userTokenChecker, fileController.renameFileById);
-fileRouter.get("/download-link-by-file-id/:file_id", userTokenChecker, fileController.getDownloadLinks);
+fileRouter.delete("/delete-file-by-file-id/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
+fileRouter.patch(
+  "/rename-file-by-file-id/:file_id",
+  userTokenChecker,
+  isLoggedInChecker,
+  fileController.renameFileById
+);
+fileRouter.get(
+  "/download-link-by-file-id/:file_id",
+  userTokenChecker,
+  isLoggedInChecker,
+  fileController.getDownloadLinks
+);
 fileRouter.post(
   "/create-download-link-by-file-id/:file_id",
   userTokenChecker,
@@ -24,10 +35,25 @@ fileRouter.delete(
   fileController.removeDownloadLinkByLinkId
 );
 
-fileRouter.delete("/remove-many-files-by-body-file-info", userTokenChecker, fileController.removeManyFilesByFileInfo);
+fileRouter.delete(
+  "/remove-many-files-by-body-file-info",
+  userTokenChecker,
+  isLoggedInChecker,
+  fileController.removeManyFilesByFileInfo
+);
 
-fileRouter.patch("/update-favourite-file-by-file-id/:file_id", userTokenChecker, fileController.favouriteFileById);
-fileRouter.patch("/update-trash-file-by-file-id/:file_id", userTokenChecker, fileController.trashFileById);
+fileRouter.patch(
+  "/update-favourite-file-by-file-id/:file_id",
+  userTokenChecker,
+  isLoggedInChecker,
+  fileController.favouriteFileById
+);
+fileRouter.patch(
+  "/update-trash-file-by-file-id/:file_id",
+  userTokenChecker,
+  isLoggedInChecker,
+  fileController.trashFileById
+);
 
 // for all
 fileRouter.post("/file-upload", fileController.postFile);

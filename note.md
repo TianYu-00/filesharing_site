@@ -78,9 +78,10 @@ Thought process:
 ## Improve file access security
 Thought process:
 - Instead of using file_id directly to download the file, I should prob make it more complicated using uuid or crypto random bytes
+
 Note from phone:
 - /api/files/download/:file_id
-- authTokenChecker
+- userTokenChecker
 <!-- - isLoggedIn(Not needed in this case but SIDE NOTE, SHOULD PROB CREATE THIS INSTEAD OF REJECTING USER ACCESS STRAIGHT FROM AUTHTOKENCHECKER WHEN REFRESH TOKEN IS MISSING) -->
 - controller
 
