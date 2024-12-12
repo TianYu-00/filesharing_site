@@ -14,7 +14,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routes
-app.get("/test", (req, res) => {
+app.get("/api/test", (req, res) => {
   res.send({ success: true, msg: "Hello World!", data: null });
 });
 
