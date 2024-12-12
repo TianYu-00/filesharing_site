@@ -59,12 +59,12 @@ exports.attemptLogin = async (req, res, next) => {
     let refreshExpireInSeconds;
 
     if (isRememberMe) {
-      refreshExpireInSeconds = 2592000; // 30 days
+      refreshExpireInSeconds = 2592000; // 2592000 = 30 days
     } else {
-      refreshExpireInSeconds = 3600; // 1 hour
+      refreshExpireInSeconds = 3600; // 3600 = 1 hour
     }
 
-    const accessExpireInSeconds = 900; // 15 min
+    const accessExpireInSeconds = 900; // 900 = 15 min
 
     const refreshToken = await createRefreshToken(data.id, refreshExpireInSeconds);
     const accessToken = await createAccessToken(data, accessExpireInSeconds);
@@ -216,7 +216,7 @@ exports.resetPassword = async (req, res, next) => {
 exports.verifyForgotPasswordToken = async (req, res, next) => {
   try {
     const data = req.userEmail;
-    res.json({ success: true, msg: "Verified successfully", data: data });
+    res.json({ success: true, msg: "Verified successfully", data: { email: data } });
   } catch (err) {
     next(err);
   }

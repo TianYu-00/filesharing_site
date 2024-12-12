@@ -29,6 +29,7 @@ import Modal from "../components/Modal";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
 import { useSpring, animated } from "@react-spring/web";
+import useErrorChecker from "../components/UseErrorChecker";
 
 function Landing_MyFiles() {
   const navigate = useNavigate();
@@ -92,6 +93,9 @@ function Landing_MyFiles() {
 
   // page state
   const [pageState, setPageState] = useState("all");
+
+  // error handler
+  const checkError = useErrorChecker();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -165,13 +169,17 @@ function Landing_MyFiles() {
 
   useEffect(() => {
     const getFiles = async () => {
-      const allFiles = await fetchFilesByUserId(user.id);
-      setAllFiles(allFiles.data);
-      // setDisplayFiles(allFiles.data);
-      const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
-      // console.log(allFilesWithoutTrash);
-      setDisplayFiles(allFilesWithoutTrash);
-      // console.log(user);
+      try {
+        const allFiles = await fetchFilesByUserId(user.id);
+        setAllFiles(allFiles.data);
+        // setDisplayFiles(allFiles.data);
+        const allFilesWithoutTrash = allFiles.data.filter((file) => file.trash !== true);
+        // console.log(allFilesWithoutTrash);
+        setDisplayFiles(allFilesWithoutTrash);
+        // console.log(user);
+      } catch (err) {
+        checkError(err);
+      }
     };
 
     if (user) {
@@ -225,7 +233,8 @@ function Landing_MyFiles() {
         toast.error(response?.msg || "Failed to delete file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to delete file");
+      // toast.error(err?.response?.data?.msg || "Failed to delete file");
+      checkError(err);
     }
   };
 
@@ -253,7 +262,8 @@ function Landing_MyFiles() {
       triggerDownload(url, file.originalname);
       URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to download file");
+      // toast.error(err?.response?.data?.msg || "Failed to download file");
+      checkError(err);
     }
   };
 
@@ -305,7 +315,8 @@ function Landing_MyFiles() {
         toast.error("Failed to rename file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to rename file");
+      // toast.error(err?.response?.data?.msg || "Failed to rename file");
+      checkError(err);
     }
   };
 
@@ -321,7 +332,8 @@ function Landing_MyFiles() {
 
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to fetch download links");
+      // toast.error(err?.response?.data?.msg || "Failed to fetch download links");
+      checkError(err);
     }
   };
 
@@ -347,7 +359,8 @@ function Landing_MyFiles() {
         toast.error("Failed to create download link");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to create download link");
+      // toast.error(err?.response?.data?.msg || "Failed to create download link");
+      checkError(err);
     }
   };
 
@@ -361,7 +374,8 @@ function Landing_MyFiles() {
         toast.error("Failed to delete download link");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to delete download link");
+      // toast.error(err?.response?.data?.msg || "Failed to delete download link");
+      checkError(err);
     }
   };
 
@@ -402,7 +416,8 @@ function Landing_MyFiles() {
         toast.error(response.msg || "Failed to delete files");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+      checkError(err);
     }
   };
 
@@ -520,7 +535,8 @@ function Landing_MyFiles() {
         toast.error("Failed to update file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to update file");
+      // toast.error(err?.response?.data?.msg || "Failed to update file");
+      checkError(err);
     }
   };
 
@@ -539,7 +555,8 @@ function Landing_MyFiles() {
         toast.error("Failed to update file");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg || "Failed to update file");
+      // toast.error(err?.response?.data?.msg || "Failed to update file");
+      checkError(err);
     }
   };
 
@@ -567,7 +584,7 @@ function Landing_MyFiles() {
           <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
           <div className="flex justify-center items-align space-x-6">
             <button
-              className="bg-blue-500 font-bold p-2 rounded text-white hover:bg-blue-700 transition duration-500 ease-in-out"
+              className="bg-cta font-bold p-2 rounded text-cta-text hover:bg-cta-active transition duration-500 ease-in-out"
               onClick={() => {
                 setIsDeleteConfirmModalOpen(false);
                 setCurrentSelectedFile(null);
@@ -605,7 +622,7 @@ function Landing_MyFiles() {
             placeholder="Enter new name here"
           />
           <button
-            className="text-white bg-blue-500 transition duration-500 ease-in-out hover:bg-blue-700 px-2 p-1 rounded font-bold ml-2"
+            className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active px-2 p-1 rounded font-bold ml-2"
             onClick={() => handle_FileRename()}
           >
             Update
@@ -714,7 +731,7 @@ function Landing_MyFiles() {
 
               <div className="flex justify-end mx-3">
                 <button
-                  className="text-white bg-blue-500 hover:bg-blue-700 p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
+                  className="text-cta-text bg-cta hover:bg-cta-active p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
                   onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
                 >
                   Create Link
@@ -730,18 +747,18 @@ function Landing_MyFiles() {
         <div
           ref={toolBarRef}
           className={`${
-            isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-[#111313]" : ""
+            isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-[#141519]" : ""
           } max-w-full p-2 rounded-md flex flex-row h-14`}
         >
           <button
-            className="bg-[#111313] text-white hover:bg-white hover:text-black text-white rounded-md mr-4 shadow-lg shadow-black/50"
+            className="bg-background text-copy-primary hover:bg-background-opp hover:text-copy-opp rounded-md mr-4 shadow-lg shadow-black/50"
             onClick={() => setIsSideBarOpen(!isSideBarOpen)}
           >
             <BsList className="mx-2" size={25} />
           </button>
           {listOfSelectedFile.length > 0 && (
             <button
-              className={`border p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+              className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
               onClick={() => setListOfSelectedFile([])}
               disabled={listOfSelectedFile.length === 0}
             >
@@ -751,7 +768,7 @@ function Landing_MyFiles() {
 
           {pageState === "trash" && listOfSelectedFile.length > 0 && (
             <button
-              className={`border p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+              className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
               onClick={handle_DeleteManyFiles}
               disabled={listOfSelectedFile.length === 0}
             >
@@ -759,10 +776,10 @@ function Landing_MyFiles() {
             </button>
           )}
 
-          <div className="relative flex-grow ml-auto max-w-sm rounded-md shadow-lg shadow-black/50">
+          <div className="relative flex-grow ml-auto max-w-sm rounded-md shadow-md shadow-black/50">
             <input
               type="text"
-              className="rounded-md pl-4 pr-12 w-full h-full bg-[#1A1918] text-white border border-gray-500 bg-transparent focus:outline-none "
+              className="rounded-md pl-4 pr-12 w-full h-full text-white border border-gray-500 bg-transparent focus:outline-none "
               placeholder="Search"
               value={inputSearchTerm}
               onChange={(e) => setInputSearchTerm(e.target.value)}
@@ -771,7 +788,7 @@ function Landing_MyFiles() {
               className="absolute right-0 text-black cursor-pointer h-full rounded-r-full"
               onClick={handle_OnClickSearchFileName}
             >
-              <BsSearch className="mx-4 stroke-1 text-white" />
+              <BsSearch className="mx-4 stroke-1 text-copy-primary" />
             </button>
           </div>
         </div>
@@ -782,12 +799,12 @@ function Landing_MyFiles() {
         {isSideBarOpen && (
           <div
             className={`fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-80 ${
-              isToolBarSticky ? "top-12" : ""
+              isToolBarSticky ? "top-14" : ""
             }`}
             onClick={() => setIsSideBarOpen(false)}
           >
             <animated.div
-              className={`flex flex-col text-white bg-[#111313] w-fit h-full p-4 min-w-1/3`}
+              className={`flex flex-col text-white bg-[#141519] w-fit h-full p-4 min-w-1/3`}
               style={sideBarDrawerAnimation}
             >
               <div className="p-2 border-b border-gray-500 py-4">
@@ -827,8 +844,8 @@ function Landing_MyFiles() {
 
         {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
         <div className="w-full p-4">
-          <table className={`table-auto w-full text-white text-left w-full h-fit `}>
-            <thead className="border-b-2 border-gray-500 bg-[#181A1B] text-gray-300">
+          <table className={`table-auto w-full text-left w-full h-fit `}>
+            <thead className="border-b-2 border-border bg-card text-copy-primary/80">
               <tr>
                 <th className="px-2 py-4 w-8">
                   <input
@@ -843,9 +860,9 @@ function Landing_MyFiles() {
                     NAME
                     {fileSortingConfig.sortByKey === "name" &&
                       (fileSortingConfig.direction === "asc" ? (
-                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
                       ) : (
-                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
                       ))}
                   </div>
                 </th>
@@ -854,9 +871,9 @@ function Landing_MyFiles() {
                     SIZE
                     {fileSortingConfig.sortByKey === "size" &&
                       (fileSortingConfig.direction === "asc" ? (
-                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
                       ) : (
-                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
                       ))}
                   </div>
                 </th>
@@ -865,9 +882,9 @@ function Landing_MyFiles() {
                     UPLOADED
                     {fileSortingConfig.sortByKey === "created_at" &&
                       (fileSortingConfig.direction === "asc" ? (
-                        <BsArrowUp className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
                       ) : (
-                        <BsArrowDown className="ml-1 stroke-1 text-gray-500" />
+                        <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
                       ))}
                   </div>
                 </th>
@@ -881,7 +898,7 @@ function Landing_MyFiles() {
                   return (
                     <tr
                       key={file.id}
-                      className="hover:bg-neutral-900 border-b border-neutral-700 cursor-pointer text-gray-400"
+                      className="hover:bg-card/50 border-b border-border/50 cursor-pointer text-copy-primary/60"
                       onClick={() => handle_RowClickSelected(file)}
                     >
                       <td className="px-2 py-3 w-8">
@@ -921,7 +938,7 @@ function Landing_MyFiles() {
                             ))}
 
                           <button
-                            className="p-2 rounded-md hover:text-black hover:bg-gray-100"
+                            className="p-2 rounded-md hover:text-copy-opp hover:bg-background-opp"
                             onClick={(e) => {
                               e.stopPropagation();
                               handle_FileMenuClick(file.id, e.target);
@@ -932,15 +949,15 @@ function Landing_MyFiles() {
 
                           {openFileMenu === file.id && (
                             <div
-                              className={`absolute right-0 mt-1 ${
+                              className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
                                 fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
-                              } bg-neutral-900 shadow-lg rounded z-10 text-white w-40`}
+                              } bg-card text-copy-primary`}
                               ref={fileMenuRef}
                               onClick={(e) => e.stopPropagation()}
                             >
                               {buttonMenu.download && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_FileDownload(file.id)}
                                 >
                                   Download
@@ -949,7 +966,7 @@ function Landing_MyFiles() {
 
                               {buttonMenu.rename && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_OnClickFileRename(file)}
                                 >
                                   Rename
@@ -957,7 +974,7 @@ function Landing_MyFiles() {
                               )}
                               {buttonMenu.manage_link && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_OnClickManageLink(file)}
                                 >
                                   Manage Link
@@ -965,7 +982,7 @@ function Landing_MyFiles() {
                               )}
                               {buttonMenu.delete && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_OnClickDelete(file)}
                                 >
                                   Delete
@@ -975,14 +992,14 @@ function Landing_MyFiles() {
                               {!file?.trash &&
                                 (buttonMenu.favourite && !file?.favourite ? (
                                   <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                     onClick={() => handle_favouriteState(file.id, true)}
                                   >
                                     Favourite
                                   </button>
                                 ) : (
                                   <button
-                                    className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                     onClick={() => handle_favouriteState(file.id, false)}
                                   >
                                     Unfavourite
@@ -991,7 +1008,7 @@ function Landing_MyFiles() {
 
                               {buttonMenu.trash && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_trashState(file.id, true)}
                                 >
                                   Trash
@@ -999,7 +1016,7 @@ function Landing_MyFiles() {
                               )}
                               {buttonMenu.restore && (
                                 <button
-                                  className="p-2 hover:bg-white hover:text-black w-full text-left rounded"
+                                  className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                                   onClick={() => handle_trashState(file.id, false)}
                                 >
                                   Restore

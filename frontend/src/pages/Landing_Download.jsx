@@ -141,7 +141,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">{validation.message}</p>
           <button
-            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
+            className="w-full bg-cta text-cta-text font-semibold p-2 rounded mt-10 max-w-sm hover:bg-cta-active transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -157,7 +157,7 @@ function Landing_Download() {
         <div className="flex flex-col justify-center items-center">
           <p className="text-red-500">Download link not found.</p>
           <button
-            className="w-full bg-blue-500 text-white font-semibold p-2 rounded mt-10 max-w-sm hover:bg-blue-700 transition duration-500 ease-in-out"
+            className="w-full bg-cta text-cta-text font-semibold p-2 rounded mt-10 max-w-sm hover:bg-cta-active transition duration-500 ease-in-out"
             onClick={() => navigate("/")}
           >
             Return to home page
@@ -179,14 +179,14 @@ function Landing_Download() {
         >
           <input
             type="text"
-            className="border p-2 text-black"
+            className="border p-2 text-black rounded-md"
             value={passwordState.entered}
             onChange={(e) => setPasswordState((prev) => ({ ...prev, entered: e.target.value }))}
             placeholder="Enter password"
           />
           <button
             type="submit"
-            className="bg-blue-500 mt-4 p-2 rounded hover:bg-blue-700 font-bold transition duration-500 ease-in-out"
+            className="bg-cta mt-4 p-2 rounded text-cta-text hover:bg-cta-active font-bold transition duration-500 ease-in-out"
           >
             Submit Password
           </button>
@@ -198,37 +198,37 @@ function Landing_Download() {
 
       {file && (
         <div>
-          <div className="grid grid-cols-2 w-full mx-auto mt-6">
-            <div className="border border-gray-700 p-2 text-left">File ID</div>
-            <div className="border border-gray-700 p-2 text-left">{file.id}</div>
+          <div className="grid grid-cols-2 w-full mx-auto mt-6 text-copy-primary">
+            <div className="border border-border p-2 text-left">File ID</div>
+            <div className="border border-border p-2 text-left">{file.id}</div>
 
-            <div className="border border-gray-700 p-2 text-left">File Name</div>
-            <div className="border border-gray-700 p-2 text-left whitespace-nowrap overflow-hidden truncate">
+            <div className="border border-border p-2 text-left">File Name</div>
+            <div className="border border-border p-2 text-left whitespace-nowrap overflow-hidden truncate">
               {file.originalname}
             </div>
 
-            <div className="border border-gray-700 p-2 text-left">File Size</div>
-            <div className="border border-gray-700 p-2 text-left">{fileSizeFormatter(file.size)}</div>
+            <div className="border border-border p-2 text-left">File Size</div>
+            <div className="border border-border p-2 text-left">{fileSizeFormatter(file.size)}</div>
 
-            <div className="border border-gray-700 p-2 text-left">File Type</div>
-            <div className="border border-gray-700 p-2 text-left">{file.mimetype}</div>
+            <div className="border border-border p-2 text-left">File Type</div>
+            <div className="border border-border p-2 text-left">{file.mimetype}</div>
 
-            <div className="border border-gray-700 p-2 text-left">File Created Time</div>
-            <div className="border border-gray-700 p-2 text-left">{fileDateFormatter(file.created_at)[0]}</div>
+            <div className="border border-border p-2 text-left">File Created Time</div>
+            <div className="border border-border p-2 text-left">{fileDateFormatter(file.created_at)[0]}</div>
 
-            <div className="border border-gray-700 p-2 text-left">File Created Date</div>
-            <div className="border border-gray-700 p-2 text-left">{fileDateFormatter(file.created_at)[1]}</div>
+            <div className="border border-border p-2 text-left">File Created Date</div>
+            <div className="border border-border p-2 text-left">{fileDateFormatter(file.created_at)[1]}</div>
 
-            <div className="border border-gray-700 p-2 text-left">File Owner ID</div>
-            <div className="border border-gray-700 p-2 text-left">{file.user_id}</div>
+            <div className="border border-border p-2 text-left">File Owner ID</div>
+            <div className="border border-border p-2 text-left">{file.user_id}</div>
 
-            <div className="border border-gray-700 p-2 text-left">Downloads</div>
-            <div className="border border-gray-700 p-2 text-left">{downloadLinkInfo?.download_count || "N/A"}</div>
+            <div className="border border-border p-2 text-left">Downloads</div>
+            <div className="border border-border p-2 text-left">{downloadLinkInfo?.download_count || "N/A"}</div>
           </div>
 
           <div>
             <button
-              className="mt-4"
+              className="mt-4 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
               onClick={copyLinkToClipboard}
               data-tooltip-id="id_link_button"
               data-tooltip-content={tooltipContent}
@@ -245,7 +245,7 @@ function Landing_Download() {
 
           <button
             onClick={handle_DownloadFile}
-            className="bg-blue-500 p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out hover:bg-blue-700 font-bold"
+            className="p-2 rounded max-w-[200px] w-full mt-4 transition duration-500 ease-in-out font-bold bg-cta hover:bg-cta-active text-cta-text"
           >
             Download
           </button>

@@ -49,15 +49,15 @@ function Landing_Auth() {
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
-        <h1 className="text-center text-2xl font-bold mb-2">Welcome to DropBoxer</h1>
-        <p className="text-center text-gray-600 mb-6">Login or create an account to get started</p>
+      <div className="bg-card rounded-lg shadow-md p-6 w-full max-w-md">
+        <h1 className="text-center text-2xl font-bold mb-2 text-copy-primary">Welcome to DropBoxer</h1>
+        <p className="text-center text-copy-secondary mb-6">Login or create an account to get started</p>
 
         {/* Tab Navigation */}
         <div className="flex border-b mb-4">
           <button
             className={`w-1/2 py-2 text-center font-semibold ${
-              isLogin ? "border-b-2 border-black text-black" : "text-gray-500"
+              isLogin ? "border-b-2 border-background-opp text-copy-primary" : "text-copy-secondary"
             }`}
             onClick={() => setIsLogin(true)}
           >
@@ -65,7 +65,7 @@ function Landing_Auth() {
           </button>
           <button
             className={`w-1/2 py-2 text-center font-semibold ${
-              !isLogin ? "border-b-2 border-black text-black" : "text-gray-500"
+              !isLogin ? "border-b-2 border-background-opp text-copy-primary" : "text-copy-secondary"
             }`}
             onClick={() => setIsLogin(false)}
           >
@@ -77,7 +77,7 @@ function Landing_Auth() {
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Username</label>
+              <label className="block text-sm font-medium text-copy-primary/80">Username</label>
               <input
                 type="text"
                 placeholder="Enter your username"
@@ -88,7 +88,7 @@ function Landing_Auth() {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-copy-primary/80">Email</label>
             <input
               type="email"
               placeholder="Enter your email"
@@ -98,7 +98,7 @@ function Landing_Auth() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80">Password</label>
             <input
               type="password"
               placeholder="Enter your password"
@@ -109,7 +109,7 @@ function Landing_Auth() {
           </div>
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+              <label className="block text-sm font-medium text-copy-primary/80">Confirm Password</label>
               <input
                 type="password"
                 placeholder="Confirm your password"
@@ -122,7 +122,7 @@ function Landing_Auth() {
 
           {isLogin && (
             <div className="flex items-center justify-between">
-              <label className="flex items-center text-gray-700">
+              <label className="flex items-center text-copy-primary/80">
                 <input
                   type="checkbox"
                   className="mr-2 rounded border-gray-300 focus:ring-black"
@@ -140,8 +140,8 @@ function Landing_Auth() {
           <button
             type="submit"
             disabled={isAttemptingToAuth}
-            className={`w-full bg-blue-500 text-white py-2 rounded-md font-semibold ${
-              !isAttemptingToAuth ? "hover:bg-blue-700" : ""
+            className={`w-full bg-cta text-cta-text py-2 rounded-md font-semibold ${
+              !isAttemptingToAuth ? "hover:bg-cta-active" : ""
             } transition duration-500 ease-in-out`}
           >
             {isAttemptingToAuth ? (
@@ -157,7 +157,7 @@ function Landing_Auth() {
           </button>
         </form>
 
-        <p className="text-center text-gray-500 text-sm mt-4">
+        <p className="text-center text-copy-secondary text-sm mt-4">
           By continuing, you agree to our{" "}
           <Link to="#" className="text-blue-500 hover:underline">
             Terms of Service

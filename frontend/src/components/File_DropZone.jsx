@@ -62,8 +62,8 @@ function FileDropZone({ onFileSelect }) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`min-h-[300px] w-full p-4 border-2 border-dashed rounded transition-colors duration-500
-    ${isDragging ? "bg-slate-400" : "bg-slate-600"} mt-8`}
+      className={`min-h-[300px] w-full p-4 border-2 border-dashed border-border rounded transition-colors duration-500
+    ${isDragging ? "bg-slate-400 text-cta-text" : ""} mt-8 text-copy-secondary`}
     >
       <div className="flex flex-col justify-center items-center min-h-[300px] pointer-events-none">
         <BsCloudUploadFill size={50} />
@@ -74,7 +74,7 @@ function FileDropZone({ onFileSelect }) {
           <>
             <p className="my-2">or</p>
             <button
-              className="bg-blue-500 hover:bg-blue-600 p-2 rounded pointer-events-auto"
+              className="bg-cta hover:bg-cta-active text-cta-text p-2 rounded pointer-events-auto"
               onClick={() => {
                 handleClick();
                 console.log("button has been click");

@@ -34,8 +34,11 @@ Additional Ideas:
 
 - Styling 🟠
 - User visual feedbacks 🟠
-- Access Tokens + Refresh Tokens 🟠
-- Work on isRememberMe (Unfinished)
+
+- Access Tokens + Refresh Tokens ✅
+- Work on isRememberMe ✅
+
+- Improve file access security: specifically file download api call
 
 
 ## checking db
@@ -71,3 +74,23 @@ Thought process:
 ```
 - Prob should add cronjob to remove any expired blacklisted tokens from database to prevent clutter
 - When Access token expires, it would get the Refresh token from cookie and then call a function to generate a new Access token.
+
+## Improve file access security
+Thought process:
+- Instead of using file_id directly to download the file, I should prob make it more complicated using uuid or crypto random bytes
+Note from phone:
+- /api/files/download/:file_id
+- authTokenChecker
+<!-- - isLoggedIn(Not needed in this case but SIDE NOTE, SHOULD PROB CREATE THIS INSTEAD OF REJECTING USER ACCESS STRAIGHT FROM AUTHTOKENCHECKER WHEN REFRESH TOKEN IS MISSING) -->
+- controller
+
+controller:
+- check to see if the user exists
+- if exists check to see if the file belongs to the user
+- if the file belongs to the user: download file
+- else
+- check to see if req.body has a {link, password}
+- if it does check the download link database to compare the link and password
+- if both are correct: download file
+- else
+- reject access

@@ -117,7 +117,7 @@ function Home() {
         ))}
 
       {selectedFile && (
-        <div className="grid grid-cols-3 w-full mx-auto mt-6">
+        <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
           {/* Header Row */}
           <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
@@ -136,7 +136,7 @@ function Home() {
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
-            className="bg-blue-500 p-2 rounded flex items-center justify-center w-full font-bold hover:bg-blue-700 transition duration-500 ease-in-out"
+            className="p-2 rounded flex items-center justify-center w-full font-bold bg-cta hover:bg-cta-active text-cta-text transition duration-500 ease-in-out"
           >
             <BsUpload className="mx-2 stroke-1" size={20} /> Upload
           </button>
@@ -150,7 +150,7 @@ function Home() {
             max="100"
             className="[&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:bg-blue-400 [&::-moz-progress-bar]:bg-blue-400 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 flex-grow m-1"
           ></progress>
-          <p className="mx-2">{uploadProgress}%</p>
+          <p className="mx-2 text-copy-secondary">{uploadProgress}%</p>
           <p>{uploadStatus}</p>
         </div>
       )}
@@ -161,7 +161,7 @@ function Home() {
         <div>
           {/* DOWNLOAD */}
           <button
-            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
+            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
             onClick={handle_DownloadRedirect}
             data-tooltip-id="id_download_button"
             data-tooltip-content={downloadButtonToolTipContent}
@@ -177,7 +177,7 @@ function Home() {
 
           {/* COPY */}
           <button
-            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
+            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
             onClick={copyLinkToClipBoard}
             data-tooltip-id="id_link_button"
             data-tooltip-content={linkButtonToolTipContent}
@@ -193,7 +193,7 @@ function Home() {
 
           {/* Reselect File */}
           <button
-            className="m-2 hover:text-black hover:bg-white p-1 rounded-md"
+            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
             onClick={handle_ReselectFile}
             data-tooltip-id="id_reselect_button"
             data-tooltip-content={reselectButtonToolTipContent}
