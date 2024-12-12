@@ -33,9 +33,16 @@ export const fetchFileInfo = async (download_link) => {
   }
 };
 
-export const downloadFileByID = async (file_id) => {
+export const downloadFileByID = async (file_id, link = "", password = "") => {
   try {
-    const response = await api.get(`/files/download-file-by-id/${file_id}`, { responseType: "blob" });
+    const encodedLink = encodeURIComponent(link);
+    const encodedPassword = encodeURIComponent(password);
+    const response = await api.get(
+      `/files/download-file-by-id/${file_id}?link=${encodedLink}&password=${encodedPassword}`,
+      {
+        responseType: "blob",
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(error);
