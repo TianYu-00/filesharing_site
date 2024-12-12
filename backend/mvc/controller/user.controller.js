@@ -2,6 +2,7 @@ const { getAllUsers, getUser, updateUser, getAllFilesBelongToUserById } = requir
 const { createRefreshToken, createAccessToken, createBlacklistedToken, createCookie } = require("../models/auth.model");
 const jwt = require("jsonwebtoken");
 
+// Admin
 exports.fetchAllUsers = async (req, res, next) => {
   try {
     const data = await getAllUsers();
@@ -11,6 +12,7 @@ exports.fetchAllUsers = async (req, res, next) => {
   }
 };
 
+// User
 exports.fetchUserById = async (req, res, next) => {
   try {
     const user_id = req.params.user_id;
@@ -27,6 +29,7 @@ exports.fetchUserById = async (req, res, next) => {
   }
 };
 
+// User
 exports.editUserById = async (req, res, next) => {
   try {
     const user_id = req.params.user_id;
@@ -94,9 +97,16 @@ exports.editUserById = async (req, res, next) => {
   }
 };
 
+// User
 exports.fetchAllFilesBelongToUserId = async (req, res, next) => {
   try {
     const user_id = req.params.user_id;
+    const loggedInUserId = req.userData.id.toString();
+
+    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
     const data = await getAllFilesBelongToUserById(user_id);
     res.json({ success: true, msg: "Files has been fetch", data: data });
   } catch (err) {
