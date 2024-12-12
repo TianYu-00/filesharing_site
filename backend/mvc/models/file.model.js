@@ -424,3 +424,21 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
     return false;
   }
 };
+
+exports.checkAllFilesBelongToUser = async (files, user_id) => {
+  try {
+    const query = "SELECT * FROM file_info WHERE id = ANY($1)";
+    const fileInfos = await db.query(query, [files]);
+
+    for (const fileInfo of fileInfos.rows) {
+      if (fileInfo.user_id !== user_id) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+};

@@ -17,9 +17,11 @@ const {
   favouriteFileByFileId,
   trashFileByFileId,
   validateDownloadLinkAndPassword,
+  checkAllFilesBelongToUser,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
+// Admin
 exports.getAllFilesInfo = async (req, res, next) => {
   try {
     const files = await retrieveAllFilesInfo();
@@ -29,6 +31,7 @@ exports.getAllFilesInfo = async (req, res, next) => {
   }
 };
 
+// All
 exports.postFile = async (req, res, next) => {
   try {
     const token = req.cookies.accessToken;
@@ -50,6 +53,7 @@ exports.postFile = async (req, res, next) => {
   }
 };
 
+// Admin
 exports.getFileInfo = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -60,6 +64,7 @@ exports.getFileInfo = async (req, res, next) => {
   }
 };
 
+// User / Link&Password
 exports.getFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -89,9 +94,18 @@ exports.getFile = async (req, res, next) => {
   }
 };
 
+// User
 exports.getDownloadLinks = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
     const links = await retrieveDownloadLinks(file_id);
     res.json({ success: true, msg: "Download link retrieved", data: links });
   } catch (err) {
@@ -99,17 +113,13 @@ exports.getDownloadLinks = async (req, res, next) => {
   }
 };
 
+// User
 exports.deleteFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
     const user_id = req.userData.id;
 
     const file = await retrieveFileInfo(file_id);
-    // console.log(file_id, user_id);
-
-    if (!file) {
-      return res.status(404).json({ success: false, msg: "File not found", data: null });
-    }
 
     if (file.user_id !== user_id && req.userData.role !== "admin") {
       return res.status(403).json({ success: false, msg: "Access denied", data: null });
@@ -123,6 +133,7 @@ exports.deleteFile = async (req, res, next) => {
   }
 };
 
+// All
 exports.getFileInfoByLink = async (req, res, next) => {
   try {
     const downloadLink = req.params.download_link;
@@ -138,13 +149,13 @@ exports.getFileInfoByLink = async (req, res, next) => {
   }
 };
 
+// User
 exports.renameFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
-    // console.log(fileInfo, loggedInUserId);
 
     if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
       return res.status(403).json({ success: false, msg: "Access denied" });
@@ -160,6 +171,7 @@ exports.renameFileById = async (req, res, next) => {
   }
 };
 
+// User
 exports.createDownloadLinkByFileId = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -180,6 +192,7 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
   }
 };
 
+// User
 exports.removeDownloadLinkByLinkId = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
@@ -200,6 +213,7 @@ exports.removeDownloadLinkByLinkId = async (req, res, next) => {
   }
 };
 
+// All
 exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
   try {
     const downloadLink = req.params.download_link;
@@ -216,6 +230,7 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
   }
 };
 
+// All
 exports.updateDownloadLinkCount = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
@@ -227,12 +242,11 @@ exports.updateDownloadLinkCount = async (req, res, next) => {
   }
 };
 
+// All
 exports.validateDownloadLinkPassword = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
     const { password } = req.body;
-
-    // console.log(link_id, password);
     const data = await validateDownloadPassword(link_id, password);
 
     res.json({ success: true, msg: "Password validated successfully", data: data });
@@ -242,10 +256,16 @@ exports.validateDownloadLinkPassword = async (req, res, next) => {
   }
 };
 
+// User
 exports.removeManyFilesByFileInfo = async (req, res, next) => {
   try {
     const { files } = req.body;
-    // console.log(file_ids);
+    const loggedInUserId = req.userData.id;
+    const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
+
+    if (!checkResult) {
+      res.json({ success: false, msg: "Access denied", data: null });
+    }
 
     const data = await deleteManyFilesByFileIds(files);
 
@@ -256,9 +276,18 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
   }
 };
 
+// User
 exports.favouriteFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
     const { favourite } = req.body;
     if (favourite === undefined) {
       return res.status(404).json({ success: false, msg: "Missing favourite body state", data: null });
@@ -272,9 +301,18 @@ exports.favouriteFileById = async (req, res, next) => {
   }
 };
 
+// User
 exports.trashFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+
+    const loggedInUserId = req.userData.id;
+
+    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+      return res.status(403).json({ success: false, msg: "Access denied" });
+    }
+
     const { trash } = req.body;
     if (trash === undefined) {
       return res.status(404).json({ success: false, msg: "Missing trash body state", data: null });
