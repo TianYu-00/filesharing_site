@@ -27,11 +27,13 @@ fileRouter.get(
 fileRouter.post(
   "/create-download-link-by-file-id/:file_id",
   userTokenChecker,
+  isLoggedInChecker,
   fileController.createDownloadLinkByFileId
 );
 fileRouter.delete(
   "/remove-download-link-by-link-id/:link_id",
   userTokenChecker,
+  isLoggedInChecker,
   fileController.removeDownloadLinkByLinkId
 );
 
@@ -55,9 +57,10 @@ fileRouter.patch(
   fileController.trashFileById
 );
 
+fileRouter.get("/download-file-by-id/:file_id", userTokenChecker, fileController.getFile);
+
 // for all
 fileRouter.post("/file-upload", fileController.postFile);
-fileRouter.get("/download-file-by-id/:file_id", fileController.getFile);
 fileRouter.get("/file-info-by-link/:download_link", fileController.getFileInfoByLink);
 fileRouter.get("/download-link-info-by-link/:download_link", fileController.getDownloadLinkInfoByDownloadLink);
 fileRouter.patch("/increase-download-count-by-link-id/:link_id", fileController.updateDownloadLinkCount);

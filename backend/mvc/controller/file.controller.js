@@ -16,10 +16,10 @@ const {
   deleteManyFilesByFileIds,
   favouriteFileByFileId,
   trashFileByFileId,
+  validateDownloadLinkAndPassword,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
-// For /
 exports.getAllFilesInfo = async (req, res, next) => {
   try {
     const files = await retrieveAllFilesInfo();
@@ -29,7 +29,6 @@ exports.getAllFilesInfo = async (req, res, next) => {
   }
 };
 
-// For /upload
 exports.postFile = async (req, res, next) => {
   try {
     const token = req.cookies.accessToken;
@@ -51,7 +50,6 @@ exports.postFile = async (req, res, next) => {
   }
 };
 
-// for /info/:file_id
 exports.getFileInfo = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -62,17 +60,35 @@ exports.getFileInfo = async (req, res, next) => {
   }
 };
 
-// For /download/:file_id
 exports.getFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
-    await retrieveFile(file_id, res);
+    const fileInfo = await retrieveFileInfo(file_id);
+    const loggedInUserId = req.userData?.id;
+
+    if (fileInfo.user_id === loggedInUserId) {
+      return await retrieveFile(file_id, res);
+    }
+
+    const { link, password } = req.query;
+
+    if (!link || !password) {
+      return res.status(400).json({ success: false, msg: "Access denied" });
+    }
+
+    const linkPasswordResult = await validateDownloadLinkAndPassword(link, password);
+
+    if (linkPasswordResult) {
+      return await retrieveFile(file_id, res);
+    } else {
+      return res.status(403).json({ success: false, msg: "Invalid link or password" });
+    }
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
 
-// For /download-link/:file_id
 exports.getDownloadLinks = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -83,7 +99,6 @@ exports.getDownloadLinks = async (req, res, next) => {
   }
 };
 
-// For /delete/:file_id
 exports.deleteFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
@@ -108,7 +123,6 @@ exports.deleteFile = async (req, res, next) => {
   }
 };
 
-// /info-by-link/:download_link
 exports.getFileInfoByLink = async (req, res, next) => {
   try {
     const downloadLink = req.params.download_link;

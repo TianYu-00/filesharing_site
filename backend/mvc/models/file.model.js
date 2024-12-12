@@ -244,6 +244,7 @@ exports.retrieveDownloadLinkInfo = async (downloadLink) => {
     }
 
     const linkInfo = result.rows[0];
+    // console.log(linkInfo);
 
     const formattedLinkInfo = {
       ...linkInfo,
@@ -397,5 +398,29 @@ exports.trashFileByFileId = async (file_id, trashState) => {
     return result.rows[0];
   } catch (err) {
     console.error(err);
+  }
+};
+
+exports.validateDownloadLinkAndPassword = async (download_link, password) => {
+  try {
+    const query = `SELECT * FROM file_download_link WHERE download_url = $1`;
+    const result = await db.query(query, [download_link]);
+
+    if (result.rows.length === 0) {
+      return false;
+    }
+
+    const linkInfo = result.rows[0];
+
+    if (!linkInfo.password) {
+      return true;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, linkInfo.password);
+
+    return isPasswordValid;
+  } catch (err) {
+    console.error("Error validating download link and password:", err);
+    return false;
   }
 };

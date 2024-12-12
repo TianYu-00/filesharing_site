@@ -80,7 +80,7 @@ Thought process:
 - Instead of using file_id directly to download the file, I should prob make it more complicated using uuid or crypto random bytes
 
 Note from phone:
-- /api/files/download/:file_id
+- GET /api/files/download/:file_id
 - userTokenChecker
 <!-- - isLoggedIn(Not needed in this case but SIDE NOTE, SHOULD PROB CREATE THIS INSTEAD OF REJECTING USER ACCESS STRAIGHT FROM AUTHTOKENCHECKER WHEN REFRESH TOKEN IS MISSING) -->
 - controller
@@ -90,7 +90,7 @@ controller:
 - if exists check to see if the file belongs to the user
 - if the file belongs to the user: download file
 - else
-- check to see if req.body has a {link, password}
+- check to see if req.query has a {link, password}
 - if it does check the download link database to compare the link and password
 - if both are correct: download file
 - else
