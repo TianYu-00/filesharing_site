@@ -38,7 +38,7 @@ Additional Ideas:
 - Access Tokens + Refresh Tokens ✅
 - Work on isRememberMe ✅
 
-- Improve file access security: specifically file download api call
+- Improve file access security: specifically file download api call ✅
 
 
 ## checking db
