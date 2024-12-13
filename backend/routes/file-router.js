@@ -50,6 +50,7 @@ fileRouter.patch(
   isLoggedInChecker,
   fileController.favouriteFileById
 );
+
 fileRouter.patch(
   "/update-trash-file-by-file-id/:file_id",
   userTokenChecker,
@@ -58,6 +59,9 @@ fileRouter.patch(
 );
 
 fileRouter.get("/download-file-by-id/:file_id", userTokenChecker, fileController.getFile);
+
+// new
+fileRouter.patch("/update-many-trash-file", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
 
 // for all
 fileRouter.post("/file-upload", fileController.postFile);

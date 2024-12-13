@@ -427,8 +427,9 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
 
 exports.checkAllFilesBelongToUser = async (files, user_id) => {
   try {
+    const fileIds = files.map((file) => file.id);
     const query = "SELECT * FROM file_info WHERE id = ANY($1)";
-    const fileInfos = await db.query(query, [files]);
+    const fileInfos = await db.query(query, [fileIds]);
 
     for (const fileInfo of fileInfos.rows) {
       if (fileInfo.user_id !== user_id) {
@@ -440,5 +441,33 @@ exports.checkAllFilesBelongToUser = async (files, user_id) => {
   } catch (err) {
     console.error(err);
     return false;
+  }
+};
+
+exports.updateManyTrashFilesByFilesAndTrashState = async (files, trashState) => {
+  try {
+    const fileIds = files.map((file) => file.id);
+
+    const query = `
+      UPDATE file_info
+      SET trash = $1
+      WHERE id = ANY($2)
+      RETURNING *;
+    `;
+    const values = [trashState, fileIds];
+
+    const result = await db.query(query, values);
+
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "No files were found or updated" });
+    }
+
+    if (trashState) {
+      await db.query(`DELETE FROM file_download_link WHERE file_id = ANY($1)`, [fileIds]);
+    }
+
+    return result.rows;
+  } catch (err) {
+    console.error(err);
   }
 };

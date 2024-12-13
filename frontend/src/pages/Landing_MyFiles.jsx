@@ -11,6 +11,7 @@ import {
   removeManyFilesByFileInfo,
   updateFavouriteFileById,
   updateTrashFileById,
+  updateManyTrashFileByFiles,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import {
@@ -409,11 +410,20 @@ function Landing_MyFiles() {
       const response = await removeManyFilesByFileInfo(listOfSelectedFile);
 
       if (response.success) {
-        setDisplayFiles((prevFiles) =>
-          prevFiles.filter((file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id))
+        const updatedAllFiles = allFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
         );
+
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
         setListOfSelectedFile([]);
-        toast.success(`${response?.data?.deletedFileCount} file(s) deleted successfully`);
+
+        const deletedFileCount = response.data.deletedFileCount || 0;
+        toast.success(`${deletedFileCount} file(s) deleted successfully`);
       } else {
         toast.error(response.msg || "Failed to delete files");
       }
@@ -568,6 +578,34 @@ function Landing_MyFiles() {
     config: { tension: 300, friction: 30 },
     immediate: !isSideBarOpen,
   });
+
+  const handle_TrashManyFiles = async (trashState) => {
+    try {
+      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
+
+      if (response.success) {
+        const updatedAllFiles = allFiles.map((file) =>
+          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
+        );
+
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
+        setListOfSelectedFile([]);
+
+        const trashFileCount = response.data.length;
+        toast.success(`${trashFileCount} file(s) trashed successfully`);
+      } else {
+        toast.error("Failed to trash files");
+      }
+    } catch (err) {
+      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
+      checkError(err);
+    }
+  };
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
@@ -765,6 +803,16 @@ function Landing_MyFiles() {
               disabled={listOfSelectedFile.length === 0}
             >
               Deselect
+            </button>
+          )}
+
+          {listOfSelectedFile.length > 0 && pageState !== "trash" && (
+            <button
+              className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+              onClick={() => handle_TrashManyFiles(true)}
+              disabled={listOfSelectedFile.length === 0}
+            >
+              Trash
             </button>
           )}
 

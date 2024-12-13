@@ -18,6 +18,7 @@ const {
   trashFileByFileId,
   validateDownloadLinkAndPassword,
   checkAllFilesBelongToUser,
+  updateManyTrashFilesByFilesAndTrashState,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -320,6 +321,26 @@ exports.trashFileById = async (req, res, next) => {
     const data = await trashFileByFileId(file_id, trash);
 
     res.json({ success: true, msg: "File has been updated successfully", data: data });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+// User
+exports.trashManyFileById = async (req, res, next) => {
+  try {
+    const { files, trash } = req.body;
+    const loggedInUserId = req.userData.id;
+    const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
+
+    if (!checkResult) {
+      res.json({ success: false, msg: "Access denied", data: null });
+    }
+
+    const data = await updateManyTrashFilesByFilesAndTrashState(files, trash);
+
+    res.json({ success: true, msg: "Files has been trashed", data: data });
   } catch (err) {
     console.error(err);
     next(err);

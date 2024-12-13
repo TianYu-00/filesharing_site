@@ -262,3 +262,14 @@ export const updateTrashFileById = async (file_id, trashState) => {
     throw error;
   }
 };
+
+export const updateManyTrashFileByFiles = async (files, trashState) => {
+  const data = { files: files, trash: trashState };
+  try {
+    const response = await api.patch(`/files/update-many-trash-file`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
