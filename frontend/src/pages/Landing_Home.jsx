@@ -121,8 +121,25 @@ function Home() {
   // };
 
   useEffect(() => {
-    // console.log(selectedFile);
-  }, [selectedFiles]);
+    console.log(selectedFiles);
+    console.log(uploadProgress);
+  }, [selectedFiles, uploadProgress]);
+
+  const handle_OnDeselectFileClick = async (fileName) => {
+    try {
+      const updatedFiles = selectedFiles.filter((file) => {
+        return fileName !== file.name;
+      });
+      setSelectedFiles(updatedFiles);
+
+      const updatedProgressFiles = Object.fromEntries(
+        Object.entries(uploadProgress).filter(([key, value]) => key !== fileName)
+      );
+      setUploadProgress(updatedProgressFiles);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <Page_BoilerPlate>
@@ -142,8 +159,14 @@ function Home() {
               </div>
               <div className="border-gray-700 p-2 text-left overflow-hidden truncate flex">
                 <p className="flex-grow">{file.type}</p>
-
-                <button className="whitespace-nowrap overflow-hidden truncate text-red-500 font-bold px-2">X</button>
+                {!isUploadClicked && (
+                  <button
+                    className="whitespace-nowrap overflow-hidden truncate text-red-500 font-bold px-2"
+                    onClick={() => handle_OnDeselectFileClick(file.name)}
+                  >
+                    X
+                  </button>
+                )}
               </div>
 
               <div className="col-span-3 pb-4">
