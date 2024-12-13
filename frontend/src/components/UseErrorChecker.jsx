@@ -11,9 +11,9 @@ function useErrorChecker() {
     if (error?.response?.data?.code === "NOT_LOGGED_IN") {
       setUserInfo(null);
       navigate("/auth");
-      toast.error(error?.response?.data?.msg || "Error");
+      toast.error(error?.response?.data?.msg || "Error in error checker");
     } else {
-      toast.error(error?.response?.data?.msg || "Error");
+      toast.error(error?.response?.data?.msg || "Error in error checker");
     }
   };
 

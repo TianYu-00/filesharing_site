@@ -607,6 +607,35 @@ function Landing_MyFiles() {
     }
   };
 
+  const handle_RestoreManyFiles = async (trashState) => {
+    try {
+      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
+
+      if (response.success) {
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        const updatedAllFiles = allFiles.map((file) =>
+          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
+        );
+
+        setDisplayFiles(updatedDisplayFiles);
+        setAllFiles(updatedAllFiles);
+
+        setListOfSelectedFile([]);
+
+        const restoredFileCount = response.data.length;
+        toast.success(`${restoredFileCount} file(s) restored successfully`);
+      } else {
+        toast.error("Failed to restore files");
+      }
+    } catch (err) {
+      console.log(err);
+      checkError(err);
+    }
+  };
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
     <div className="">
@@ -813,6 +842,16 @@ function Landing_MyFiles() {
               disabled={listOfSelectedFile.length === 0}
             >
               Trash
+            </button>
+          )}
+
+          {listOfSelectedFile.length > 0 && pageState === "trash" && (
+            <button
+              className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+              onClick={() => handle_RestoreManyFiles(false)}
+              disabled={listOfSelectedFile.length === 0}
+            >
+              Restore
             </button>
           )}
 
