@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
-import Landing_Home from "./pages/Landing_Home";
-import Landing_Download from "./pages/Landing_Download";
-import Landing_AccountSettings from "./pages/Landing_AccountSettings";
-import Landing_ForgotPassword from "./pages/Landing_ForgotPassword";
-import Landing_ResetPassword from "./pages/Landing_ResetPassword";
-import Landing_MyFiles from "./pages/Landing_MyFiles";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import Header from "./components/Header";
-import Landing_LoginRegistration from "./pages/Landing_LoginRegistration";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import CookieBanner from "./components/CookieNotice";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LazyPageLoader from "./components/LazyPageLoader";
+
+// https://react.dev/reference/react/lazy
+const Landing_Home = lazy(() => import("./pages/Landing_Home"));
+const Landing_Download = lazy(() => import("./pages/Landing_Download"));
+const Landing_AccountSettings = lazy(() => import("./pages/Landing_AccountSettings"));
+const Landing_ForgotPassword = lazy(() => import("./pages/Landing_ForgotPassword"));
+const Landing_ResetPassword = lazy(() => import("./pages/Landing_ResetPassword"));
+const Landing_MyFiles = lazy(() => import("./pages/Landing_MyFiles"));
+const Landing_LoginRegistration = lazy(() => import("./pages/Landing_LoginRegistration"));
 
 const App = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
@@ -47,16 +50,18 @@ const App = () => {
         <div className={theme}>
           <div className="min-h-screen">
             <Header toggleTheme={toggleTheme} theme={theme} />
-            <Routes>
-              <Route path="/" element={<Landing_Home />} />
-              <Route path="/home" element={<Landing_Home />} />
-              <Route path="/auth" element={<Landing_LoginRegistration />} />
-              <Route path="/account" element={<Landing_AccountSettings />} />
-              <Route path="/password-reset" element={<Landing_ForgotPassword />} />
-              <Route path="/password-reset-confirm" element={<Landing_ResetPassword />} />
-              <Route path="/files/download/:file_id" element={<Landing_Download />} />
-              <Route path="/my-files" element={<Landing_MyFiles />} />
-            </Routes>
+            <Suspense fallback={<LazyPageLoader delay={300} />}>
+              <Routes>
+                <Route path="/" element={<Landing_Home />} />
+                <Route path="/home" element={<Landing_Home />} />
+                <Route path="/auth" element={<Landing_LoginRegistration />} />
+                <Route path="/account" element={<Landing_AccountSettings />} />
+                <Route path="/password-reset" element={<Landing_ForgotPassword />} />
+                <Route path="/password-reset-confirm" element={<Landing_ResetPassword />} />
+                <Route path="/files/download/:file_id" element={<Landing_Download />} />
+                <Route path="/my-files" element={<Landing_MyFiles />} />
+              </Routes>
+            </Suspense>
           </div>
         </div>
       </BrowserRouter>
