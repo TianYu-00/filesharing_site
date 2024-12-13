@@ -58,7 +58,7 @@ function FileDropZone({ onFileSelect }) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`min-h-[300px] w-full p-4 border-2 border-dashed border-border rounded transition-colors duration-500
-    ${isDragging ? "bg-slate-400 text-cta-text" : ""} mt-8 text-copy-secondary`}
+    ${isDragging ? "bg-slate-400 text-cta-text" : ""} mt-8 text-copy-primary/70`}
     >
       <div className="flex flex-col justify-center items-center min-h-[300px] pointer-events-none">
         <BsCloudUploadFill size={50} />
