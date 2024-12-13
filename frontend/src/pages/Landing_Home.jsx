@@ -36,6 +36,9 @@ function Home() {
   //
   const { user } = useUser();
 
+  // file counter
+  const [fileCounter, setFileCounter] = useState(0);
+
   useEffect(() => {
     // console.log(user);
   }, [user]);
@@ -44,24 +47,30 @@ function Home() {
     window.location.replace(window.location.href);
   };
 
-  const handle_OnClickDownloadPage = (fileName) => {
-    const fileDownloadLink = downloadLinks[fileName];
+  const handle_OnClickDownloadPage = (fileId) => {
+    const fileDownloadLink = downloadLinks[fileId];
     window.open(`/files/download/${fileDownloadLink}`, "_blank");
     setOpenFileMenu(null);
   };
 
   const handle_FileSelect = (newFiles) => {
     setSelectedFiles((prevFiles) => {
-      const existingFileNames = prevFiles.map((file) => file.name);
-      const filteredFiles = Array.from(newFiles).filter((file) => !existingFileNames.includes(file.name));
-      return [...prevFiles, ...filteredFiles];
+      const filesWithIds = Array.from(newFiles).map((file, index) => {
+        const uniqueId = fileCounter + index + 1;
+        file.id = uniqueId;
+        return file;
+      });
+
+      setFileCounter(fileCounter + newFiles.length);
+
+      return [...prevFiles, ...filesWithIds];
     });
 
     setUploadProgress((prevProgress) => {
       const updatedProgress = { ...prevProgress };
-      newFiles.forEach((file) => {
-        if (!updatedProgress[file.name]) {
-          updatedProgress[file.name] = 0;
+      Array.from(newFiles).forEach((file) => {
+        if (!updatedProgress[file.id]) {
+          updatedProgress[file.id] = 0;
         }
       });
       return updatedProgress;
@@ -93,17 +102,17 @@ function Home() {
         try {
           const result = await uploadFile(formData, (progressEvent) => {
             const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            progressState[file.name] = percentCount;
+            progressState[file.id] = percentCount;
 
-            setUploadProgress({ ...progressState });
-            // console.log(`${file.name}: ${percentCount}%`);
+            setUploadProgress((prevProgress) => ({
+              ...prevProgress,
+              [file.id]: percentCount,
+            }));
           });
-          // console.log(result.data.downloadLink.download_url);
           setDownloadLinks((prevLinks) => ({
             ...prevLinks,
-            [file.name]: result.data?.downloadLink?.download_url,
+            [file.id]: result.data?.downloadLink?.download_url,
           }));
-          // console.log(downloadLinks);
           toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
           toast.error(`Failed to upload ${file.name}`);
@@ -120,9 +129,9 @@ function Home() {
     }
   };
 
-  const handle_OnClickCopyLink = async (fileName) => {
+  const handle_OnClickCopyLink = async (fileId) => {
     try {
-      const fileDownloadLink = downloadLinks[fileName];
+      const fileDownloadLink = downloadLinks[fileId];
       const fullUrl = `${window.location.origin}/files/download/${fileDownloadLink}`;
       await navigator.clipboard.writeText(fullUrl);
       toast.success("Link copied");
@@ -135,21 +144,22 @@ function Home() {
   };
 
   useEffect(() => {
-    console.log(selectedFiles);
-    console.log(uploadProgress);
+    // console.log(selectedFiles);
+    // console.log(uploadProgress);
   }, [selectedFiles, uploadProgress]);
 
-  const handle_OnDeselectFileClick = async (fileName) => {
+  const handle_OnDeselectFileClick = async (fileId) => {
     try {
       const updatedFiles = selectedFiles.filter((file) => {
-        return fileName !== file.name;
+        return fileId !== file.id;
       });
       setSelectedFiles(updatedFiles);
 
-      const updatedProgressFiles = Object.fromEntries(
-        Object.entries(uploadProgress).filter(([key, value]) => key !== fileName)
-      );
-      setUploadProgress(updatedProgressFiles);
+      setUploadProgress((prevProgress) => {
+        const updatedProgress = { ...prevProgress };
+        delete updatedProgress[fileId];
+        return updatedProgress;
+      });
     } catch (err) {
       console.error(err);
     }
@@ -162,9 +172,9 @@ function Home() {
     return spaceBelow < 200 ? "up" : "down";
   };
 
-  const handle_FileMenuClick = (fileName, buttonElement) => {
+  const handle_FileMenuClick = (fileId, buttonElement) => {
     const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
-    setOpenFileMenu(openFileMenu === fileName ? null : fileName);
+    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
     setFileMenuDropdownPosition(dropdownPosition);
   };
 
@@ -193,7 +203,7 @@ function Home() {
           <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
 
           {selectedFiles.map((file) => (
-            <React.Fragment key={file.name}>
+            <React.Fragment key={file.id}>
               <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{file.name}</div>
               <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
                 {fileSizeFormatter(file.size)}
@@ -201,7 +211,7 @@ function Home() {
               <div className="border-gray-700 p-2 text-left flex">
                 <p className="flex-grow overflow-hidden truncate">{file.type}</p>
                 {!isUploadClicked && (
-                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.name)}>
+                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.id)}>
                     X
                   </button>
                 )}
@@ -211,12 +221,12 @@ function Home() {
                     <button
                       className="px-2 py-1 rounded-md hover:text-copy-opp hover:bg-background-opp"
                       onClick={(e) => {
-                        handle_FileMenuClick(file.name, e.target);
+                        handle_FileMenuClick(file.id, e.target);
                       }}
                     >
                       <BsThreeDotsVertical size={17} />
                     </button>
-                    {openFileMenu === file.name && (
+                    {openFileMenu === file.id && (
                       <div
                         className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
                           fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
@@ -225,13 +235,13 @@ function Home() {
                       >
                         <button
                           className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickDownloadPage(file.name)}
+                          onClick={() => handle_OnClickDownloadPage(file.id)}
                         >
                           Download
                         </button>
                         <button
                           className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickCopyLink(file.name)}
+                          onClick={() => handle_OnClickCopyLink(file.id)}
                         >
                           Share
                         </button>
@@ -242,11 +252,11 @@ function Home() {
               </div>
 
               <div className="col-span-3 pb-4">
-                {uploadProgress[file.name] !== undefined ? (
+                {uploadProgress[file.id] !== undefined ? (
                   <div>
                     {/* <div className="text-sm">{uploadProgress[file.name]}%</div> */}
                     <div className="bg-gray-200 h-1 w-full mt-2">
-                      <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.name]}%` }}></div>
+                      <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
                     </div>
                   </div>
                 ) : (
