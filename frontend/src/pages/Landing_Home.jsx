@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { uploadFile } from "../api";
 import { fileSizeFormatter } from "../components/File_Formatter";
 import FileDropZone from "../components/File_DropZone";
@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 
 //
-import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg } from "react-icons/bs";
+import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg, BsThreeDotsVertical } from "react-icons/bs";
 
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
@@ -22,11 +22,16 @@ function Home() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [uploadStatus, setUploadStatus] = useState(false);
-  const [downloadLink, setDownloadLink] = useState("");
+  const [downloadLinks, setDownloadLinks] = useState({});
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
+
+  //
+  const [openFileMenu, setOpenFileMenu] = useState(null);
+  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
+  const fileMenuRef = useRef(null);
 
   //
   const { user } = useUser();
@@ -39,9 +44,11 @@ function Home() {
     window.location.replace(window.location.href);
   };
 
-  // const handle_DownloadRedirect = () => {
-  //   navigate(`/files/download/${downloadLink}`);
-  // };
+  const handle_OnClickDownloadPage = (fileName) => {
+    const fileDownloadLink = downloadLinks[fileName];
+    window.open(`/files/download/${fileDownloadLink}`, "_blank");
+    setOpenFileMenu(null);
+  };
 
   const handle_FileSelect = (newFiles) => {
     setSelectedFiles((prevFiles) => {
@@ -84,14 +91,19 @@ function Home() {
         }
 
         try {
-          await uploadFile(formData, (progressEvent) => {
+          const result = await uploadFile(formData, (progressEvent) => {
             const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             progressState[file.name] = percentCount;
 
             setUploadProgress({ ...progressState });
             // console.log(`${file.name}: ${percentCount}%`);
           });
-
+          // console.log(result.data.downloadLink.download_url);
+          setDownloadLinks((prevLinks) => ({
+            ...prevLinks,
+            [file.name]: result.data?.downloadLink?.download_url,
+          }));
+          // console.log(downloadLinks);
           toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
           toast.error(`Failed to upload ${file.name}`);
@@ -108,17 +120,19 @@ function Home() {
     }
   };
 
-  // const copyLinkToClipBoard = async () => {
-  //   try {
-  //     const fullUrl = `${window.location.origin}/files/download/${downloadLink}`;
-  //     await navigator.clipboard.writeText(fullUrl);
-  //     setLinkButtonToolTipContent("Link copied!");
-  //   } catch (error) {
-  //     // console.error("Failed to copy: ", error);
-  //     setLinkButtonToolTipContent("Failed to copy!");
-  //   }
-  //   setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
-  // };
+  const handle_OnClickCopyLink = async (fileName) => {
+    try {
+      const fileDownloadLink = downloadLinks[fileName];
+      const fullUrl = `${window.location.origin}/files/download/${fileDownloadLink}`;
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success("Link copied");
+    } catch (error) {
+      // console.error("Failed to copy: ", error);
+      toast.error("Failed to copy link");
+    } finally {
+      setOpenFileMenu(null);
+    }
+  };
 
   useEffect(() => {
     console.log(selectedFiles);
@@ -140,6 +154,33 @@ function Home() {
       console.error(err);
     }
   };
+
+  const getFileButtonDropdownPosition = (buttonElement) => {
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+
+    return spaceBelow < 200 ? "up" : "down";
+  };
+
+  const handle_FileMenuClick = (fileName, buttonElement) => {
+    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
+    setOpenFileMenu(openFileMenu === fileName ? null : fileName);
+    setFileMenuDropdownPosition(dropdownPosition);
+  };
+
+  useEffect(() => {
+    const handle_OutOfContentClick = (event) => {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
+        setOpenFileMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handle_OutOfContentClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handle_OutOfContentClick);
+    };
+  }, []);
 
   return (
     <Page_BoilerPlate>
@@ -163,6 +204,40 @@ function Home() {
                   <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.name)}>
                     X
                   </button>
+                )}
+
+                {isUploadClicked && uploadStatus && (
+                  <div className="relative">
+                    <button
+                      className="px-2 py-1 rounded-md hover:text-copy-opp hover:bg-background-opp"
+                      onClick={(e) => {
+                        handle_FileMenuClick(file.name, e.target);
+                      }}
+                    >
+                      <BsThreeDotsVertical size={17} />
+                    </button>
+                    {openFileMenu === file.name && (
+                      <div
+                        className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
+                          fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                        } bg-card text-copy-primary`}
+                        ref={fileMenuRef}
+                      >
+                        <button
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                          onClick={() => handle_OnClickDownloadPage(file.name)}
+                        >
+                          Download
+                        </button>
+                        <button
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                          onClick={() => handle_OnClickCopyLink(file.name)}
+                        >
+                          Share
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
