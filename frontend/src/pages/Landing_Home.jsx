@@ -251,16 +251,17 @@ function Home() {
                 )}
               </div>
 
-              <div className="col-span-3 pb-4">
-                {uploadProgress[file.id] !== undefined ? (
-                  <div>
-                    {/* <div className="text-sm">{uploadProgress[file.name]}%</div> */}
-                    <div className="bg-gray-200 h-1 w-full mt-2">
-                      <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
-                    </div>
-                  </div>
-                ) : (
+              <div className="col-span-3">
+                {isUploadClicked && (uploadProgress[file.id] === 0 || uploadProgress[file.id] === undefined) ? (
                   <div className="text-sm text-copy-secondary">waiting...</div>
+                ) : (
+                  isUploadClicked && (
+                    <div className="pb-4">
+                      <div className="bg-gray-200 h-1 w-full mt-2">
+                        <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             </React.Fragment>
