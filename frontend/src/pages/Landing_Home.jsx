@@ -19,16 +19,13 @@ import PageExitAlert from "../components/PageExitAlert";
 
 function Home() {
   const navigate = useNavigate();
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
   const [uploadStatus, setUploadStatus] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  //
-  const [downloadButtonToolTipContent, setDownloadButtonToolTipContent] = useState("Redirect to download page");
-  const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy download link to clipboard");
   const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload another file");
 
   //
@@ -42,93 +39,127 @@ function Home() {
     window.location.replace(window.location.href);
   };
 
-  const handle_DownloadRedirect = () => {
-    navigate(`/files/download/${downloadLink}`);
-  };
+  // const handle_DownloadRedirect = () => {
+  //   navigate(`/files/download/${downloadLink}`);
+  // };
 
-  const handle_FileSelect = (file) => {
-    setSelectedFile(file);
-    setUploadProgress(0);
+  const handle_FileSelect = (newFiles) => {
+    setSelectedFiles((prevFiles) => {
+      const existingFileNames = prevFiles.map((file) => file.name);
+      const filteredFiles = Array.from(newFiles).filter((file) => !existingFileNames.includes(file.name));
+      return [...prevFiles, ...filteredFiles];
+    });
+
+    setUploadProgress((prevProgress) => {
+      const updatedProgress = { ...prevProgress };
+      newFiles.forEach((file) => {
+        if (!updatedProgress[file.name]) {
+          updatedProgress[file.name] = 0;
+        }
+      });
+      return updatedProgress;
+    });
+
     setUploadStatus("");
   };
 
   const handle_FileUpload = async () => {
-    if (!selectedFile) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       toast.error("Please choose a file to upload");
       return;
     }
 
     try {
-      toast.info("File is being uploaded");
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      if (user && user.id) {
-        formData.append("user_id", user.id);
-      }
+      toast.info("Files are being uploaded");
 
       setIsUploadClicked(true);
       setIsUploading(true);
 
-      const uploadResponse = await uploadFile(formData, (progressEvent) => {
-        const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setUploadProgress(percentCount);
-      });
+      const progressState = {};
 
-      toast.success("Uploaded successfully");
-      // console.log("Server response:", uploadResponse);
-      setDownloadLink(uploadResponse.data.downloadLink.download_url);
+      for (let file of selectedFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        if (user && user.id) {
+          formData.append("user_id", user.id);
+        }
+
+        try {
+          await uploadFile(formData, (progressEvent) => {
+            const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            progressState[file.name] = percentCount;
+
+            setUploadProgress({ ...progressState });
+            // console.log(`${file.name}: ${percentCount}%`);
+          });
+
+          toast.success(`File ${file.name} uploaded successfully`);
+        } catch (error) {
+          toast.error(`Failed to upload ${file.name}`);
+        }
+      }
+
       setIsUploading(false);
     } catch (error) {
       setIsUploadClicked(false);
       setIsUploading(false);
-      toast.error("Failed to upload");
+      toast.error("Failed to upload files");
     }
   };
 
-  const copyLinkToClipBoard = async () => {
-    try {
-      const fullUrl = `${window.location.origin}/files/download/${downloadLink}`;
-      await navigator.clipboard.writeText(fullUrl);
-      setLinkButtonToolTipContent("Link copied!");
-    } catch (error) {
-      // console.error("Failed to copy: ", error);
-      setLinkButtonToolTipContent("Failed to copy!");
-    }
-    setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
-  };
+  // const copyLinkToClipBoard = async () => {
+  //   try {
+  //     const fullUrl = `${window.location.origin}/files/download/${downloadLink}`;
+  //     await navigator.clipboard.writeText(fullUrl);
+  //     setLinkButtonToolTipContent("Link copied!");
+  //   } catch (error) {
+  //     // console.error("Failed to copy: ", error);
+  //     setLinkButtonToolTipContent("Failed to copy!");
+  //   }
+  //   setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
+  // };
 
   useEffect(() => {
     // console.log(selectedFile);
-  }, [selectedFile]);
+  }, [selectedFiles]);
 
   return (
     <Page_BoilerPlate>
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
-      {isUploadClicked &&
-        (uploadProgress === 100 ? (
-          <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-green-500 font-bold">File uploaded successfully</p>
-          </div>
-        ) : (
-          <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-orange-300 font-bold">File is being uploaded...</p>
-          </div>
-        ))}
-
-      {selectedFile && (
+      {selectedFiles && (
         <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
-          {/* Header Row */}
           <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
 
-          {/* Data Row */}
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.name}</div>
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
-            {fileSizeFormatter(selectedFile.size)}
-          </div>
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.type}</div>
+          {selectedFiles.map((file) => (
+            <React.Fragment key={file.name}>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{file.name}</div>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
+                {fileSizeFormatter(file.size)}
+              </div>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate flex">
+                <p className="flex-grow">{file.type}</p>
+
+                <button className="whitespace-nowrap overflow-hidden truncate text-red-500 font-bold px-2">X</button>
+              </div>
+
+              <div className="col-span-3 pb-4">
+                {uploadProgress[file.name] !== undefined ? (
+                  <div>
+                    {/* <div className="text-sm">{uploadProgress[file.name]}%</div> */}
+                    <div className="bg-gray-200 h-1 w-full mt-2">
+                      <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.name]}%` }}></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-copy-secondary">waiting...</div>
+                )}
+              </div>
+            </React.Fragment>
+          ))}
         </div>
       )}
 
@@ -143,71 +174,23 @@ function Home() {
         </div>
       )}
 
-      {isUploadClicked && (
-        <div className="w-full mx-auto flex mt-2">
-          <progress
-            value={uploadProgress}
-            max="100"
-            className="[&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:bg-blue-400 [&::-moz-progress-bar]:bg-blue-400 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 flex-grow m-1"
-          ></progress>
-          <p className="mx-2 text-copy-secondary">{uploadProgress}%</p>
-          <p>{uploadStatus}</p>
-        </div>
-      )}
-
       {isUploading && <PageExitAlert />}
 
-      {downloadLink && (
-        <div>
-          {/* DOWNLOAD */}
-          <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-            onClick={handle_DownloadRedirect}
-            data-tooltip-id="id_download_button"
-            data-tooltip-content={downloadButtonToolTipContent}
-          >
-            <BsBoxArrowRight size={25} />
-          </button>
-          <Tooltip
-            id="id_download_button"
-            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-            opacity={0.9}
-            place="bottom"
-          />
-
-          {/* COPY */}
-          <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-            onClick={copyLinkToClipBoard}
-            data-tooltip-id="id_link_button"
-            data-tooltip-content={linkButtonToolTipContent}
-          >
-            <BsLink45Deg size={25} />
-          </button>
-          <Tooltip
-            id="id_link_button"
-            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-            opacity={0.9}
-            place="bottom"
-          />
-
-          {/* Reselect File */}
-          <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-            onClick={handle_ReselectFile}
-            data-tooltip-id="id_reselect_button"
-            data-tooltip-content={reselectButtonToolTipContent}
-          >
-            <BsPlusLg size={25} />
-          </button>
-          <Tooltip
-            id="id_reselect_button"
-            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-            opacity={0.9}
-            place="bottom"
-          />
-        </div>
-      )}
+      {/* Reselect File */}
+      <button
+        className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
+        onClick={handle_ReselectFile}
+        data-tooltip-id="id_reselect_button"
+        data-tooltip-content={reselectButtonToolTipContent}
+      >
+        <BsPlusLg size={25} />
+      </button>
+      <Tooltip
+        id="id_reselect_button"
+        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
+        opacity={0.9}
+        place="bottom"
+      />
     </Page_BoilerPlate>
   );
 }

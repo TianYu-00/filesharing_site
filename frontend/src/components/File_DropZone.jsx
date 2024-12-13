@@ -19,21 +19,15 @@ function FileDropZone({ onFileSelect }) {
     setIsDragging(false);
 
     const droppedItems = event.dataTransfer.items;
-    const droppedFiles = event.dataTransfer.files;
+    const droppedFiles = Array.from(event.dataTransfer.files);
 
     if (hasFolders(droppedItems)) {
       toast.error("Folders cannot be dropped.");
       return;
     }
 
-    if (droppedFiles.length > 1) {
-      toast.error("Only one file can be dropped at a time.");
-      return;
-    }
-
-    const droppedFile = droppedFiles[0];
-    if (droppedFile) {
-      onFileSelect(droppedFile);
+    if (droppedFiles.length > 0) {
+      onFileSelect(droppedFiles);
     }
   };
 
@@ -47,9 +41,9 @@ function FileDropZone({ onFileSelect }) {
   };
 
   const handleFileInputChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      onFileSelect(selectedFile);
+    const selectedFiles = Array.from(event.target.files);
+    if (selectedFiles.length > 0) {
+      onFileSelect(selectedFiles);
     }
   };
 
@@ -68,24 +62,21 @@ function FileDropZone({ onFileSelect }) {
       <div className="flex flex-col justify-center items-center min-h-[300px] pointer-events-none">
         <BsCloudUploadFill size={50} />
 
-        {isDragging ? <p>Drop it...</p> : <p>Drag & Drop a file here</p>}
+        {isDragging ? <p>Drop files...</p> : <p>Drag & Drop files here</p>}
 
         {!isDragging && (
           <>
             <p className="my-2">or</p>
             <button
               className="bg-cta hover:bg-cta-active text-cta-text p-2 rounded pointer-events-auto"
-              onClick={() => {
-                handleClick();
-                console.log("button has been click");
-              }}
+              onClick={handleClick}
             >
-              Browse File
+              Browse Files
             </button>
           </>
         )}
       </div>
-      <input id="file-input" type="file" onChange={handleFileInputChange} className="hidden" />
+      <input id="file-input" type="file" multiple onChange={handleFileInputChange} className="hidden" />
     </div>
   );
 }
