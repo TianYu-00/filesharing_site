@@ -23,6 +23,16 @@ function Header({ toggleTheme, theme }) {
     height: isMenuClicked ? document.documentElement.scrollHeight + "px" : "0",
     opacity: isMenuClicked ? 1 : 0,
     overflow: "hidden",
+    onStart: () => {
+      if (isMenuClicked) {
+        document.body.style.overflow = "hidden";
+      }
+    },
+    onRest: () => {
+      if (!isMenuClicked) {
+        document.body.style.overflow = "";
+      }
+    },
   });
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { uploadFile } from "../api";
 import { fileSizeFormatter } from "../components/File_Formatter";
 import FileDropZone from "../components/File_DropZone";
@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 
 //
-import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg } from "react-icons/bs";
+import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg, BsThreeDotsVertical } from "react-icons/bs";
 
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
@@ -19,20 +19,25 @@ import PageExitAlert from "../components/PageExitAlert";
 
 function Home() {
   const navigate = useNavigate();
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadStatus, setUploadStatus] = useState("");
-  const [downloadLink, setDownloadLink] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [uploadStatus, setUploadStatus] = useState(false);
+  const [downloadLinks, setDownloadLinks] = useState({});
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
+
   //
-  const [downloadButtonToolTipContent, setDownloadButtonToolTipContent] = useState("Redirect to download page");
-  const [linkButtonToolTipContent, setLinkButtonToolTipContent] = useState("Copy download link to clipboard");
-  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload another file");
+  const [openFileMenu, setOpenFileMenu] = useState(null);
+  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
+  const fileMenuRef = useRef(null);
 
   //
   const { user } = useUser();
+
+  // file counter
+  const [fileCounter, setFileCounter] = useState(0);
 
   useEffect(() => {
     // console.log(user);
@@ -42,97 +47,229 @@ function Home() {
     window.location.replace(window.location.href);
   };
 
-  const handle_DownloadRedirect = () => {
-    navigate(`/files/download/${downloadLink}`);
+  const handle_OnClickDownloadPage = (fileId) => {
+    const fileDownloadLink = downloadLinks[fileId];
+    window.open(`/files/download/${fileDownloadLink}`, "_blank");
+    setOpenFileMenu(null);
   };
 
-  const handle_FileSelect = (file) => {
-    setSelectedFile(file);
-    setUploadProgress(0);
-    setUploadStatus("");
+  const handle_FileSelect = (newFiles) => {
+    setSelectedFiles((prevFiles) => {
+      const filesWithIds = Array.from(newFiles).map((file, index) => {
+        const uniqueId = fileCounter + index + 1;
+        file.id = uniqueId;
+        return file;
+      });
+
+      setFileCounter(fileCounter + newFiles.length);
+
+      return [...prevFiles, ...filesWithIds];
+    });
+
+    setUploadProgress((prevProgress) => {
+      const updatedProgress = { ...prevProgress };
+      Array.from(newFiles).forEach((file) => {
+        if (!updatedProgress[file.id]) {
+          updatedProgress[file.id] = 0;
+        }
+      });
+      return updatedProgress;
+    });
   };
 
   const handle_FileUpload = async () => {
-    if (!selectedFile) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       toast.error("Please choose a file to upload");
       return;
     }
 
     try {
-      toast.info("File is being uploaded");
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      if (user && user.id) {
-        formData.append("user_id", user.id);
-      }
+      toast.info("Files are being uploaded");
 
       setIsUploadClicked(true);
       setIsUploading(true);
 
-      const uploadResponse = await uploadFile(formData, (progressEvent) => {
-        const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setUploadProgress(percentCount);
-      });
+      const progressState = {};
 
-      toast.success("Uploaded successfully");
-      // console.log("Server response:", uploadResponse);
-      setDownloadLink(uploadResponse.data.downloadLink.download_url);
+      for (let file of selectedFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        if (user && user.id) {
+          formData.append("user_id", user.id);
+        }
+
+        try {
+          const result = await uploadFile(formData, (progressEvent) => {
+            const percentCount = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            progressState[file.id] = percentCount;
+
+            setUploadProgress((prevProgress) => ({
+              ...prevProgress,
+              [file.id]: percentCount,
+            }));
+          });
+          setDownloadLinks((prevLinks) => ({
+            ...prevLinks,
+            [file.id]: result.data?.downloadLink?.download_url,
+          }));
+          toast.success(`File ${file.name} uploaded successfully`);
+        } catch (error) {
+          toast.error(`Failed to upload ${file.name}`);
+        }
+      }
+
+      setUploadStatus(true);
       setIsUploading(false);
     } catch (error) {
+      setUploadStatus(false);
       setIsUploadClicked(false);
       setIsUploading(false);
-      toast.error("Failed to upload");
+      toast.error("Failed to upload files");
     }
   };
 
-  const copyLinkToClipBoard = async () => {
+  const handle_OnClickCopyLink = async (fileId) => {
     try {
-      const fullUrl = `${window.location.origin}/files/download/${downloadLink}`;
+      const fileDownloadLink = downloadLinks[fileId];
+      const fullUrl = `${window.location.origin}/files/download/${fileDownloadLink}`;
       await navigator.clipboard.writeText(fullUrl);
-      setLinkButtonToolTipContent("Link copied!");
+      toast.success("Link copied");
     } catch (error) {
       // console.error("Failed to copy: ", error);
-      setLinkButtonToolTipContent("Failed to copy!");
+      toast.error("Failed to copy link");
+    } finally {
+      setOpenFileMenu(null);
     }
-    setTimeout(() => setLinkButtonToolTipContent("Copy file link to clipboard"), 2000);
   };
 
   useEffect(() => {
-    // console.log(selectedFile);
-  }, [selectedFile]);
+    // console.log(selectedFiles);
+    // console.log(uploadProgress);
+  }, [selectedFiles, uploadProgress]);
+
+  const handle_OnDeselectFileClick = async (fileId) => {
+    try {
+      const updatedFiles = selectedFiles.filter((file) => {
+        return fileId !== file.id;
+      });
+      setSelectedFiles(updatedFiles);
+
+      setUploadProgress((prevProgress) => {
+        const updatedProgress = { ...prevProgress };
+        delete updatedProgress[fileId];
+        return updatedProgress;
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getFileButtonDropdownPosition = (buttonElement) => {
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+
+    return spaceBelow < 200 ? "up" : "down";
+  };
+
+  const handle_FileMenuClick = (fileId, buttonElement) => {
+    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
+    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
+    setFileMenuDropdownPosition(dropdownPosition);
+  };
+
+  useEffect(() => {
+    const handle_OutOfContentClick = (event) => {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
+        setOpenFileMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handle_OutOfContentClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handle_OutOfContentClick);
+    };
+  }, []);
 
   return (
     <Page_BoilerPlate>
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
-      {isUploadClicked &&
-        (uploadProgress === 100 ? (
-          <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-green-500 font-bold">File uploaded successfully</p>
-          </div>
-        ) : (
-          <div className="w-full mx-auto flex mt-2 justify-center">
-            <p className="text-orange-300 font-bold">File is being uploaded...</p>
-          </div>
-        ))}
-
-      {selectedFile && (
+      {selectedFiles.length > 0 && (
         <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
-          {/* Header Row */}
           <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
 
-          {/* Data Row */}
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.name}</div>
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
-            {fileSizeFormatter(selectedFile.size)}
-          </div>
-          <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{selectedFile.type}</div>
+          {selectedFiles.map((file) => (
+            <React.Fragment key={file.id}>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{file.name}</div>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
+                {fileSizeFormatter(file.size)}
+              </div>
+              <div className="border-gray-700 p-2 text-left flex">
+                <p className="flex-grow overflow-hidden truncate">{file.type}</p>
+                {!isUploadClicked && (
+                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.id)}>
+                    X
+                  </button>
+                )}
+
+                {isUploadClicked && uploadStatus && (
+                  <div className="relative">
+                    <button
+                      className="px-2 py-1 rounded-md hover:text-copy-opp hover:bg-background-opp"
+                      onClick={(e) => {
+                        handle_FileMenuClick(file.id, e.target);
+                      }}
+                    >
+                      <BsThreeDotsVertical size={17} />
+                    </button>
+                    {openFileMenu === file.id && (
+                      <div
+                        className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
+                          fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
+                        } bg-card text-copy-primary`}
+                        ref={fileMenuRef}
+                      >
+                        <button
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                          onClick={() => handle_OnClickDownloadPage(file.id)}
+                        >
+                          Download
+                        </button>
+                        <button
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                          onClick={() => handle_OnClickCopyLink(file.id)}
+                        >
+                          Share
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-span-3">
+                {isUploadClicked && (uploadProgress[file.id] === 0 || uploadProgress[file.id] === undefined) ? (
+                  <div className="text-sm text-copy-secondary">waiting...</div>
+                ) : (
+                  isUploadClicked && (
+                    <div className="pb-4">
+                      <div className="bg-gray-200 h-1 w-full mt-2">
+                        <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </React.Fragment>
+          ))}
         </div>
       )}
 
-      {!isUploadClicked && (
+      {selectedFiles.length > 0 && !isUploadClicked && (
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
@@ -143,55 +280,11 @@ function Home() {
         </div>
       )}
 
-      {isUploadClicked && (
-        <div className="w-full mx-auto flex mt-2">
-          <progress
-            value={uploadProgress}
-            max="100"
-            className="[&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:bg-blue-400 [&::-moz-progress-bar]:bg-blue-400 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-500 flex-grow m-1"
-          ></progress>
-          <p className="mx-2 text-copy-secondary">{uploadProgress}%</p>
-          <p>{uploadStatus}</p>
-        </div>
-      )}
-
       {isUploading && <PageExitAlert />}
 
-      {downloadLink && (
-        <div>
-          {/* DOWNLOAD */}
-          <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-            onClick={handle_DownloadRedirect}
-            data-tooltip-id="id_download_button"
-            data-tooltip-content={downloadButtonToolTipContent}
-          >
-            <BsBoxArrowRight size={25} />
-          </button>
-          <Tooltip
-            id="id_download_button"
-            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-            opacity={0.9}
-            place="bottom"
-          />
-
-          {/* COPY */}
-          <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-            onClick={copyLinkToClipBoard}
-            data-tooltip-id="id_link_button"
-            data-tooltip-content={linkButtonToolTipContent}
-          >
-            <BsLink45Deg size={25} />
-          </button>
-          <Tooltip
-            id="id_link_button"
-            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-            opacity={0.9}
-            place="bottom"
-          />
-
-          {/* Reselect File */}
+      {/* Reselect File */}
+      {uploadStatus && (
+        <>
           <button
             className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
             onClick={handle_ReselectFile}
@@ -206,7 +299,7 @@ function Home() {
             opacity={0.9}
             place="bottom"
           />
-        </div>
+        </>
       )}
     </Page_BoilerPlate>
   );
