@@ -21,12 +21,12 @@ function Home() {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
-  const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadStatus, setUploadStatus] = useState(false);
   const [downloadLink, setDownloadLink] = useState("");
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload another file");
+  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
 
   //
   const { user } = useUser();
@@ -59,8 +59,6 @@ function Home() {
       });
       return updatedProgress;
     });
-
-    setUploadStatus("");
   };
 
   const handle_FileUpload = async () => {
@@ -100,8 +98,10 @@ function Home() {
         }
       }
 
+      setUploadStatus(true);
       setIsUploading(false);
     } catch (error) {
+      setUploadStatus(false);
       setIsUploadClicked(false);
       setIsUploading(false);
       toast.error("Failed to upload files");
@@ -145,7 +145,7 @@ function Home() {
     <Page_BoilerPlate>
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
-      {selectedFiles && (
+      {selectedFiles.length > 0 && (
         <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
           <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
           <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
@@ -157,13 +157,10 @@ function Home() {
               <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
                 {fileSizeFormatter(file.size)}
               </div>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate flex">
-                <p className="flex-grow">{file.type}</p>
+              <div className="border-gray-700 p-2 text-left flex">
+                <p className="flex-grow overflow-hidden truncate">{file.type}</p>
                 {!isUploadClicked && (
-                  <button
-                    className="whitespace-nowrap overflow-hidden truncate text-red-500 font-bold px-2"
-                    onClick={() => handle_OnDeselectFileClick(file.name)}
-                  >
+                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.name)}>
                     X
                   </button>
                 )}
@@ -186,7 +183,7 @@ function Home() {
         </div>
       )}
 
-      {!isUploadClicked && (
+      {selectedFiles.length > 0 && !isUploadClicked && (
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
@@ -200,20 +197,24 @@ function Home() {
       {isUploading && <PageExitAlert />}
 
       {/* Reselect File */}
-      <button
-        className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
-        onClick={handle_ReselectFile}
-        data-tooltip-id="id_reselect_button"
-        data-tooltip-content={reselectButtonToolTipContent}
-      >
-        <BsPlusLg size={25} />
-      </button>
-      <Tooltip
-        id="id_reselect_button"
-        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-        opacity={0.9}
-        place="bottom"
-      />
+      {uploadStatus && (
+        <>
+          <button
+            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
+            onClick={handle_ReselectFile}
+            data-tooltip-id="id_reselect_button"
+            data-tooltip-content={reselectButtonToolTipContent}
+          >
+            <BsPlusLg size={25} />
+          </button>
+          <Tooltip
+            id="id_reselect_button"
+            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
+            opacity={0.9}
+            place="bottom"
+          />
+        </>
+      )}
     </Page_BoilerPlate>
   );
 }
