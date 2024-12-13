@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HashLoader from "react-spinners/HashLoader";
 
-function PageLoader({ isLoading, children }) {
+function PageLoader({ isLoading, timer = 2000, children }) {
   const [shouldDisplayLoader, setShouldDisplayLoader] = useState(false);
 
   useEffect(() => {
@@ -10,7 +10,7 @@ function PageLoader({ isLoading, children }) {
     } else {
       const timeoutId = setTimeout(() => {
         setShouldDisplayLoader(false);
-      }, 2000);
+      }, timer);
 
       return () => {
         clearTimeout(timeoutId);

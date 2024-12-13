@@ -37,7 +37,7 @@ function Header({ toggleTheme, theme }) {
   });
 
   return (
-    <PageLoader isLoading={isLoadingUser}>
+    <PageLoader isLoading={isLoadingUser} timer={1500}>
       <div className="max-w-full h-20 bg-[#111313] relative">
         <div className="w-full absolute bg-[#111313] z-50 ">
           <div className="flex items-center p-4">
