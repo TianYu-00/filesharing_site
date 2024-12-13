@@ -45,6 +45,7 @@ function FileDropZone({ onFileSelect }) {
     if (selectedFiles.length > 0) {
       onFileSelect(selectedFiles);
     }
+    event.target.value = null;
   };
 
   const handleClick = () => {
