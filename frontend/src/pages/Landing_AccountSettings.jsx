@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
+import PasswordChecklistChecker from "../components/PasswordChecklistChecker";
 
 function Landing_AccountSettings() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ function Landing_AccountSettings() {
   const [newPassword, setNewPassword] = useState("");
   const checkError = useErrorChecker();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [isPasswordCheckAllPass, setIsPasswordCheckAllPass] = useState(false);
 
   useEffect(() => {
     const verifyUserLogin = async () => {
@@ -73,8 +75,13 @@ function Landing_AccountSettings() {
         toast.error("Current password is required to change password");
         return;
       }
-      changes.currentPassword = currentPassword;
-      changes.newPassword = newPassword;
+      if (isPasswordCheckAllPass) {
+        changes.currentPassword = currentPassword;
+        changes.newPassword = newPassword;
+      } else {
+        toast.error("Password requirements not met.");
+        return;
+      }
     }
 
     if (Object.keys(changes).length === 0) {
@@ -177,6 +184,17 @@ function Landing_AccountSettings() {
             {/* Password Management */}
             <div className="p-4 bg-card rounded-lg mt-4">
               <p className="font-bold text-xl text-copy-primary mb-4">Password Management</p>
+
+              <div className="pb-4">
+                <PasswordChecklistChecker
+                  rules={{ minLength: 8, capital: 1, specialChar: 1, number: 1, match: false }}
+                  password={newPassword}
+                  onChange={setIsPasswordCheckAllPass}
+                  isHideRuleOnSuccess={false}
+                  isCollapsable={true}
+                />
+              </div>
+
               <table className="w-full table-auto">
                 <tbody>
                   <tr>

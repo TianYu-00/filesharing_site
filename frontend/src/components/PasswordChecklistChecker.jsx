@@ -4,7 +4,7 @@ import { BsCheck, BsX, BsChevronDown, BsChevronUp } from "react-icons/bs";
 function PasswordChecklistChecker({
   rules = { minLength: 8, capital: 0, specialChar: 0, number: 0, match: false },
   password = "",
-  repeatedPassword = "",
+  repeatedPassword,
   onChange,
   isHideRuleOnSuccess = false,
   isCollapsable = true,
@@ -55,7 +55,7 @@ function PasswordChecklistChecker({
   };
 
   return (
-    <div className="rounded-md w-full max-w-sm bg-card">
+    <div className="rounded-md w-full bg-card">
       {isCollapsable && (
         <button
           onClick={(e) => {
