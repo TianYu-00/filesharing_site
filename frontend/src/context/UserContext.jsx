@@ -52,10 +52,9 @@ export const UserProvider = ({ children }) => {
       const result = await verifyUser();
       if (result.success) {
         setUser(result.data);
-      } else {
-        // console.log(result.msg);
       }
     } catch (error) {
+      return error;
     } finally {
       setIsLoadingUser(false);
     }
