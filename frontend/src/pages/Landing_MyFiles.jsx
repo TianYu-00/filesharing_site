@@ -643,7 +643,7 @@ function Landing_MyFiles() {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
-    <PageLoader isLoading={isLoadingPage} timer={2000}>
+    <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
       <div className="">
         {/* Delete Confirmation Modal */}
         {isDeleteConfirmationModalOpen && (
@@ -993,7 +993,7 @@ function Landing_MyFiles() {
                     return (
                       <tr
                         key={file.id}
-                        className="hover:bg-card/50 border-b border-border/50 cursor-pointer text-copy-primary/60 select-none"
+                        className="hover:bg-card/50 border-b border-border/50 cursor-pointer text-copy-primary/70 select-none"
                         onClick={() => handle_RowClickSelected(file)}
                       >
                         <td className="px-2 py-3 w-8">

@@ -11,9 +11,20 @@ function Header({ toggleTheme, theme }) {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
   const { user, userLogout, userVerify, isLoadingUser } = useUser();
   const navigate = useNavigate();
+  const [isLoadingHeader, setIsLoadingHeader] = useState(true);
 
   useEffect(() => {
-    userVerify();
+    const verifyUserLogin = async () => {
+      try {
+        setIsLoadingHeader(true);
+        await userVerify();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoadingHeader(false);
+      }
+    };
+    verifyUserLogin();
   }, []);
 
   const handle_MenuClick = () => {
@@ -37,7 +48,7 @@ function Header({ toggleTheme, theme }) {
   });
 
   return (
-    <PageLoader isLoading={isLoadingUser} timer={1500}>
+    <PageLoader isLoading={isLoadingHeader} timer={1500} message="Verifying User">
       <div className="max-w-full h-20 bg-[#111313] relative">
         <div className="w-full absolute bg-[#111313] z-50 ">
           <div className="flex items-center p-4">
