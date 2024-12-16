@@ -58,7 +58,10 @@ function PasswordChecklistChecker({
     <div className="rounded-md w-full max-w-sm bg-card">
       {isCollapsable && (
         <button
-          onClick={() => setIsCollapsed((prev) => !prev)}
+          onClick={(e) => {
+            e.preventDefault();
+            setIsCollapsed((prev) => !prev);
+          }}
           className="flex items-center justify-between w-full bg-card text-sm font-semibold text-copy-primary"
         >
           <span>Password Requirements</span>
