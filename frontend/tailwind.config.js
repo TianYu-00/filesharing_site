@@ -15,6 +15,9 @@ export default {
         "cta-active": "rgba(var(--cta-active))",
         "cta-text": "rgba(var(--cta-text))",
       },
+      fontFamily: {
+        sans: ["Roboto", "sans-serif"],
+      },
     },
   },
   plugins: [],
