@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
+import PasswordChecklistChecker from "../components/PasswordChecklistChecker";
 
 function Landing_Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,12 +15,14 @@ function Landing_Auth() {
   const { userLogin, userRegister } = useUser();
   const navigate = useNavigate();
   const [isAttemptingToAuth, setIsAttemptingToAuth] = useState(false);
+  const [isPasswordCheckAllPass, setIsPasswordCheckAllPass] = useState(false);
 
   const handleAuth = async (event) => {
     try {
       event.preventDefault();
       setIsAttemptingToAuth(true);
       if (isLogin) {
+        // is logging in
         const loginResponse = await userLogin(email, password, rememberMe);
         if (!loginResponse.success) {
           toast.error(loginResponse.response.data.msg);
@@ -28,8 +31,9 @@ function Landing_Auth() {
           navigate("/home");
         }
       } else {
-        if (password !== confirmPassword) {
-          toast.error("Passwords do not match");
+        // is registering
+        if (!isPasswordCheckAllPass) {
+          toast.error("Password requirements not met.");
           setIsAttemptingToAuth(false);
           return;
         }
@@ -47,9 +51,13 @@ function Landing_Auth() {
     }
   };
 
+  useEffect(() => {
+    // console.log(isPasswordCheckAllPass);
+  }, [isPasswordCheckAllPass]);
+
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-6.5vh)]">
-      <div className="bg-card rounded-lg shadow-md p-6 w-full max-w-md">
+      <div className="bg-card rounded-lg shadow-md p-6 w-full md:max-w-md h-screen md:h-full">
         <h1 className="text-center text-2xl font-bold mb-2 text-copy-primary">Welcome to DropBoxer</h1>
         <p className="text-center text-copy-secondary mb-6">Login or create an account to get started</p>
 
@@ -73,6 +81,18 @@ function Landing_Auth() {
           </button>
         </div>
 
+        {!isLogin && (
+          <div className="pb-4">
+            <PasswordChecklistChecker
+              rules={{ minLength: 8, capital: 1, specialChar: 1, number: 1, match: true }}
+              password={password}
+              repeatedPassword={confirmPassword}
+              onChange={setIsPasswordCheckAllPass}
+              isHideRuleOnSuccess={false}
+              isCollapsable={true}
+            />
+          </div>
+        )}
         {/* Form */}
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
@@ -80,10 +100,11 @@ function Landing_Auth() {
               <label className="block text-sm font-medium text-copy-primary/80">Username</label>
               <input
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Username"
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
                 onChange={(e) => setUsername(e.target.value)}
                 required={!isLogin}
+                autoComplete="username"
               />
             </div>
           )}
@@ -91,31 +112,36 @@ function Landing_Auth() {
             <label className="block text-sm font-medium text-copy-primary/80">Email</label>
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Email"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-copy-primary/80">Password</label>
             <input
               type="password"
-              placeholder="Enter your password"
+              placeholder="Password"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="new-password"
             />
           </div>
+
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-copy-primary/80">Confirm Password</label>
               <input
                 type="password"
-                placeholder="Confirm your password"
+                placeholder="Password"
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required={!isLogin}
+                autoComplete="new-password"
               />
             </div>
           )}
