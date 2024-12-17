@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/logo_simple.png";
+import logoBlack from "../assets/logo-no-background-black-simple-cropped.svg";
+import logoWhite from "../assets/logo-no-background-white-simple-cropped.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { useSpring, animated } from "@react-spring/web";
-import ToggleSwitch from "./ToggleSwitch";
 import PageLoader from "./PageLoader";
-import { TbMenu2 } from "react-icons/tb";
+import { TbMenu2, TbUser } from "react-icons/tb";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 function Header({ toggleTheme, theme }) {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
@@ -31,111 +32,29 @@ function Header({ toggleTheme, theme }) {
     setIsMenuClicked(!isMenuClicked);
   };
 
-  const menuAnimation = useSpring({
-    height: isMenuClicked ? document.documentElement.scrollHeight + "px" : "0",
-    opacity: isMenuClicked ? 1 : 0,
-    overflow: "hidden",
-    onStart: () => {
-      if (isMenuClicked) {
-        document.body.style.overflow = "hidden";
-      }
-    },
-    onRest: () => {
-      if (!isMenuClicked) {
-        document.body.style.overflow = "";
-      }
-    },
-  });
-
   return (
     <PageLoader isLoading={isLoadingHeader} timer={1500} message="Verifying User">
-      <div className="max-w-full h-20 bg-[#111313] relative">
-        <div className="w-full absolute bg-[#111313] z-50 ">
-          <div className="flex items-center p-4">
+      <div className="max-w-full h-20 relative">
+        <div className="w-full absolute z-50 h-full">
+          <div className="flex items-center p-4 h-full border-b border-border/50">
             <div className="flex-shrink-0 hidden md:block cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logo} className="h-12" alt="Logo" />
+              {theme === "dark" ? (
+                <img src={logoWhite} className="h-12" alt="Logo" />
+              ) : (
+                <img src={logoBlack} className="h-12" alt="Logo" />
+              )}
             </div>
             <div className="flex-grow flex items-center justify-end text-white">
-              {user ? (
-                <div className="mr-2">Logged in as {user.username}</div>
-              ) : (
-                <div className="mr-2">Not logged in</div>
-              )}
-              <div className="mx-2">
-                <ToggleSwitch isToggled={theme === "light"} toggleSwitch={toggleTheme} />
+              <div className="mx-2 p-2 hover:bg-background-opp/10 rounded">
+                <ThemeSwitcher isToggled={theme === "light"} toggleSwitch={toggleTheme} />
               </div>
-              <button onClick={handle_MenuClick} className="hover:text-blue-500">
-                <TbMenu2 size={25} />
+              <button onClick={handle_MenuClick} className="mx-2 p-2 hover:bg-background-opp/10 rounded">
+                <TbUser size={25} className={`${theme === "dark" ? "text-white" : "text-black"}`} />
               </button>
             </div>
           </div>
 
           {/* Menu */}
-          <animated.div style={menuAnimation} className="text-white w-full">
-            <ul className="space-y-1 flex flex-col items-center pt-5">
-              {!user && (
-                <li className="w-full">
-                  <Link
-                    to="/auth"
-                    className="hover:bg-neutral-700 w-full flex justify-center p-2"
-                    onClick={handle_MenuClick}
-                  >
-                    Login / Register
-                  </Link>
-                </li>
-              )}
-
-              {/* My Files */}
-              {user && (
-                <li className="w-full">
-                  <Link
-                    to="/my-files"
-                    className="hover:bg-neutral-700 w-full flex justify-center p-2"
-                    onClick={handle_MenuClick}
-                  >
-                    My Files
-                  </Link>
-                </li>
-              )}
-
-              {/* Account Settings */}
-              {user && (
-                <li className="w-full">
-                  <Link
-                    to="/account"
-                    className="hover:bg-neutral-700 w-full flex justify-center p-2"
-                    onClick={handle_MenuClick}
-                  >
-                    Account Settings
-                  </Link>
-                </li>
-              )}
-
-              {user && (
-                <li className="w-full">
-                  <Link
-                    to="/home"
-                    className="hover:bg-neutral-700 w-full flex justify-center p-2"
-                    onClick={() => {
-                      handle_MenuClick();
-                      userLogout();
-                    }}
-                  >
-                    Log out
-                  </Link>
-                </li>
-              )}
-
-              <li className="w-full border border-neutral-800 m-5"></li>
-
-              {/* Home */}
-              <li className="w-full">
-                <Link to="/" className="hover:bg-neutral-700 w-full flex justify-center p-2" onClick={handle_MenuClick}>
-                  Home
-                </Link>
-              </li>
-            </ul>
-          </animated.div>
         </div>
       </div>
     </PageLoader>
