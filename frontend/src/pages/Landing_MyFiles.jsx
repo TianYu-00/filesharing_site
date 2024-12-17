@@ -38,6 +38,7 @@ import {
   TbStarOff,
   TbTrashX,
   TbArrowBackUp,
+  TbX,
 } from "react-icons/tb";
 
 function Landing_MyFiles() {
@@ -310,6 +311,14 @@ function Landing_MyFiles() {
       );
 
       const newFileName = fileRenameString + extractedFileExtension;
+
+      // console.log(newFileName);
+      // console.log(currentSelectedFile.originalname);
+      if (newFileName === currentSelectedFile.originalname) {
+        toast.error("Name is same as original.");
+        return;
+      }
+
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
         const updatedFiles = displayFiles.map((currentFile) => {
@@ -662,8 +671,8 @@ function Landing_MyFiles() {
             }}
             modalTitle={`Delete Confirmation`}
           >
-            <p className="text-white text-lg mb-4">Are you sure you want to delete the file?</p>
-            <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
+            <p className="text-copy-primary text-lg mb-4">Are you sure you want to delete the file?</p>
+            <p className="text-copy-secondary text-lg mb-4">{currentSelectedFile.originalname}</p>
             <div className="flex justify-center items-align space-x-6">
               <button
                 className="bg-cta font-bold p-2 rounded text-cta-text hover:bg-cta-active transition duration-500 ease-in-out"
@@ -695,20 +704,26 @@ function Landing_MyFiles() {
               setFileRenameString("");
               setCurrentSelectedFile(null);
             }}
-            modalTitle={`Rename: ${currentSelectedFile.originalname}`}
+            modalTitle={`Rename File`}
           >
-            <input
-              className="my-2 p-1 rounded mx-1"
-              onChange={(e) => setFileRenameString(e.target.value)}
-              value={fileRenameString}
-              placeholder="Enter new name here"
-            />
-            <button
-              className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active px-2 p-1 rounded font-bold ml-2"
-              onClick={() => handle_FileRename()}
-            >
-              Update
-            </button>
+            <div className="flex flex-col">
+              <div className="flex flex-col mb-4">
+                <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
+                <input
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                  onChange={(e) => setFileRenameString(e.target.value)}
+                  value={fileRenameString}
+                  placeholder="Enter new name here"
+                />
+              </div>
+
+              <button
+                className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold"
+                onClick={() => handle_FileRename()}
+              >
+                Update
+              </button>
+            </div>
           </Modal>
         )}
 
@@ -723,12 +738,13 @@ function Landing_MyFiles() {
               setCreateLinkPassword("");
               setCurrentSelectedFile(null);
             }}
-            modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+            // modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+            modalTitle={`Manage Share Links`}
           >
             <div className="overflow-auto">
               <div className="overflow-y-auto">
-                <div className="flex flex-col w-full text-white">
-                  <div className="flex border-b-2 border-gray-500">
+                <div className="flex flex-col w-full">
+                  <div className="flex border-b border-border text-copy-primary/80 text-sm font-medium ">
                     <div className="px-2 py-2 w-1/4 ">Link</div>
                     <div className="px-2 py-2 w-1/4 ">Expires</div>
                     <div className="px-2 py-2 w-1/4 ">Limit</div>
@@ -739,7 +755,7 @@ function Landing_MyFiles() {
                   <div className="max-h-[200px]">
                     {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
                       listOfDownloadLinks.map((currentLink) => (
-                        <div key={currentLink.id} className="flex hover:bg-neutral-900 border-b border-gray-500">
+                        <div key={currentLink.id} className="flex border-b border-border/50 text-copy-primary/70">
                           <div
                             className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer "
                             onClick={async () => {
@@ -759,18 +775,29 @@ function Landing_MyFiles() {
                             opacity={0.9}
                             place="bottom"
                           />
+
+                          {/* expires */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {fileDateFormatter(currentLink.expires_at)[2]}
                           </div>
+
+                          {/* limit */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {currentLink.download_count}/{currentLink.download_limit || "Null"}
                           </div>
+
+                          {/* password */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {currentLink.password ? "Yes" : "No"}
                           </div>
-                          <div className="px-2 py-1 whitespace-nowrap overflow-hidden truncate text-red-500 font-bold w-8 ">
-                            <button className="" onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}>
-                              X
+
+                          {/* X button */}
+                          <div className="flex justify-center">
+                            <button
+                              className="text-gray-500 hover:text-red-500 text-2xl"
+                              onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}
+                            >
+                              <TbX size={17} strokeWidth={3} />
                             </button>
                           </div>
                         </div>
@@ -782,43 +809,47 @@ function Landing_MyFiles() {
                 </div>
               </div>
 
-              <div className="w-full border-b my-8"></div>
-
-              <form className="grid">
+              <form className="flex flex-col my-8 space-y-4 p-1">
                 {/* Expires At */}
-                <label className="text-white mx-3">Expires At</label>
-                <input
-                  type="datetime-local"
-                  className="mb-2 p-1 rounded mx-3"
-                  value={createLinkExpiresAt}
-                  onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
-                ></input>
-                {/* Download Limit  */}
-                <label className="text-white mx-3">Download Limit</label>
-                <input
-                  type="number"
-                  className="mb-2 p-1 rounded mx-3"
-                  value={createLinkDownloadLimit}
-                  onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
-                ></input>
-                {/* Password */}
-                <label className="text-white mx-3">Link Password</label>
-                <input
-                  type="password"
-                  className="mb-2 p-1 rounded mx-3"
-                  autoComplete="new-password"
-                  value={createLinkPassword}
-                  onChange={(e) => setCreateLinkPassword(e.target.value)}
-                ></input>
-
-                <div className="flex justify-end mx-3">
-                  <button
-                    className="text-cta-text bg-cta hover:bg-cta-active p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
-                    onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
-                  >
-                    Create Link
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Expires At</label>
+                  <input
+                    type="datetime-local"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    value={createLinkExpiresAt}
+                    onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
+                  />
                 </div>
+
+                {/* Download Limit  */}
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Download Limit</label>
+                  <input
+                    type="number"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    value={createLinkDownloadLimit}
+                    onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Link Password</label>
+                  <input
+                    type="password"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    autoComplete="new-password"
+                    value={createLinkPassword}
+                    onChange={(e) => setCreateLinkPassword(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold w-full"
+                  onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
+                >
+                  Create Link
+                </button>
               </form>
             </div>
           </Modal>
@@ -912,14 +943,12 @@ function Landing_MyFiles() {
                     className="text-copy-secondary text-xl font-bold px-2 absolute right-0 top-4 hover:text-red-700"
                     onClick={() => setIsSideBarOpen(false)}
                   >
-                    x
+                    <TbX size={17} strokeWidth={3} />
                   </button>
-                  <p className="text-lg font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate">
+                  <p className="text-3xl font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate">
                     {user?.username}
                   </p>
-                  <p className="text-sm text-copy-secondary whitespace-nowrap overflow-hidden truncate">
-                    {user?.email}
-                  </p>
+                  <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">{user?.email}</p>
                 </div>
 
                 <div className="border border-border mb-4"></div>
@@ -927,7 +956,7 @@ function Landing_MyFiles() {
                 <div className="text-copy-primary">
                   <div className="my-2">
                     <button
-                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
                         pageState === "all" ? "text-copy-opp bg-background-opp" : ""
                       }`}
                       onClick={handle_AllFiles}
@@ -938,7 +967,7 @@ function Landing_MyFiles() {
                   </div>
                   <div className="my-2">
                     <button
-                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
                         pageState === "favourite" ? "text-copy-opp bg-background-opp" : ""
                       }`}
                       onClick={handle_AllFavourite}
@@ -949,7 +978,7 @@ function Landing_MyFiles() {
                   </div>
                   <div className="my-2">
                     <button
-                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
                         pageState === "trash" ? "text-copy-opp bg-background-opp" : ""
                       }`}
                       onClick={handle_AllTrash}
