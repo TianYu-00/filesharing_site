@@ -45,7 +45,7 @@ function Header({ toggleTheme, theme }) {
               )}
             </div>
             <div className="flex-grow flex items-center justify-end text-white">
-              <div className="mx-2 p-2 hover:bg-background-opp/10 rounded">
+              <div className="mx-2 hover:bg-background-opp/10 rounded">
                 <ThemeSwitcher isToggled={theme === "light"} toggleSwitch={toggleTheme} />
               </div>
               <div className="">
