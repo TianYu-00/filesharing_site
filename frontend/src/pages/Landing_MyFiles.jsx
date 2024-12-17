@@ -32,6 +32,12 @@ import {
   TbArrowDown,
   TbMenu2,
   TbDotsVertical,
+  TbDownload,
+  TbFilePencil,
+  TbLink,
+  TbStarOff,
+  TbTrashX,
+  TbArrowBackUp,
 } from "react-icons/tb";
 
 function Landing_MyFiles() {
@@ -827,7 +833,7 @@ function Landing_MyFiles() {
             } max-w-full p-2 rounded-md flex flex-row h-14`}
           >
             <button
-              className="bg-background text-copy-primary hover:bg-background-opp hover:text-copy-opp rounded-md mr-4"
+              className="bg-background text-copy-primary hover:bg-background-opp/10 rounded-md mr-4"
               onClick={() => setIsSideBarOpen(!isSideBarOpen)}
             >
               <TbMenu2 className="mx-2" size={25} />
@@ -877,7 +883,7 @@ function Landing_MyFiles() {
               <TbSearch className="absolute left-2.5 top-3 h-4 w-4 text-background-opp" strokeWidth={4} />
               <input
                 type="text"
-                className="pl-9 pr-4 w-full h-10 rounded-md border border-gray-500 bg-transparent text-copy-primary focus:outline-none"
+                className="pl-9 pr-4 w-full h-10 rounded-md border border-border/50 bg-transparent text-copy-primary focus:outline-none focus:border-border"
                 placeholder="Search"
                 value={inputSearchTerm}
                 onChange={(e) => setInputSearchTerm(e.target.value)}
@@ -1055,7 +1061,7 @@ function Landing_MyFiles() {
                               ))}
 
                             <button
-                              className="p-2 rounded-md hover:text-copy-opp hover:bg-background-opp"
+                              className="p-2 rounded-md hover:bg-background-opp/10"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handle_FileMenuClick(file.id, e.target);
@@ -1066,7 +1072,7 @@ function Landing_MyFiles() {
 
                             {openFileMenu === file.id && (
                               <div
-                                className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
+                                className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 border border-border/30 p-2 ${
                                   fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
                                 } bg-card text-copy-primary`}
                                 ref={fileMenuRef}
@@ -1074,70 +1080,82 @@ function Landing_MyFiles() {
                               >
                                 {buttonMenu.download && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_FileDownload(file.id)}
                                   >
+                                    <TbDownload size={17} className="mr-2" />
                                     Download
                                   </button>
                                 )}
 
                                 {buttonMenu.rename && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_OnClickFileRename(file)}
                                   >
+                                    <TbFilePencil size={17} className="mr-2" />
                                     Rename
                                   </button>
                                 )}
                                 {buttonMenu.manage_link && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_OnClickManageLink(file)}
                                   >
+                                    <TbLink size={17} className="mr-2" />
                                     Manage Link
-                                  </button>
-                                )}
-                                {buttonMenu.delete && (
-                                  <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                                    onClick={() => handle_OnClickDelete(file)}
-                                  >
-                                    Delete
                                   </button>
                                 )}
 
                                 {!file?.trash &&
                                   (buttonMenu.favourite && !file?.favourite ? (
                                     <button
-                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                       onClick={() => handle_favouriteState(file.id, true)}
                                     >
+                                      <TbStar size={17} className="mr-2" />
                                       Favourite
                                     </button>
                                   ) : (
                                     <button
-                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                       onClick={() => handle_favouriteState(file.id, false)}
                                     >
+                                      <TbStarOff size={17} className="mr-2" />
                                       Unfavourite
                                     </button>
                                   ))}
 
                                 {buttonMenu.trash && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_trashState(file.id, true)}
                                   >
+                                    <TbTrash size={17} className="mr-2" />
                                     Trash
                                   </button>
                                 )}
                                 {buttonMenu.restore && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_trashState(file.id, false)}
                                   >
+                                    <TbArrowBackUp size={17} className="mr-2" />
                                     Restore
                                   </button>
+                                )}
+
+                                {buttonMenu.delete && (
+                                  <div>
+                                    <div className="border-t border-border/40 my-1" />
+                                    <button
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp text-red-500 w-full text-left rounded font-medium text-sm flex flex-row transition duration-300 ease-in-out"
+                                      onClick={() => handle_OnClickDelete(file)}
+                                    >
+                                      <TbTrashX size={17} className="mr-2" />
+                                      Delete
+                                    </button>{" "}
+                                  </div>
                                 )}
                               </div>
                             )}
