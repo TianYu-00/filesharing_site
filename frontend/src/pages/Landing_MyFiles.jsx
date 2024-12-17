@@ -710,7 +710,7 @@ function Landing_MyFiles() {
               <div className="flex flex-col mb-4">
                 <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
                 <input
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
                   onChange={(e) => setFileRenameString(e.target.value)}
                   value={fileRenameString}
                   placeholder="Enter new name here"
@@ -794,7 +794,7 @@ function Landing_MyFiles() {
                           {/* X button */}
                           <div className="flex justify-center">
                             <button
-                              className="text-gray-500 hover:text-red-500 text-2xl"
+                              className="text-gray-500 hover:text-red-500 text-2xl mr-2"
                               onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}
                             >
                               <TbX size={17} strokeWidth={3} />
@@ -809,13 +809,20 @@ function Landing_MyFiles() {
                 </div>
               </div>
 
-              <form className="flex flex-col my-8 space-y-4 p-1">
+              <div className="text-copy-primary mb-4 my-8">
+                <p className="font-bold">Create Link</p>
+                <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">
+                  Create a new custom download link below
+                </p>
+              </div>
+
+              <form className="flex flex-col space-y-4 p-1">
                 {/* Expires At */}
                 <div>
                   <label className="block text-sm font-medium text-copy-primary/80 ml-1">Expires At</label>
                   <input
                     type="datetime-local"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
                     value={createLinkExpiresAt}
                     onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
                   />
@@ -826,7 +833,7 @@ function Landing_MyFiles() {
                   <label className="block text-sm font-medium text-copy-primary/80 ml-1">Download Limit</label>
                   <input
                     type="number"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
                     value={createLinkDownloadLimit}
                     onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
                   />
@@ -837,7 +844,7 @@ function Landing_MyFiles() {
                   <label className="block text-sm font-medium text-copy-primary/80 ml-1">Link Password</label>
                   <input
                     type="password"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
                     autoComplete="new-password"
                     value={createLinkPassword}
                     onChange={(e) => setCreateLinkPassword(e.target.value)}
