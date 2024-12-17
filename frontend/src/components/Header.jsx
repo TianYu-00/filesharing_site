@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/logo_simple.png";
 import { Link, useNavigate } from "react-router-dom";
-import { BsList } from "react-icons/bs";
 import { useUser } from "../context/UserContext";
 import { useSpring, animated } from "@react-spring/web";
 import ToggleSwitch from "./ToggleSwitch";
 import PageLoader from "./PageLoader";
+import { TbMenu2 } from "react-icons/tb";
 
 function Header({ toggleTheme, theme }) {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
@@ -65,7 +65,7 @@ function Header({ toggleTheme, theme }) {
                 <ToggleSwitch isToggled={theme === "light"} toggleSwitch={toggleTheme} />
               </div>
               <button onClick={handle_MenuClick} className="hover:text-blue-500">
-                <BsList size={30} />
+                <TbMenu2 size={25} />
               </button>
             </div>
           </div>
