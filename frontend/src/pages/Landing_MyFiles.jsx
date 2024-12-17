@@ -970,8 +970,8 @@ function Landing_MyFiles() {
                       checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
                     />
                   </th>
-                  <th className="px-2 py-4 cursor-pointer w-1/2" onClick={() => handle_FileSorting("name")}>
-                    <div className="flex items-center select-none">
+                  <th className="px-2 py-4 cursor-pointer w-4/6" onClick={() => handle_FileSorting("name")}>
+                    <div className="flex items-center select-none ">
                       NAME
                       {fileSortingConfig.sortByKey === "name" &&
                         (fileSortingConfig.direction === "asc" ? (
@@ -981,7 +981,7 @@ function Landing_MyFiles() {
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+                  <th className="px-2 py-4 cursor-pointer w-1/6" onClick={() => handle_FileSorting("size")}>
                     <div className="flex items-center select-none">
                       SIZE
                       {fileSortingConfig.sortByKey === "size" &&
@@ -992,7 +992,7 @@ function Landing_MyFiles() {
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+                  <th className="px-2 py-4 cursor-pointer w-1/6" onClick={() => handle_FileSorting("created_at")}>
                     <div className="flex items-center select-none">
                       UPLOADED
                       {fileSortingConfig.sortByKey === "created_at" &&
@@ -1003,7 +1003,7 @@ function Landing_MyFiles() {
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4"></th>
+                  <th className="px-2 py-4" />
                 </tr>
               </thead>
 
