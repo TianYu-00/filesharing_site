@@ -14,17 +14,6 @@ import {
   updateManyTrashFileByFiles,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import {
-  BsThreeDotsVertical,
-  BsArrowUp,
-  BsArrowDown,
-  BsSearch,
-  BsList,
-  BsTrashFill,
-  BsFolderFill,
-  BsStarFill,
-  BsStar,
-} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
@@ -32,6 +21,18 @@ import { Tooltip } from "react-tooltip";
 import { useSpring, animated } from "@react-spring/web";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
+
+import {
+  TbTrash,
+  TbStar,
+  TbStarFilled,
+  TbFiles,
+  TbSearch,
+  TbArrowUp,
+  TbArrowDown,
+  TbMenu2,
+  TbDotsVertical,
+} from "react-icons/tb";
 
 function Landing_MyFiles() {
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -822,18 +823,19 @@ function Landing_MyFiles() {
           <div
             ref={toolBarRef}
             className={`${
-              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-[#141519]" : ""
+              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-background" : ""
             } max-w-full p-2 rounded-md flex flex-row h-14`}
           >
             <button
-              className="bg-background text-copy-primary hover:bg-background-opp hover:text-copy-opp rounded-md mr-4 shadow-lg shadow-black/50"
+              className="bg-background text-copy-primary hover:bg-background-opp hover:text-copy-opp rounded-md mr-4"
               onClick={() => setIsSideBarOpen(!isSideBarOpen)}
             >
-              <BsList className="mx-2" size={25} />
+              <TbMenu2 className="mx-2" size={25} />
             </button>
+
             {listOfSelectedFile.length > 0 && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
                 onClick={() => setListOfSelectedFile([])}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -843,7 +845,7 @@ function Landing_MyFiles() {
 
             {listOfSelectedFile.length > 0 && pageState !== "trash" && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
                 onClick={() => handle_TrashManyFiles(true)}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -853,7 +855,7 @@ function Landing_MyFiles() {
 
             {listOfSelectedFile.length > 0 && pageState === "trash" && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
                 onClick={() => handle_RestoreManyFiles(false)}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -863,7 +865,7 @@ function Landing_MyFiles() {
 
             {pageState === "trash" && listOfSelectedFile.length > 0 && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
                 onClick={handle_DeleteManyFiles}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -871,20 +873,18 @@ function Landing_MyFiles() {
               </button>
             )}
 
-            <div className="relative flex-grow ml-auto max-w-sm rounded-md shadow-md shadow-black/50">
+            <div className="relative max-w-sm">
+              <TbSearch className="absolute left-2.5 top-3 h-4 w-4 text-background-opp" strokeWidth={4} />
               <input
                 type="text"
-                className="rounded-md pl-4 pr-12 w-full h-full text-white border border-gray-500 bg-transparent focus:outline-none "
+                className="pl-9 pr-4 w-full h-10 rounded-md border border-gray-500 bg-transparent text-copy-primary focus:outline-none"
                 placeholder="Search"
                 value={inputSearchTerm}
                 onChange={(e) => setInputSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handle_OnClickSearchFileName();
+                }}
               />
-              <button
-                className="absolute right-0 text-black cursor-pointer h-full rounded-r-full"
-                onClick={handle_OnClickSearchFileName}
-              >
-                <BsSearch className="mx-4 stroke-1 text-copy-primary" />
-              </button>
             </div>
           </div>
         </div>
@@ -892,46 +892,66 @@ function Landing_MyFiles() {
         <div className="w-full">
           {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
           {isSideBarOpen && (
-            <div
-              className={`fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-80 ${
-                isToolBarSticky ? "top-14" : ""
-              }`}
-              onClick={() => setIsSideBarOpen(false)}
-            >
+            <div className="fixed top-0 left-0 w-full h-screen z-50">
+              <div
+                className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-80`}
+                onClick={() => setIsSideBarOpen(false)}
+              />
               <animated.div
-                className={`flex flex-col text-white bg-[#141519] w-fit h-full p-4 min-w-1/3`}
+                className={`flex flex-col text-white bg-background w-full h-full p-4 max-w-sm`}
                 style={sideBarDrawerAnimation}
               >
-                <div className="p-2 border-b border-gray-500 py-4">
-                  <div>{user?.username}</div>
-                  <div>{user?.email}</div>
-                </div>
-                <div>
+                <div className="p-2 py-4 relative">
                   <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllFiles}
+                    className="text-copy-secondary text-xl font-bold px-2 absolute right-0 top-4 hover:text-red-700"
+                    onClick={() => setIsSideBarOpen(false)}
                   >
-                    <BsFolderFill />
-                    <span className="pl-4">All Files</span>
+                    x
                   </button>
+                  <p className="text-lg font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate">
+                    {user?.username}
+                  </p>
+                  <p className="text-sm text-copy-secondary whitespace-nowrap overflow-hidden truncate">
+                    {user?.email}
+                  </p>
                 </div>
-                <div>
-                  <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllFavourite}
-                  >
-                    <BsStarFill />
-                    <span className="pl-4">Favourite</span>
-                  </button>
-                </div>
-                <div>
-                  <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllTrash}
-                  >
-                    <BsTrashFill />
-                    <span className="pl-4">Trash</span>
-                  </button>
+
+                <div className="border border-border mb-4"></div>
+
+                <div className="text-copy-primary">
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "all" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllFiles}
+                    >
+                      <TbFiles />
+                      <span className="pl-4">All Files</span>
+                    </button>
+                  </div>
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "favourite" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllFavourite}
+                    >
+                      <TbStar />
+                      <span className="pl-4">Favourite</span>
+                    </button>
+                  </div>
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "trash" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllTrash}
+                    >
+                      <TbTrash />
+                      <span className="pl-4">Trash</span>
+                    </button>
+                  </div>
                 </div>
               </animated.div>
             </div>
@@ -955,9 +975,9 @@ function Landing_MyFiles() {
                       NAME
                       {fileSortingConfig.sortByKey === "name" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
@@ -966,9 +986,9 @@ function Landing_MyFiles() {
                       SIZE
                       {fileSortingConfig.sortByKey === "size" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
@@ -977,9 +997,9 @@ function Landing_MyFiles() {
                       UPLOADED
                       {fileSortingConfig.sortByKey === "created_at" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
@@ -1014,23 +1034,23 @@ function Landing_MyFiles() {
                             {pageState !== "trash" &&
                               (file.favourite ? (
                                 <button
-                                  className="justify-center items-center flex text-yellow-500"
+                                  className="justify-center items-center flex text-yellow-500 px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, false);
                                   }}
                                 >
-                                  <BsStarFill />
+                                  <TbStarFilled />
                                 </button>
                               ) : (
                                 <button
-                                  className="justify-center items-center flex text-yellow-500"
+                                  className="justify-center items-center flex text-yellow-500 px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, true);
                                   }}
                                 >
-                                  <BsStar />
+                                  <TbStar />
                                 </button>
                               ))}
 
@@ -1041,7 +1061,7 @@ function Landing_MyFiles() {
                                 handle_FileMenuClick(file.id, e.target);
                               }}
                             >
-                              <BsThreeDotsVertical size={17} className="" />
+                              <TbDotsVertical size={17} className="" />
                             </button>
 
                             {openFileMenu === file.id && (
