@@ -9,6 +9,10 @@ function Page_BoilerPlate({ children }) {
           {/* image */}
           <div className="hidden md:flex justify-center mb-14 bg-cta rounded-t-2xl">
             <img src={logo} alt="" className="p-6 max-w-full md:max-w-[500px]" />
+            {/* <div className="p-6 max-w-full w-full md:max-w-[500px]">
+              <h1 className="text-white/90 font-black text-7xl ">Dropboxer</h1>
+              <h2 className="text-white/90 font-bold text-2xl mt-3">Select - Upload - Share</h2>
+            </div> */}
           </div>
           {/* children  */}
           {children}
