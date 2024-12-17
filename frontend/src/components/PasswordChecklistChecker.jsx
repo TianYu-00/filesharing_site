@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BsCheck, BsX, BsChevronDown, BsChevronUp } from "react-icons/bs";
+import { TbCheck, TbX, TbChevronDown, TbChevronUp } from "react-icons/tb";
 
 function PasswordChecklistChecker({
   rules = { minLength: 8, capital: 0, specialChar: 0, number: 0, match: false },
@@ -48,8 +48,8 @@ function PasswordChecklistChecker({
     if (isHideRuleOnSuccess && condition) return null;
     return (
       <li className="flex items-center">
-        {condition ? <BsCheck className="text-green-500" /> : <BsX className="text-red-500" />}
-        <span className="ml-2">{text}</span>
+        {condition ? <TbCheck className="text-green-500" /> : <TbX className="text-red-500" />}
+        <span className="ml-2 text-sm">{text}</span>
       </li>
     );
   };
@@ -65,7 +65,7 @@ function PasswordChecklistChecker({
           className="flex items-center justify-between w-full bg-card text-sm font-semibold text-copy-primary"
         >
           <span>Password Requirements</span>
-          {isCollapsed ? <BsChevronDown /> : <BsChevronUp />}
+          {isCollapsed ? <TbChevronDown size={18} /> : <TbChevronUp size={18} />}
         </button>
       )}
       {!isCollapsed && (
