@@ -128,7 +128,7 @@ function Landing_Auth() {
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="new-password"
+              autoComplete="current-password"
             />
           </div>
 
