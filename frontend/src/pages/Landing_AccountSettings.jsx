@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
-import {
-  BsPersonVcardFill,
-  BsFillPersonFill,
-  BsEnvelopeFill,
-  BsCalendarDateFill,
-  BsFillLockFill,
-} from "react-icons/bs";
-
 import { editUser } from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
 import PasswordChecklistChecker from "../components/PasswordChecklistChecker";
+import { TbId, TbUser, TbMail, TbCalendar, TbLock } from "react-icons/tb";
 
 function Landing_AccountSettings() {
   const navigate = useNavigate();
@@ -125,7 +117,7 @@ function Landing_AccountSettings() {
                           value={user?.id || ""}
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                         />
-                        <BsPersonVcardFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbId className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -142,7 +134,7 @@ function Landing_AccountSettings() {
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="off"
                         />
-                        <BsFillPersonFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbUser className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -159,7 +151,7 @@ function Landing_AccountSettings() {
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-email"
                         />
-                        <BsEnvelopeFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbMail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -174,7 +166,7 @@ function Landing_AccountSettings() {
                           value={dateFormatter(user?.created_at) || ""}
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                         />
-                        <BsCalendarDateFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbCalendar className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -213,7 +205,7 @@ function Landing_AccountSettings() {
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
                         />
-                        <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -230,7 +222,7 @@ function Landing_AccountSettings() {
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
                         />
-                        <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
