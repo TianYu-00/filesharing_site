@@ -4,16 +4,11 @@ import { fileSizeFormatter } from "../components/File_Formatter";
 import FileDropZone from "../components/File_DropZone";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
-
-//
-import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg, BsThreeDotsVertical } from "react-icons/bs";
-
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
-
 import { toast } from "react-toastify";
-
 import PageExitAlert from "../components/PageExitAlert";
+import { TbDotsVertical, TbFilePlus } from "react-icons/tb";
 
 // rfce snippet
 
@@ -224,7 +219,7 @@ function Home() {
                         handle_FileMenuClick(file.id, e.target);
                       }}
                     >
-                      <BsThreeDotsVertical size={17} />
+                      <TbDotsVertical size={17} />
                     </button>
                     {openFileMenu === file.id && (
                       <div
@@ -273,9 +268,9 @@ function Home() {
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
-            className="p-2 rounded flex items-center justify-center w-full font-bold bg-cta hover:bg-cta-active text-cta-text transition duration-500 ease-in-out"
+            className="p-2 rounded flex items-center justify-center w-full font-medium bg-cta hover:bg-cta-active text-cta-text transition duration-500 ease-in-out"
           >
-            <BsUpload className="mx-2 stroke-1" size={20} /> Upload
+            Upload
           </button>
         </div>
       )}
@@ -291,7 +286,7 @@ function Home() {
             data-tooltip-id="id_reselect_button"
             data-tooltip-content={reselectButtonToolTipContent}
           >
-            <BsPlusLg size={25} />
+            <TbFilePlus size={25} />
           </button>
           <Tooltip
             id="id_reselect_button"
