@@ -17,9 +17,12 @@ function DropdownMenu({ isOpen, setIsOpen, children }) {
   }, [setIsOpen]);
 
   return (
-    <div className="relative inline-block text-left" ref={menuRef}>
+    <div className="relative inline-block text-left z-10" ref={menuRef}>
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-56 border border-border/30 rounded-md bg-card shadow-lg ring-1 ring-black ring-opacity-5">
+        <div
+          className="absolute right-0 mt-3 w-56 border border-border/30 rounded-md bg-card shadow-lg ring-1 ring-black ring-opacity-5"
+          onMouseDown={(event) => event.stopPropagation()}
+        >
           <div className="p-2">{children}</div>
         </div>
       )}
