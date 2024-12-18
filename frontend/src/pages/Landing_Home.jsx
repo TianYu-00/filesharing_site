@@ -8,7 +8,8 @@ import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import PageExitAlert from "../components/PageExitAlert";
-import { TbDotsVertical, TbFilePlus } from "react-icons/tb";
+import { TbDotsVertical, TbFilePlus, TbX } from "react-icons/tb";
+import DropdownMenu from "../components/DropdownMenu";
 
 // rfce snippet
 
@@ -20,19 +21,10 @@ function Home() {
   const [downloadLinks, setDownloadLinks] = useState({});
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
-  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
-
-  //
-  const [openFileMenu, setOpenFileMenu] = useState(null);
-  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
-  const fileMenuRef = useRef(null);
-
-  //
-  const { user } = useUser();
-
-  // file counter
   const [fileCounter, setFileCounter] = useState(0);
+  const { user } = useUser();
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
 
   useEffect(() => {
     // console.log(user);
@@ -40,12 +32,6 @@ function Home() {
 
   const handle_ReselectFile = async () => {
     window.location.replace(window.location.href);
-  };
-
-  const handle_OnClickDownloadPage = (fileId) => {
-    const fileDownloadLink = downloadLinks[fileId];
-    window.open(`/files/download/${fileDownloadLink}`, "_blank");
-    setOpenFileMenu(null);
   };
 
   const handle_FileSelect = (newFiles) => {
@@ -124,6 +110,12 @@ function Home() {
     }
   };
 
+  const handle_OnClickDownloadPage = (fileId) => {
+    console.log(fileId);
+    const fileDownloadLink = downloadLinks[fileId];
+    window.open(`/files/download/${fileDownloadLink}`, "_blank");
+  };
+
   const handle_OnClickCopyLink = async (fileId) => {
     try {
       const fileDownloadLink = downloadLinks[fileId];
@@ -134,7 +126,6 @@ function Home() {
       // console.error("Failed to copy: ", error);
       toast.error("Failed to copy link");
     } finally {
-      setOpenFileMenu(null);
     }
   };
 
@@ -160,74 +151,57 @@ function Home() {
     }
   };
 
-  const getFileButtonDropdownPosition = (buttonElement) => {
-    const buttonRect = buttonElement.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - buttonRect.bottom;
-
-    return spaceBelow < 200 ? "up" : "down";
+  const handle_MenuClick = (fileId) => {
+    setOpenMenuId((prevMenuId) => (prevMenuId === fileId ? null : fileId));
   };
-
-  const handle_FileMenuClick = (fileId, buttonElement) => {
-    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
-    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
-    setFileMenuDropdownPosition(dropdownPosition);
-  };
-
-  useEffect(() => {
-    const handle_OutOfContentClick = (event) => {
-      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
-        setOpenFileMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handle_OutOfContentClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handle_OutOfContentClick);
-    };
-  }, []);
 
   return (
     <Page_BoilerPlate>
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
       {selectedFiles.length > 0 && (
-        <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
+        <div className="grid grid-cols-3 w-full mx-auto mt-6">
+          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Name</div>
+          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Size</div>
+          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Type</div>
 
           {selectedFiles.map((file) => (
             <React.Fragment key={file.id}>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{file.name}</div>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate text-copy-primary/70">
+                {file.name}
+              </div>
+              <div className="border-gray-700 p-2 text-left overflow-hidden truncate text-copy-primary/70">
                 {fileSizeFormatter(file.size)}
               </div>
               <div className="border-gray-700 p-2 text-left flex">
-                <p className="flex-grow overflow-hidden truncate">{file.type}</p>
+                <p className="flex-grow overflow-hidden truncate text-copy-primary/70">{file.type}</p>
                 {!isUploadClicked && (
-                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.id)}>
-                    X
+                  <button
+                    className="text-gray-500 hover:text-red-500 text-2xl mr-2"
+                    onClick={() => handle_OnDeselectFileClick(file.id)}
+                  >
+                    <TbX size={17} />
                   </button>
                 )}
 
                 {isUploadClicked && uploadStatus && (
                   <div className="relative">
                     <button
-                      className="px-2 py-1 rounded-md hover:text-copy-opp hover:bg-background-opp"
-                      onClick={(e) => {
-                        handle_FileMenuClick(file.id, e.target);
+                      className="p-2 rounded-md hover:bg-background-opp/10 text-copy-primary"
+                      onClick={() => handle_MenuClick(file.id)}
+                    >
+                      <TbDotsVertical size={17} strokeWidth={3} />
+                    </button>
+
+                    <DropdownMenu
+                      isOpen={openMenuId === file.id}
+                      setIsOpen={(isOpen) => {
+                        if (!isOpen) {
+                          setOpenMenuId(null);
+                        }
                       }}
                     >
-                      <TbDotsVertical size={17} />
-                    </button>
-                    {openFileMenu === file.id && (
-                      <div
-                        className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
-                          fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
-                        } bg-card text-copy-primary`}
-                        ref={fileMenuRef}
-                      >
+                      <div className="text-copy-primary">
                         <button
                           className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
                           onClick={() => handle_OnClickDownloadPage(file.id)}
@@ -241,7 +215,7 @@ function Home() {
                           Share
                         </button>
                       </div>
-                    )}
+                    </DropdownMenu>
                   </div>
                 )}
               </div>
@@ -281,7 +255,7 @@ function Home() {
       {uploadStatus && (
         <>
           <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
+            className="m-2 text-copy-primary hover:bg-background-opp/10 p-2 rounded-md"
             onClick={handle_ReselectFile}
             data-tooltip-id="id_reselect_button"
             data-tooltip-content={reselectButtonToolTipContent}
