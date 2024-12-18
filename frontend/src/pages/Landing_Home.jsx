@@ -8,7 +8,7 @@ import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import PageExitAlert from "../components/PageExitAlert";
-import { TbDotsVertical, TbFilePlus, TbX } from "react-icons/tb";
+import { TbDotsVertical, TbFilePlus, TbX, TbDownload, TbShare } from "react-icons/tb";
 import DropdownMenu from "../components/DropdownMenu";
 
 // rfce snippet
@@ -167,14 +167,14 @@ function Home() {
 
           {selectedFiles.map((file) => (
             <React.Fragment key={file.id}>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate text-copy-primary/70">
+              <div className="text-left overflow-hidden truncate text-copy-primary/70 flex items-center ">
                 {file.name}
               </div>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate text-copy-primary/70">
+              <div className="text-left overflow-hidden truncate text-copy-primary/70 flex items-center ">
                 {fileSizeFormatter(file.size)}
               </div>
-              <div className="border-gray-700 p-2 text-left flex">
-                <p className="flex-grow overflow-hidden truncate text-copy-primary/70">{file.type}</p>
+              <div className="text-left flex">
+                <p className="flex-grow overflow-hidden truncate text-copy-primary/70 flex items-center">{file.type}</p>
                 {!isUploadClicked && (
                   <button
                     className="text-gray-500 hover:text-red-500 text-2xl mr-2"
@@ -203,15 +203,23 @@ function Home() {
                     >
                       <div className="text-copy-primary">
                         <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickDownloadPage(file.id)}
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                          onClick={() => {
+                            handle_OnClickDownloadPage(file.id);
+                            setOpenMenuId(null);
+                          }}
                         >
+                          <TbDownload size={17} className="mr-2" />
                           Download
                         </button>
                         <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickCopyLink(file.id)}
+                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                          onClick={() => {
+                            handle_OnClickCopyLink(file.id);
+                            setOpenMenuId(null);
+                          }}
                         >
+                          <TbShare size={17} className="mr-2" />
                           Share
                         </button>
                       </div>
