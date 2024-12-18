@@ -8,7 +8,7 @@ import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import PageExitAlert from "../components/PageExitAlert";
-import { TbDotsVertical, TbFilePlus, TbX, TbDownload, TbShare } from "react-icons/tb";
+import { TbDotsVertical, TbFilePlus, TbX, TbDownload, TbShare, TbFile, TbCheck, TbClock } from "react-icons/tb";
 import DropdownMenu from "../components/DropdownMenu";
 
 // rfce snippet
@@ -65,7 +65,7 @@ function Home() {
     }
 
     try {
-      toast.info("Files are being uploaded");
+      toast.info("Don't close or refresh during upload.");
 
       setIsUploadClicked(true);
       setIsUploading(true);
@@ -94,7 +94,7 @@ function Home() {
             ...prevLinks,
             [file.id]: result.data?.downloadLink?.download_url,
           }));
-          toast.success(`File ${file.name} uploaded successfully`);
+          // toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
           toast.error(`Failed to upload ${file.name}`);
         }
@@ -160,31 +160,41 @@ function Home() {
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
       {selectedFiles.length > 0 && (
-        <div className="grid grid-cols-3 w-full mx-auto mt-6">
-          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Name</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Size</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold text-copy-primary/80">Type</div>
-
+        <div className="mt-4">
           {selectedFiles.map((file) => (
             <React.Fragment key={file.id}>
-              <div className="text-left overflow-hidden truncate text-copy-primary/70 flex items-center ">
-                {file.name}
-              </div>
-              <div className="text-left overflow-hidden truncate text-copy-primary/70 flex items-center ">
-                {fileSizeFormatter(file.size)}
-              </div>
-              <div className="text-left flex">
-                <p className="flex-grow overflow-hidden truncate text-copy-primary/70 flex items-center">{file.type}</p>
-                {!isUploadClicked && (
-                  <button
-                    className="text-gray-500 hover:text-red-500 text-2xl mr-2"
-                    onClick={() => handle_OnDeselectFileClick(file.id)}
-                  >
-                    <TbX size={17} />
-                  </button>
-                )}
+              <div className="text-copy-primary flex flex-row my-4 bg-card py-2 rounded shadow">
+                {/* 1 */}
+                <div className="flex items-center">
+                  <TbFile className="h-14 w-14" />
+                </div>
 
-                {isUploadClicked && uploadStatus && (
+                {/* 2 */}
+                <div className="flex flex-col w-full gap-2 px-3">
+                  <div className="flex items-center w-full">
+                    <p className="text-left truncate flex-grow w-0">{file.name}</p>
+                    <span className="text-left text-sm text-copy-secondary w-20 text-right">
+                      {fileSizeFormatter(file.size)}
+                    </span>
+                  </div>
+                  <div className="flex items-center w-full">
+                    <div className="bg-gray-200 h-2 flex-grow rounded mr-2">
+                      <div className="bg-blue-500 h-2 rounded" style={{ width: `${uploadProgress[file.id]}%` }}></div>
+                    </div>
+                    {uploadProgress[file.id] !== 100 ? (
+                      uploadProgress[file.id] !== 0 ? (
+                        <span className="text-sm text-copy-secondary w-12 text-right">{uploadProgress[file.id]}%</span>
+                      ) : (
+                        <TbClock size={17} className="text-blue-500 w-12 text-right" />
+                      )
+                    ) : (
+                      <TbCheck size={17} className="text-green-500 w-12 text-right" />
+                    )}
+                  </div>
+                </div>
+
+                {/* 3 */}
+                <div className="flex items-center">
                   <div className="relative">
                     <button
                       className="p-2 rounded-md hover:bg-background-opp/10 text-copy-primary"
@@ -192,7 +202,6 @@ function Home() {
                     >
                       <TbDotsVertical size={17} strokeWidth={3} />
                     </button>
-
                     <DropdownMenu
                       isOpen={openMenuId === file.id}
                       setIsOpen={(isOpen) => {
@@ -202,44 +211,47 @@ function Home() {
                       }}
                     >
                       <div className="text-copy-primary">
-                        <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
-                          onClick={() => {
-                            handle_OnClickDownloadPage(file.id);
-                            setOpenMenuId(null);
-                          }}
-                        >
-                          <TbDownload size={17} className="mr-2" />
-                          Download
-                        </button>
-                        <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
-                          onClick={() => {
-                            handle_OnClickCopyLink(file.id);
-                            setOpenMenuId(null);
-                          }}
-                        >
-                          <TbShare size={17} className="mr-2" />
-                          Share
-                        </button>
+                        {uploadProgress[file.id] === 100 && (
+                          <>
+                            <button
+                              className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                              onClick={() => {
+                                handle_OnClickDownloadPage(file.id);
+                                setOpenMenuId(null);
+                              }}
+                            >
+                              <TbDownload size={17} className="mr-2" />
+                              Download
+                            </button>
+                            <button
+                              className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                              onClick={() => {
+                                handle_OnClickCopyLink(file.id);
+                                setOpenMenuId(null);
+                              }}
+                            >
+                              <TbShare size={17} className="mr-2" />
+                              Share
+                            </button>
+                          </>
+                        )}
+
+                        {!isUploadClicked && (
+                          <button
+                            className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                            onClick={() => {
+                              handle_OnDeselectFileClick(file.id);
+                              setOpenMenuId(null);
+                            }}
+                          >
+                            <TbX size={17} className="mr-2" />
+                            Remove
+                          </button>
+                        )}
                       </div>
                     </DropdownMenu>
                   </div>
-                )}
-              </div>
-
-              <div className="col-span-3">
-                {isUploadClicked && (uploadProgress[file.id] === 0 || uploadProgress[file.id] === undefined) ? (
-                  <div className="text-sm text-copy-secondary">waiting...</div>
-                ) : (
-                  isUploadClicked && (
-                    <div className="pb-4">
-                      <div className="bg-gray-200 h-1 w-full mt-2">
-                        <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
-                      </div>
-                    </div>
-                  )
-                )}
+                </div>
               </div>
             </React.Fragment>
           ))}
