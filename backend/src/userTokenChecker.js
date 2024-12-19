@@ -23,7 +23,9 @@ const userTokenChecker = async (req, res, next) => {
 
       const userData = await getUser(userId);
 
-      const newAccessToken = await createAccessToken(userData);
+      const { password, ...sanitizedUserData } = userData;
+
+      const newAccessToken = await createAccessToken(sanitizedUserData);
       await createCookie({
         res,
         cookieValue: newAccessToken,
@@ -37,6 +39,8 @@ const userTokenChecker = async (req, res, next) => {
       return next();
     }
   }
+
+  // console.log(req.userData);
 
   return next();
 };
