@@ -35,7 +35,7 @@ exports.uploadFile = async (req) => {
           `
             INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id, favourite, trash) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
-            RETURNING *
+            RETURNING id, fieldname ,originalname, encoding, mimetype, size, user_id, created_at, favourite, trash
           ;`,
           [fieldname, originalname, encoding, mimetype, destination, filename, filePath, size, userId, false, false]
         );
