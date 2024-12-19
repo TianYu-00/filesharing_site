@@ -160,7 +160,24 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
       [downloadLink]
     );
 
-    return result.rows.length > 0 ? result.rows[0] : null;
+    if (result.rows.length > 0) {
+      const fileInfo = result.rows[0];
+
+      const sanitizedFileInfo = {
+        id: fileInfo.id,
+        fieldname: fileInfo.fieldname,
+        originalname: fileInfo.originalname,
+        encoding: fileInfo.encoding,
+        mimetype: fileInfo.mimetype,
+        size: fileInfo.size,
+        user_id: fileInfo.user_id,
+        created_at: fileInfo.created_at,
+      };
+
+      return sanitizedFileInfo;
+    } else {
+      return null;
+    }
   } catch (err) {
     return Promise.reject({
       code: "DB_ERROR",
