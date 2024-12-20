@@ -4,16 +4,12 @@ import { fileSizeFormatter } from "../components/File_Formatter";
 import FileDropZone from "../components/File_DropZone";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
-
-//
-import { BsUpload, BsLink45Deg, BsBoxArrowRight, BsPlusLg, BsThreeDotsVertical } from "react-icons/bs";
-
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
-
 import { toast } from "react-toastify";
-
 import PageExitAlert from "../components/PageExitAlert";
+import { TbDotsVertical, TbFilePlus, TbX, TbDownload, TbShare, TbFile, TbCheck, TbClock } from "react-icons/tb";
+import DropdownMenu from "../components/DropdownMenu";
 
 // rfce snippet
 
@@ -25,19 +21,10 @@ function Home() {
   const [downloadLinks, setDownloadLinks] = useState({});
   const [isUploadClicked, setIsUploadClicked] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
-  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
-
-  //
-  const [openFileMenu, setOpenFileMenu] = useState(null);
-  const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
-  const fileMenuRef = useRef(null);
-
-  //
-  const { user } = useUser();
-
-  // file counter
   const [fileCounter, setFileCounter] = useState(0);
+  const { user } = useUser();
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
 
   useEffect(() => {
     // console.log(user);
@@ -45,12 +32,6 @@ function Home() {
 
   const handle_ReselectFile = async () => {
     window.location.replace(window.location.href);
-  };
-
-  const handle_OnClickDownloadPage = (fileId) => {
-    const fileDownloadLink = downloadLinks[fileId];
-    window.open(`/files/download/${fileDownloadLink}`, "_blank");
-    setOpenFileMenu(null);
   };
 
   const handle_FileSelect = (newFiles) => {
@@ -84,7 +65,7 @@ function Home() {
     }
 
     try {
-      toast.info("Files are being uploaded");
+      toast.info("Don't close or refresh during upload.");
 
       setIsUploadClicked(true);
       setIsUploading(true);
@@ -113,7 +94,7 @@ function Home() {
             ...prevLinks,
             [file.id]: result.data?.downloadLink?.download_url,
           }));
-          toast.success(`File ${file.name} uploaded successfully`);
+          // toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
           toast.error(`Failed to upload ${file.name}`);
         }
@@ -129,6 +110,12 @@ function Home() {
     }
   };
 
+  const handle_OnClickDownloadPage = (fileId) => {
+    console.log(fileId);
+    const fileDownloadLink = downloadLinks[fileId];
+    window.open(`/files/download/${fileDownloadLink}`, "_blank");
+  };
+
   const handle_OnClickCopyLink = async (fileId) => {
     try {
       const fileDownloadLink = downloadLinks[fileId];
@@ -139,7 +126,6 @@ function Home() {
       // console.error("Failed to copy: ", error);
       toast.error("Failed to copy link");
     } finally {
-      setOpenFileMenu(null);
     }
   };
 
@@ -165,104 +151,107 @@ function Home() {
     }
   };
 
-  const getFileButtonDropdownPosition = (buttonElement) => {
-    const buttonRect = buttonElement.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - buttonRect.bottom;
-
-    return spaceBelow < 200 ? "up" : "down";
+  const handle_MenuClick = (fileId) => {
+    setOpenMenuId((prevMenuId) => (prevMenuId === fileId ? null : fileId));
   };
-
-  const handle_FileMenuClick = (fileId, buttonElement) => {
-    const dropdownPosition = getFileButtonDropdownPosition(buttonElement);
-    setOpenFileMenu(openFileMenu === fileId ? null : fileId);
-    setFileMenuDropdownPosition(dropdownPosition);
-  };
-
-  useEffect(() => {
-    const handle_OutOfContentClick = (event) => {
-      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
-        setOpenFileMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handle_OutOfContentClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handle_OutOfContentClick);
-    };
-  }, []);
 
   return (
     <Page_BoilerPlate>
       {!isUploadClicked && <FileDropZone onFileSelect={handle_FileSelect} />}
 
       {selectedFiles.length > 0 && (
-        <div className="grid grid-cols-3 w-full mx-auto mt-6 text-copy-primary">
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Name</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Size</div>
-          <div className="border-b border-gray-700 p-2 text-left font-bold">Type</div>
-
+        <div className="mt-4">
           {selectedFiles.map((file) => (
             <React.Fragment key={file.id}>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">{file.name}</div>
-              <div className="border-gray-700 p-2 text-left overflow-hidden truncate">
-                {fileSizeFormatter(file.size)}
-              </div>
-              <div className="border-gray-700 p-2 text-left flex">
-                <p className="flex-grow overflow-hidden truncate">{file.type}</p>
-                {!isUploadClicked && (
-                  <button className="text-red-500 font-bold px-2" onClick={() => handle_OnDeselectFileClick(file.id)}>
-                    X
-                  </button>
-                )}
+              <div className="text-copy-primary flex flex-row my-4 bg-card py-2 rounded shadow">
+                {/* 1 */}
+                <div className="flex items-center">
+                  <TbFile className="h-14 w-14" />
+                </div>
 
-                {isUploadClicked && uploadStatus && (
-                  <div className="relative">
-                    <button
-                      className="px-2 py-1 rounded-md hover:text-copy-opp hover:bg-background-opp"
-                      onClick={(e) => {
-                        handle_FileMenuClick(file.id, e.target);
-                      }}
-                    >
-                      <BsThreeDotsVertical size={17} />
-                    </button>
-                    {openFileMenu === file.id && (
-                      <div
-                        className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
-                          fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
-                        } bg-card text-copy-primary`}
-                        ref={fileMenuRef}
-                      >
-                        <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickDownloadPage(file.id)}
-                        >
-                          Download
-                        </button>
-                        <button
-                          className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                          onClick={() => handle_OnClickCopyLink(file.id)}
-                        >
-                          Share
-                        </button>
-                      </div>
+                {/* 2 */}
+                <div className="flex flex-col w-full gap-2 px-3">
+                  <div className="flex items-center w-full">
+                    <p className="text-left truncate flex-grow w-0">{file.name}</p>
+                    <span className="text-left text-sm text-copy-secondary w-20 text-right">
+                      {fileSizeFormatter(file.size)}
+                    </span>
+                  </div>
+                  <div className="flex items-center w-full">
+                    <div className="bg-gray-200 h-2 flex-grow rounded mr-2">
+                      <div className="bg-blue-500 h-2 rounded" style={{ width: `${uploadProgress[file.id]}%` }}></div>
+                    </div>
+                    {uploadProgress[file.id] !== 100 ? (
+                      uploadProgress[file.id] !== 0 ? (
+                        <span className="text-sm text-copy-secondary w-12 text-right">{uploadProgress[file.id]}%</span>
+                      ) : (
+                        <TbClock size={17} className="text-blue-500 w-12 text-right" />
+                      )
+                    ) : (
+                      <TbCheck size={17} className="text-green-500 w-12 text-right" />
                     )}
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="col-span-3">
-                {isUploadClicked && (uploadProgress[file.id] === 0 || uploadProgress[file.id] === undefined) ? (
-                  <div className="text-sm text-copy-secondary">waiting...</div>
-                ) : (
-                  isUploadClicked && (
-                    <div className="pb-4">
-                      <div className="bg-gray-200 h-1 w-full mt-2">
-                        <div className="bg-blue-500 h-1" style={{ width: `${uploadProgress[file.id]}%` }}></div>
+                {/* 3 */}
+                <div className="flex items-center">
+                  <div className="relative">
+                    <button
+                      className="p-2 rounded-md hover:bg-background-opp/10 text-copy-primary"
+                      onClick={() => handle_MenuClick(file.id)}
+                    >
+                      <TbDotsVertical size={17} strokeWidth={3} />
+                    </button>
+                    <DropdownMenu
+                      isOpen={openMenuId === file.id}
+                      setIsOpen={(isOpen) => {
+                        if (!isOpen) {
+                          setOpenMenuId(null);
+                        }
+                      }}
+                    >
+                      <div className="text-copy-primary">
+                        {uploadProgress[file.id] === 100 && (
+                          <>
+                            <button
+                              className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                              onClick={() => {
+                                handle_OnClickDownloadPage(file.id);
+                                setOpenMenuId(null);
+                              }}
+                            >
+                              <TbDownload size={17} className="mr-2" />
+                              Download
+                            </button>
+                            <button
+                              className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                              onClick={() => {
+                                handle_OnClickCopyLink(file.id);
+                                setOpenMenuId(null);
+                              }}
+                            >
+                              <TbShare size={17} className="mr-2" />
+                              Share
+                            </button>
+                          </>
+                        )}
+
+                        {!isUploadClicked && (
+                          <button
+                            className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                            onClick={() => {
+                              handle_OnDeselectFileClick(file.id);
+                              setOpenMenuId(null);
+                            }}
+                          >
+                            <TbX size={17} className="mr-2" />
+                            Remove
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  )
-                )}
+                    </DropdownMenu>
+                  </div>
+                </div>
               </div>
             </React.Fragment>
           ))}
@@ -273,9 +262,9 @@ function Home() {
         <div className="flex mt-5">
           <button
             onClick={handle_FileUpload}
-            className="p-2 rounded flex items-center justify-center w-full font-bold bg-cta hover:bg-cta-active text-cta-text transition duration-500 ease-in-out"
+            className="p-2 rounded flex items-center justify-center w-full font-medium bg-cta hover:bg-cta-active text-cta-text transition duration-500 ease-in-out"
           >
-            <BsUpload className="mx-2 stroke-1" size={20} /> Upload
+            Upload
           </button>
         </div>
       )}
@@ -286,12 +275,12 @@ function Home() {
       {uploadStatus && (
         <>
           <button
-            className="m-2 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
+            className="m-2 text-copy-primary hover:bg-background-opp/10 p-2 rounded-md"
             onClick={handle_ReselectFile}
             data-tooltip-id="id_reselect_button"
             data-tooltip-content={reselectButtonToolTipContent}
           >
-            <BsPlusLg size={25} />
+            <TbFilePlus size={25} />
           </button>
           <Tooltip
             id="id_reselect_button"

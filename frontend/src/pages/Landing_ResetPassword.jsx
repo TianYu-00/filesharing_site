@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { verifyPasswordResetToken, changeUserPassword } from "../api";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
+import PasswordChecklistChecker from "../components/PasswordChecklistChecker";
 
 function Landing_ResetPassword() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ function Landing_ResetPassword() {
   const [isValidatingToken, setIsValidatingToken] = useState(true);
   const [isAttemptingToResetPassword, setIsAttemptingToResetPassword] = useState(false);
   const [isPasswordResetSuccessful, setIsPasswordResetSuccessful] = useState(false);
+  const [isPasswordCheckAllPass, setIsPasswordCheckAllPass] = useState(false);
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -47,8 +49,8 @@ function Landing_ResetPassword() {
   const handle_PasswordReset = async (event) => {
     event.preventDefault();
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+    if (!isPasswordCheckAllPass) {
+      toast.error("Password requirements not met.");
       return;
     }
 
@@ -111,6 +113,17 @@ function Landing_ResetPassword() {
           <div className="flex flex-col">
             <p className="text-center text-2xl font-bold mb-2 text-copy-primary">Reset Password</p>
             <p className="text-center text-copy-secondary mb-6">Enter your new password to reset for {email}.</p>
+          </div>
+
+          <div className="pb-4">
+            <PasswordChecklistChecker
+              rules={{ minLength: 8, capital: 1, specialChar: 1, number: 1, match: true }}
+              password={password}
+              repeatedPassword={confirmPassword}
+              onChange={setIsPasswordCheckAllPass}
+              isHideRuleOnSuccess={false}
+              isCollapsable={true}
+            />
           </div>
 
           <div className="flex flex-col items-start">

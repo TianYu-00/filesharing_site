@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { useUser } from "../context/UserContext";
-import {
-  BsPersonVcardFill,
-  BsFillPersonFill,
-  BsEnvelopeFill,
-  BsCalendarDateFill,
-  BsFillLockFill,
-} from "react-icons/bs";
-
 import { editUser } from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
+import PasswordChecklistChecker from "../components/PasswordChecklistChecker";
+import { TbId, TbUser, TbMail, TbCalendar, TbLock } from "react-icons/tb";
 
 function Landing_AccountSettings() {
   const navigate = useNavigate();
@@ -25,6 +18,7 @@ function Landing_AccountSettings() {
   const [newPassword, setNewPassword] = useState("");
   const checkError = useErrorChecker();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [isPasswordCheckAllPass, setIsPasswordCheckAllPass] = useState(false);
 
   useEffect(() => {
     const verifyUserLogin = async () => {
@@ -73,8 +67,13 @@ function Landing_AccountSettings() {
         toast.error("Current password is required to change password");
         return;
       }
-      changes.currentPassword = currentPassword;
-      changes.newPassword = newPassword;
+      if (isPasswordCheckAllPass) {
+        changes.currentPassword = currentPassword;
+        changes.newPassword = newPassword;
+      } else {
+        toast.error("Password requirements not met.");
+        return;
+      }
     }
 
     if (Object.keys(changes).length === 0) {
@@ -104,69 +103,70 @@ function Landing_AccountSettings() {
           <form onSubmit={handleSubmit}>
             <div className="p-4 bg-card rounded-lg">
               {/* User Information */}
-              <p className="flex font-bold text-xl text-copy-primary mb-4">User Information</p>
+              <p className="flex font-bold text-2xl text-copy-primary">User Information</p>
+              <p className="flex text-sm text-copy-secondary mb-10">View and update your account details.</p>
               <table className="w-full table-auto">
                 <tbody>
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">User ID</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">User ID</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="text"
                           disabled
                           value={user?.id || ""}
-                          className="pl-8 pr-4 py-2 border rounded-md w-full border-gray-600 bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                         />
-                        <BsPersonVcardFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbId className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
 
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">Username</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">Username</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           placeholder="username"
-                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="off"
                         />
-                        <BsFillPersonFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbUser className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
 
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">Email</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">Email</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="email"
-                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-email"
                         />
-                        <BsEnvelopeFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbMail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
 
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">Created At</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">Created At</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary ">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="text"
                           disabled
                           value={dateFormatter(user?.created_at) || ""}
-                          className="pl-8 pr-4 py-2 border rounded-md w-full border-gray-600 bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                         />
-                        <BsCalendarDateFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbCalendar className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
@@ -176,39 +176,53 @@ function Landing_AccountSettings() {
 
             {/* Password Management */}
             <div className="p-4 bg-card rounded-lg mt-4">
-              <p className="font-bold text-xl text-copy-primary mb-4">Password Management</p>
+              <p className="flex font-bold text-2xl text-copy-primary">Password Management</p>
+              <p className="flex text-sm text-copy-secondary mb-10">
+                Update your password here. Password must meet the requirements.
+              </p>
+
+              <div className="pb-4">
+                <PasswordChecklistChecker
+                  rules={{ minLength: 8, capital: 1, specialChar: 1, number: 1, match: false }}
+                  password={newPassword}
+                  onChange={setIsPasswordCheckAllPass}
+                  isHideRuleOnSuccess={false}
+                  isCollapsable={true}
+                />
+              </div>
+
               <table className="w-full table-auto">
                 <tbody>
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">Current Password</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">Current Password</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="password"
                           value={currentPassword}
                           onChange={(e) => setCurrentPassword(e.target.value)}
                           placeholder="current password"
-                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
                         />
-                        <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>
 
                   <tr>
-                    <td className="text-copy-primary pr-4 w-2/6">New Password</td>
+                    <td className="text-copy-primary pr-4 w-2/6 my-2">New Password</td>
                     <td>
-                      <div className="relative mb-4 text-copy-primary">
+                      <div className="relative text-copy-primary my-2">
                         <input
                           type="password"
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
                           placeholder="new password"
-                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card"
+                          className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
                         />
-                        <BsFillLockFill className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
                     </td>
                   </tr>

@@ -14,17 +14,6 @@ import {
   updateManyTrashFileByFiles,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
-import {
-  BsThreeDotsVertical,
-  BsArrowUp,
-  BsArrowDown,
-  BsSearch,
-  BsList,
-  BsTrashFill,
-  BsFolderFill,
-  BsStarFill,
-  BsStar,
-} from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import { toast } from "react-toastify";
@@ -32,6 +21,25 @@ import { Tooltip } from "react-tooltip";
 import { useSpring, animated } from "@react-spring/web";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
+
+import {
+  TbTrash,
+  TbStar,
+  TbStarFilled,
+  TbFiles,
+  TbSearch,
+  TbArrowUp,
+  TbArrowDown,
+  TbMenu2,
+  TbDotsVertical,
+  TbDownload,
+  TbFilePencil,
+  TbLink,
+  TbStarOff,
+  TbTrashX,
+  TbArrowBackUp,
+  TbX,
+} from "react-icons/tb";
 
 function Landing_MyFiles() {
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -294,7 +302,7 @@ function Landing_MyFiles() {
       }
 
       if (!fileRenameString) {
-        toast.error("Filename can not empty");
+        toast.error("Filename can not be empty");
         return;
       }
 
@@ -303,16 +311,32 @@ function Landing_MyFiles() {
       );
 
       const newFileName = fileRenameString + extractedFileExtension;
+
+      // console.log(newFileName);
+      // console.log(currentSelectedFile.originalname);
+      if (newFileName === currentSelectedFile.originalname) {
+        toast.error("Name is same as original.");
+        return;
+      }
+
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
-        const updatedFiles = displayFiles.map((currentFile) => {
+        const updatedAllFiles = allFiles.map((currentFile) => {
           if (currentFile.id === currentSelectedFile.id) {
-            return { ...currentFile, originalname: newFileName };
+            return response.data;
           }
           return currentFile;
         });
 
-        setDisplayFiles(updatedFiles);
+        const updatedDisplayFiles = displayFiles.map((currentFile) => {
+          if (currentFile.id === currentSelectedFile.id) {
+            return response.data;
+          }
+          return currentFile;
+        });
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
 
         setIsRenameModalOpen(false);
         setFileRenameString("");
@@ -655,8 +679,8 @@ function Landing_MyFiles() {
             }}
             modalTitle={`Delete Confirmation`}
           >
-            <p className="text-white text-lg mb-4">Are you sure you want to delete the file?</p>
-            <p className="text-white text-lg mb-4">{currentSelectedFile.originalname}</p>
+            <p className="text-copy-primary text-lg mb-4">Are you sure you want to delete the file?</p>
+            <p className="text-copy-secondary text-lg mb-4">{currentSelectedFile.originalname}</p>
             <div className="flex justify-center items-align space-x-6">
               <button
                 className="bg-cta font-bold p-2 rounded text-cta-text hover:bg-cta-active transition duration-500 ease-in-out"
@@ -688,20 +712,26 @@ function Landing_MyFiles() {
               setFileRenameString("");
               setCurrentSelectedFile(null);
             }}
-            modalTitle={`Rename: ${currentSelectedFile.originalname}`}
+            modalTitle={`Rename File`}
           >
-            <input
-              className="my-2 p-1 rounded mx-1"
-              onChange={(e) => setFileRenameString(e.target.value)}
-              value={fileRenameString}
-              placeholder="Enter new name here"
-            />
-            <button
-              className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active px-2 p-1 rounded font-bold ml-2"
-              onClick={() => handle_FileRename()}
-            >
-              Update
-            </button>
+            <div className="flex flex-col">
+              <div className="flex flex-col mb-4">
+                <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
+                <input
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
+                  onChange={(e) => setFileRenameString(e.target.value)}
+                  value={fileRenameString}
+                  placeholder="Enter new name here"
+                />
+              </div>
+
+              <button
+                className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold"
+                onClick={() => handle_FileRename()}
+              >
+                Update
+              </button>
+            </div>
           </Modal>
         )}
 
@@ -716,12 +746,13 @@ function Landing_MyFiles() {
               setCreateLinkPassword("");
               setCurrentSelectedFile(null);
             }}
-            modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+            // modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
+            modalTitle={`Manage Share Links`}
           >
             <div className="overflow-auto">
               <div className="overflow-y-auto">
-                <div className="flex flex-col w-full text-white">
-                  <div className="flex border-b-2 border-gray-500">
+                <div className="flex flex-col w-full">
+                  <div className="flex border-b border-border text-copy-primary/80 text-sm font-medium ">
                     <div className="px-2 py-2 w-1/4 ">Link</div>
                     <div className="px-2 py-2 w-1/4 ">Expires</div>
                     <div className="px-2 py-2 w-1/4 ">Limit</div>
@@ -732,7 +763,7 @@ function Landing_MyFiles() {
                   <div className="max-h-[200px]">
                     {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
                       listOfDownloadLinks.map((currentLink) => (
-                        <div key={currentLink.id} className="flex hover:bg-neutral-900 border-b border-gray-500">
+                        <div key={currentLink.id} className="flex border-b border-border/50 text-copy-primary/70">
                           <div
                             className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer "
                             onClick={async () => {
@@ -752,18 +783,29 @@ function Landing_MyFiles() {
                             opacity={0.9}
                             place="bottom"
                           />
+
+                          {/* expires */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {fileDateFormatter(currentLink.expires_at)[2]}
                           </div>
+
+                          {/* limit */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {currentLink.download_count}/{currentLink.download_limit || "Null"}
                           </div>
+
+                          {/* password */}
                           <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
                             {currentLink.password ? "Yes" : "No"}
                           </div>
-                          <div className="px-2 py-1 whitespace-nowrap overflow-hidden truncate text-red-500 font-bold w-8 ">
-                            <button className="" onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}>
-                              X
+
+                          {/* X button */}
+                          <div className="flex justify-center">
+                            <button
+                              className="text-gray-500 hover:text-red-500 text-2xl mr-2"
+                              onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}
+                            >
+                              <TbX size={17} strokeWidth={3} />
                             </button>
                           </div>
                         </div>
@@ -775,43 +817,54 @@ function Landing_MyFiles() {
                 </div>
               </div>
 
-              <div className="w-full border-b my-8"></div>
+              <div className="text-copy-primary mb-4 my-8">
+                <p className="font-bold">Create Link</p>
+                <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">
+                  Create a new custom download link below
+                </p>
+              </div>
 
-              <form className="grid">
+              <form className="flex flex-col space-y-4 p-1">
                 {/* Expires At */}
-                <label className="text-white mx-3">Expires At</label>
-                <input
-                  type="datetime-local"
-                  className="mb-2 p-1 rounded mx-3"
-                  value={createLinkExpiresAt}
-                  onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
-                ></input>
-                {/* Download Limit  */}
-                <label className="text-white mx-3">Download Limit</label>
-                <input
-                  type="number"
-                  className="mb-2 p-1 rounded mx-3"
-                  value={createLinkDownloadLimit}
-                  onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
-                ></input>
-                {/* Password */}
-                <label className="text-white mx-3">Link Password</label>
-                <input
-                  type="password"
-                  className="mb-2 p-1 rounded mx-3"
-                  autoComplete="new-password"
-                  value={createLinkPassword}
-                  onChange={(e) => setCreateLinkPassword(e.target.value)}
-                ></input>
-
-                <div className="flex justify-end mx-3">
-                  <button
-                    className="text-cta-text bg-cta hover:bg-cta-active p-2 rounded font-bold transition duration-500 ease-in-out mt-2 "
-                    onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
-                  >
-                    Create Link
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Expires At</label>
+                  <input
+                    type="datetime-local"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
+                    value={createLinkExpiresAt}
+                    onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
+                  />
                 </div>
+
+                {/* Download Limit  */}
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Download Limit</label>
+                  <input
+                    type="number"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
+                    value={createLinkDownloadLimit}
+                    onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Link Password</label>
+                  <input
+                    type="password"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
+                    autoComplete="new-password"
+                    value={createLinkPassword}
+                    onChange={(e) => setCreateLinkPassword(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold w-full"
+                  onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
+                >
+                  Create Link
+                </button>
               </form>
             </div>
           </Modal>
@@ -822,18 +875,19 @@ function Landing_MyFiles() {
           <div
             ref={toolBarRef}
             className={`${
-              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-[#141519]" : ""
+              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-background" : ""
             } max-w-full p-2 rounded-md flex flex-row h-14`}
           >
             <button
-              className="bg-background text-copy-primary hover:bg-background-opp hover:text-copy-opp rounded-md mr-4 shadow-lg shadow-black/50"
+              className="bg-background text-copy-primary hover:bg-background-opp/10 rounded-md mr-4"
               onClick={() => setIsSideBarOpen(!isSideBarOpen)}
             >
-              <BsList className="mx-2" size={25} />
+              <TbMenu2 className="mx-2" size={25} />
             </button>
+
             {listOfSelectedFile.length > 0 && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
                 onClick={() => setListOfSelectedFile([])}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -843,7 +897,7 @@ function Landing_MyFiles() {
 
             {listOfSelectedFile.length > 0 && pageState !== "trash" && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
                 onClick={() => handle_TrashManyFiles(true)}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -853,7 +907,7 @@ function Landing_MyFiles() {
 
             {listOfSelectedFile.length > 0 && pageState === "trash" && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
                 onClick={() => handle_RestoreManyFiles(false)}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -863,7 +917,7 @@ function Landing_MyFiles() {
 
             {pageState === "trash" && listOfSelectedFile.length > 0 && (
               <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700 shadow-lg shadow-black/50`}
+                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
                 onClick={handle_DeleteManyFiles}
                 disabled={listOfSelectedFile.length === 0}
               >
@@ -871,20 +925,18 @@ function Landing_MyFiles() {
               </button>
             )}
 
-            <div className="relative flex-grow ml-auto max-w-sm rounded-md shadow-md shadow-black/50">
+            <div className="relative max-w-sm">
+              <TbSearch className="absolute left-2.5 top-3 h-4 w-4 text-background-opp" strokeWidth={4} />
               <input
                 type="text"
-                className="rounded-md pl-4 pr-12 w-full h-full text-white border border-gray-500 bg-transparent focus:outline-none "
+                className="pl-9 pr-4 w-full h-10 rounded-md border border-border/50 bg-transparent text-copy-primary focus:outline-none focus:border-border"
                 placeholder="Search"
                 value={inputSearchTerm}
                 onChange={(e) => setInputSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handle_OnClickSearchFileName();
+                }}
               />
-              <button
-                className="absolute right-0 text-black cursor-pointer h-full rounded-r-full"
-                onClick={handle_OnClickSearchFileName}
-              >
-                <BsSearch className="mx-4 stroke-1 text-copy-primary" />
-              </button>
             </div>
           </div>
         </div>
@@ -892,46 +944,64 @@ function Landing_MyFiles() {
         <div className="w-full">
           {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
           {isSideBarOpen && (
-            <div
-              className={`fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-80 ${
-                isToolBarSticky ? "top-14" : ""
-              }`}
-              onClick={() => setIsSideBarOpen(false)}
-            >
+            <div className="fixed top-0 left-0 w-full h-screen z-50">
+              <div
+                className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-80`}
+                onClick={() => setIsSideBarOpen(false)}
+              />
               <animated.div
-                className={`flex flex-col text-white bg-[#141519] w-fit h-full p-4 min-w-1/3`}
+                className={`flex flex-col text-white bg-background w-full h-full p-4 max-w-sm`}
                 style={sideBarDrawerAnimation}
               >
-                <div className="p-2 border-b border-gray-500 py-4">
-                  <div>{user?.username}</div>
-                  <div>{user?.email}</div>
-                </div>
-                <div>
+                <div className="p-2 py-4 relative">
                   <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllFiles}
+                    className="text-copy-secondary text-xl font-bold px-2 absolute right-0 top-4 hover:text-red-700"
+                    onClick={() => setIsSideBarOpen(false)}
                   >
-                    <BsFolderFill />
-                    <span className="pl-4">All Files</span>
+                    <TbX size={17} strokeWidth={3} />
                   </button>
+                  <p className="text-3xl font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate">
+                    {user?.username}
+                  </p>
+                  <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">{user?.email}</p>
                 </div>
-                <div>
-                  <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllFavourite}
-                  >
-                    <BsStarFill />
-                    <span className="pl-4">Favourite</span>
-                  </button>
-                </div>
-                <div>
-                  <button
-                    className="w-full text-left rounded-lg p-2 flex items-center hover:bg-white hover:text-black"
-                    onClick={handle_AllTrash}
-                  >
-                    <BsTrashFill />
-                    <span className="pl-4">Trash</span>
-                  </button>
+
+                <div className="border border-border mb-4"></div>
+
+                <div className="text-copy-primary">
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "all" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllFiles}
+                    >
+                      <TbFiles />
+                      <span className="pl-4">All Files</span>
+                    </button>
+                  </div>
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "favourite" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllFavourite}
+                    >
+                      <TbStar />
+                      <span className="pl-4">Favourite</span>
+                    </button>
+                  </div>
+                  <div className="my-2">
+                    <button
+                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
+                        pageState === "trash" ? "text-copy-opp bg-background-opp" : ""
+                      }`}
+                      onClick={handle_AllTrash}
+                    >
+                      <TbTrash />
+                      <span className="pl-4">Trash</span>
+                    </button>
+                  </div>
                 </div>
               </animated.div>
             </div>
@@ -950,40 +1020,40 @@ function Landing_MyFiles() {
                       checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
                     />
                   </th>
-                  <th className="px-2 py-4 cursor-pointer w-1/2" onClick={() => handle_FileSorting("name")}>
-                    <div className="flex items-center select-none">
+                  <th className="px-2 py-4 cursor-pointer w-4/6" onClick={() => handle_FileSorting("name")}>
+                    <div className="flex items-center select-none ">
                       NAME
                       {fileSortingConfig.sortByKey === "name" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("size")}>
+                  <th className="px-2 py-4 cursor-pointer w-1/6" onClick={() => handle_FileSorting("size")}>
                     <div className="flex items-center select-none">
                       SIZE
                       {fileSortingConfig.sortByKey === "size" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4 cursor-pointer" onClick={() => handle_FileSorting("created_at")}>
+                  <th className="px-2 py-4 cursor-pointer w-1/6" onClick={() => handle_FileSorting("created_at")}>
                     <div className="flex items-center select-none">
                       UPLOADED
                       {fileSortingConfig.sortByKey === "created_at" &&
                         (fileSortingConfig.direction === "asc" ? (
-                          <BsArrowUp className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowUp className="ml-1 text-copy-primary" strokeWidth={2} />
                         ) : (
-                          <BsArrowDown className="ml-1 stroke-1 text-copy-primary/50" />
+                          <TbArrowDown className="ml-1 text-copy-primary" strokeWidth={2} />
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4"></th>
+                  <th className="px-2 py-4" />
                 </tr>
               </thead>
 
@@ -1014,39 +1084,39 @@ function Landing_MyFiles() {
                             {pageState !== "trash" &&
                               (file.favourite ? (
                                 <button
-                                  className="justify-center items-center flex text-yellow-500"
+                                  className="justify-center items-center flex text-yellow-500 px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, false);
                                   }}
                                 >
-                                  <BsStarFill />
+                                  <TbStarFilled />
                                 </button>
                               ) : (
                                 <button
-                                  className="justify-center items-center flex text-yellow-500"
+                                  className="justify-center items-center flex text-yellow-500 px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, true);
                                   }}
                                 >
-                                  <BsStar />
+                                  <TbStar />
                                 </button>
                               ))}
 
                             <button
-                              className="p-2 rounded-md hover:text-copy-opp hover:bg-background-opp"
+                              className="p-2 rounded-md hover:bg-background-opp/10"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handle_FileMenuClick(file.id, e.target);
                               }}
                             >
-                              <BsThreeDotsVertical size={17} className="" />
+                              <TbDotsVertical size={17} className="" />
                             </button>
 
                             {openFileMenu === file.id && (
                               <div
-                                className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 ${
+                                className={`absolute right-0 mt-1 w-40 shadow-lg rounded z-10 border border-border/30 p-2 ${
                                   fileMenuDropdownPosition === "up" ? "bottom-full" : "top-full"
                                 } bg-card text-copy-primary`}
                                 ref={fileMenuRef}
@@ -1054,70 +1124,82 @@ function Landing_MyFiles() {
                               >
                                 {buttonMenu.download && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_FileDownload(file.id)}
                                   >
+                                    <TbDownload size={17} className="mr-2" />
                                     Download
                                   </button>
                                 )}
 
                                 {buttonMenu.rename && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_OnClickFileRename(file)}
                                   >
+                                    <TbFilePencil size={17} className="mr-2" />
                                     Rename
                                   </button>
                                 )}
                                 {buttonMenu.manage_link && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_OnClickManageLink(file)}
                                   >
+                                    <TbLink size={17} className="mr-2" />
                                     Manage Link
-                                  </button>
-                                )}
-                                {buttonMenu.delete && (
-                                  <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
-                                    onClick={() => handle_OnClickDelete(file)}
-                                  >
-                                    Delete
                                   </button>
                                 )}
 
                                 {!file?.trash &&
                                   (buttonMenu.favourite && !file?.favourite ? (
                                     <button
-                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                       onClick={() => handle_favouriteState(file.id, true)}
                                     >
+                                      <TbStar size={17} className="mr-2" />
                                       Favourite
                                     </button>
                                   ) : (
                                     <button
-                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                       onClick={() => handle_favouriteState(file.id, false)}
                                     >
+                                      <TbStarOff size={17} className="mr-2" />
                                       Unfavourite
                                     </button>
                                   ))}
 
                                 {buttonMenu.trash && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_trashState(file.id, true)}
                                   >
+                                    <TbTrash size={17} className="mr-2" />
                                     Trash
                                   </button>
                                 )}
                                 {buttonMenu.restore && (
                                   <button
-                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded"
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={() => handle_trashState(file.id, false)}
                                   >
+                                    <TbArrowBackUp size={17} className="mr-2" />
                                     Restore
                                   </button>
+                                )}
+
+                                {buttonMenu.delete && (
+                                  <div>
+                                    <div className="border-t border-border/40 my-1" />
+                                    <button
+                                      className="p-2 hover:bg-background-opp hover:text-copy-opp text-red-500 w-full text-left rounded font-medium text-sm flex flex-row transition duration-300 ease-in-out"
+                                      onClick={() => handle_OnClickDelete(file)}
+                                    >
+                                      <TbTrashX size={17} className="mr-2" />
+                                      Delete
+                                    </button>{" "}
+                                  </div>
                                 )}
                               </div>
                             )}

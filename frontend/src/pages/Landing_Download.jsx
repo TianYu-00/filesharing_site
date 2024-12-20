@@ -9,7 +9,7 @@ import {
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useParams, useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
-import { BsLink45Deg } from "react-icons/bs";
+import { TbLink } from "react-icons/tb";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { toast } from "react-toastify";
 
@@ -234,7 +234,7 @@ function Landing_Download() {
               data-tooltip-id="id_link_button"
               data-tooltip-content={tooltipContent}
             >
-              <BsLink45Deg className="p-1" size={30} />
+              <TbLink className="p-1" size={30} />
             </button>
             <Tooltip
               id="id_link_button"

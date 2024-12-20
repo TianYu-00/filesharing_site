@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BsCloudUploadFill } from "react-icons/bs";
+import { TbCloudUpload } from "react-icons/tb";
 import { toast } from "react-toastify";
 
 function FileDropZone({ onFileSelect }) {
@@ -61,7 +61,7 @@ function FileDropZone({ onFileSelect }) {
     ${isDragging ? "bg-slate-400 text-cta-text" : ""} mt-8 text-copy-primary/70`}
     >
       <div className="flex flex-col justify-center items-center min-h-[300px] pointer-events-none">
-        <BsCloudUploadFill size={50} />
+        <TbCloudUpload size={50} />
 
         {isDragging ? <p>Drop files...</p> : <p>Drag & Drop files here</p>}
 
