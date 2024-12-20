@@ -311,7 +311,9 @@ exports.patchDownloadLinkLimitCount = async (link_id) => {
     `;
     const updateResult = await db.query(updateQuery, [link_id]);
 
-    return updateResult.rows[0];
+    const { password, ...sanitizedResult } = updateResult.rows[0];
+
+    return sanitizedResult;
   } catch (err) {
     return Promise.reject({ code: "DB_ERROR", message: err.message });
   }
