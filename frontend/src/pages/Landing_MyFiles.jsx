@@ -302,7 +302,7 @@ function Landing_MyFiles() {
       }
 
       if (!fileRenameString) {
-        toast.error("Filename can not empty");
+        toast.error("Filename can not be empty");
         return;
       }
 
@@ -321,14 +321,22 @@ function Landing_MyFiles() {
 
       const response = await renameFileById(currentSelectedFile.id, newFileName);
       if (response.success) {
-        const updatedFiles = displayFiles.map((currentFile) => {
+        const updatedAllFiles = allFiles.map((currentFile) => {
           if (currentFile.id === currentSelectedFile.id) {
-            return { ...currentFile, originalname: newFileName };
+            return response.data;
           }
           return currentFile;
         });
 
-        setDisplayFiles(updatedFiles);
+        const updatedDisplayFiles = displayFiles.map((currentFile) => {
+          if (currentFile.id === currentSelectedFile.id) {
+            return response.data;
+          }
+          return currentFile;
+        });
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
 
         setIsRenameModalOpen(false);
         setFileRenameString("");
