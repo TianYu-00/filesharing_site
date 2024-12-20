@@ -2,7 +2,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-const baseUploadDir = path.join(__dirname, "..", "uploads");
+const { baseUploadDir } = require("../src/pathHandler");
 
 const checkUploadDirExist = (dir = baseUploadDir) => {
   if (!fs.existsSync(dir)) {

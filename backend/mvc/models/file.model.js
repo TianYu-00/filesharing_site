@@ -5,6 +5,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const { promisify } = require("util");
 const bcrypt = require("bcrypt");
+const { baseUploadDir, createRelativePath, fetchFullUploadPath } = require("../../src/pathHandler");
 
 exports.retrieveAllFilesInfo = async () => {
   try {
@@ -26,6 +27,9 @@ exports.uploadFile = async (req) => {
       if (!req.file) {
         return reject({ code: "UPLOAD_ERROR", message: "No file uploaded" });
       }
+
+      req.file.destination = createRelativePath(req.file.destination);
+      req.file.path = createRelativePath(req.file.path);
 
       const { fieldname, originalname, encoding, mimetype, destination, filename, path: filePath, size } = req.file;
       const userId = req.userId || null;
@@ -101,7 +105,8 @@ exports.retrieveFileInfo = async (file_id) => {
 exports.retrieveFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(file.path);
+    console.log(file);
+    const filePath = path.join(baseUploadDir, file.path);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ success: false, msg: "File not found", data: null });
     }
@@ -134,7 +139,7 @@ exports.retrieveDownloadLinks = async (file_id) => {
 exports.deleteFile = async (file_id) => {
   try {
     const fileInfo = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(fileInfo.path);
+    const filePath = path.join(baseUploadDir, fileInfo.path);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -193,7 +198,7 @@ exports.updateFileNameById = async (fileInfo, newFileName) => {
     const newFileDirName = `${Date.now() + "-" + Math.round(Math.random() * 1e9)}-${newFileName}`;
     const newPath = `${fileInfo.destination}/${newFileDirName}`;
 
-    await rename(fileInfo.path, newPath);
+    await rename(fetchFullUploadPath(fileInfo.path), fetchFullUploadPath(newPath));
 
     const query = `
       UPDATE file_info
@@ -345,7 +350,7 @@ exports.deleteManyFilesByFileIds = async (files) => {
     const fileIds = files.map((file) => file.id);
 
     for (const file of files) {
-      const filePath = path.join(file.path);
+      const filePath = path.join(baseUploadDir, file.path);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       } else {
