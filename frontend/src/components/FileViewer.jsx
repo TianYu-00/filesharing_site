@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { TbX } from "react-icons/tb";
 
-const FilePreview = ({ file, onClose }) => {
+const FilePreview = ({ fileBlob, onClose }) => {
   const [filePreview, setFilePreview] = useState(null);
   const [fileType, setFileType] = useState("");
 
   useEffect(() => {
-    if (file) {
-      const fileType = file.type;
-      console.log(fileType);
+    if (fileBlob) {
+      const fileType = fileBlob.type;
       setFileType(fileType);
 
-      const fileURL = URL.createObjectURL(file);
+      const fileURL = URL.createObjectURL(fileBlob);
+      setFilePreview(fileURL);
 
       if (fileType.startsWith("image/")) {
         setFilePreview(fileURL);
@@ -29,9 +29,9 @@ const FilePreview = ({ file, onClose }) => {
         URL.revokeObjectURL(fileURL);
       };
     }
-  }, [file]);
+  }, [fileBlob]);
 
-  if (!file) return null;
+  if (!fileBlob) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
@@ -40,25 +40,24 @@ const FilePreview = ({ file, onClose }) => {
           <TbX size={24} />
         </button>
 
-        {/* File types */}
         <div className="flex-grow flex items-center justify-center rounded-md overflow-hidden">
           {/* image/ */}
-          {fileType.startsWith("image/") && filePreview && (
+          {fileType.startsWith("image/") && (
             <img src={filePreview} alt="File Preview" className="max-h-full max-w-full object-contain" />
           )}
 
           {/* video/ */}
-          {fileType.startsWith("video/") && filePreview && <video src={filePreview} controls />}
+          {fileType.startsWith("video/") && <video src={filePreview} controls />}
 
           {/* audio/ */}
-          {fileType.startsWith("audio/") && filePreview && (
+          {fileType.startsWith("audio/") && (
             <audio src={filePreview} controls>
               Browser does not support the audio element.
             </audio>
           )}
 
           {/* application/pdf */}
-          {fileType === "application/pdf" && filePreview && (
+          {fileType === "application/pdf" && (
             <embed src={filePreview} type="application/pdf" className="w-full h-full" />
           )}
 
