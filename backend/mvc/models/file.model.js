@@ -128,14 +128,14 @@ exports.retrievePreviewFile = async (file_id, res) => {
     const outputPath = path.join(baseUploadDir, "preview");
     const pdfFilePath = path.join(outputPath, `${file.filename}.pdf`);
 
+    const pdfFriendlyExtensions = [".docx", ".doc", ".txt", ".ppt", ".pptx"];
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath, { recursive: true });
     }
 
-    if (
-      path.extname(file.originalname).toLowerCase() === ".docx" ||
-      path.extname(file.originalname).toLowerCase() === ".txt"
-    ) {
+    if (pdfFriendlyExtensions.includes(fileExtension)) {
       try {
         const ext = ".pdf";
         fs.readFile(filePath, (err, docxBuf) => {
