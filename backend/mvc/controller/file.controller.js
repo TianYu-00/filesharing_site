@@ -19,6 +19,7 @@ const {
   validateDownloadLinkAndPassword,
   checkAllFilesBelongToUser,
   updateManyTrashFilesByFilesAndTrashState,
+  retrievePreviewFile,
 } = require("../models/file.model");
 const jwt = require("jsonwebtoken");
 
@@ -343,6 +344,35 @@ exports.trashManyFileById = async (req, res, next) => {
     res.json({ success: true, msg: "Files has been trashed", data: data });
   } catch (err) {
     console.error(err);
+    next(err);
+  }
+};
+
+exports.previewFileById = async (req, res, next) => {
+  try {
+    const file_id = req.params.file_id;
+    const fileInfo = await retrieveFileInfo(file_id);
+    const loggedInUserId = req.userData?.id;
+
+    if (fileInfo.user_id === loggedInUserId) {
+      return await retrievePreviewFile(file_id, res);
+    }
+
+    const { link, password } = req.query;
+
+    if (!link) {
+      return res.status(400).json({ success: false, msg: "Access denied" });
+    }
+
+    const linkPasswordResult = await validateDownloadLinkAndPassword(link, password);
+
+    if (linkPasswordResult) {
+      return await retrievePreviewFile(file_id, res);
+    } else {
+      return res.status(403).json({ success: false, msg: "Invalid link or password" });
+    }
+  } catch (err) {
+    console.log(err);
     next(err);
   }
 };

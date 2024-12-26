@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const bcrypt = require("bcrypt");
 const { baseUploadDir, createRelativePath, fetchFullUploadPath } = require("../../src/pathHandler");
+const libre = require("libreoffice-convert");
 
 exports.retrieveAllFilesInfo = async () => {
   try {
@@ -115,6 +116,67 @@ exports.retrieveFile = async (file_id, res) => {
         res.status(500).json({ success: false, msg: "Error downloading file", data: null });
       }
     });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: err.message, data: null });
+  }
+};
+
+exports.retrievePreviewFile = async (file_id, res) => {
+  try {
+    const file = await exports.retrieveFileInfo(file_id);
+    const filePath = path.join(baseUploadDir, file.path);
+    const outputPath = path.join(baseUploadDir, "preview");
+    const pdfFilePath = path.join(outputPath, `${file.filename}.pdf`);
+
+    if (!fs.existsSync(outputPath)) {
+      fs.mkdirSync(outputPath, { recursive: true });
+    }
+
+    if (path.extname(file.originalname).toLowerCase() === ".docx") {
+      try {
+        const ext = ".pdf";
+        fs.readFile(filePath, (err, docxBuf) => {
+          if (err) {
+            console.error("Error reading DOCX file:", err);
+            return res.status(500).json({ success: false, msg: "Error reading DOCX file", data: null });
+          }
+
+          libre.convert(docxBuf, ext, undefined, (convertErr, pdfBuf) => {
+            if (convertErr) {
+              console.error("Error during conversion:", convertErr);
+              return res.status(500).json({ success: false, msg: "Error converting file", data: null });
+            }
+
+            fs.writeFile(pdfFilePath, pdfBuf, (writeErr) => {
+              if (writeErr) {
+                console.error("Error writing PDF file:", writeErr);
+                return res.status(500).json({ success: false, msg: "Error writing PDF file", data: null });
+              }
+
+              res.download(pdfFilePath, `${file.filename}.pdf`, (downloadErr) => {
+                if (downloadErr) {
+                  return res.status(500).json({ success: false, msg: "Error downloading file", data: null });
+                }
+
+                fs.unlink(pdfFilePath, (unlinkErr) => {
+                  if (unlinkErr) {
+                    console.error(unlinkErr);
+                  }
+                });
+              });
+            });
+          });
+        });
+      } catch (error) {
+        return res.status(500).json({ success: false, msg: "Error during DOCX processing", data: null });
+      }
+    } else {
+      res.download(filePath, file.originalname, (err) => {
+        if (err) {
+          return res.status(500).json({ success: false, msg: "Error downloading file", data: null });
+        }
+      });
+    }
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message, data: null });
   }

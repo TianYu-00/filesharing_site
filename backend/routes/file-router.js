@@ -62,6 +62,7 @@ fileRouter.get("/download-file-by-id/:file_id", userTokenChecker, fileController
 
 // new
 fileRouter.patch("/update-many-trash-file", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
+fileRouter.get("/preview-file/:file_id", userTokenChecker, fileController.previewFileById);
 
 // for all
 fileRouter.post("/file-upload", fileController.postFile);
