@@ -130,9 +130,11 @@ export default FilePreview;
     - Audio = <audio />
     - PDF = <embed /> - could use embed for image video etc but i think its generally better to use proper tags
     - Text = 
-      - docx types are: application/vnd.openxmlformats-officedocument.wordprocessingml.document - thinking of mammoth npm
+      - docx types are: application/vnd.openxmlformats-officedocument.wordprocessingml.document
       - txt types are: text/plain - could just use textarea
       - little bit more complicated, will figure this out later on.
+        26/12/2024
+      - used docx-preview for better preserved styling but not 100% perfect yet, maybe i should transform the docx file into pdf instead hmm.
     - 
 
 */
