@@ -132,7 +132,10 @@ exports.retrievePreviewFile = async (file_id, res) => {
       fs.mkdirSync(outputPath, { recursive: true });
     }
 
-    if (path.extname(file.originalname).toLowerCase() === ".docx") {
+    if (
+      path.extname(file.originalname).toLowerCase() === ".docx" ||
+      path.extname(file.originalname).toLowerCase() === ".txt"
+    ) {
       try {
         const ext = ".pdf";
         fs.readFile(filePath, (err, docxBuf) => {
