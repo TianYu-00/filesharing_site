@@ -92,7 +92,12 @@ const FilePreview = ({ previewInfo, onClose }) => {
 
           {/* application/pdf */}
           {fileType === "application/pdf" && (
-            <embed src={filePreview} type="application/pdf" className="w-full h-full" />
+            <>
+              <p className="text-copy-primary/80 md:hidden">This file cannot be previewed on mobile.</p>
+              <div className="h-full w-full hidden md:block">
+                <embed src={filePreview} type="application/pdf" className="w-full h-full" />
+              </div>
+            </>
           )}
 
           {/* not matched */}
