@@ -202,15 +202,13 @@ function Landing_Download() {
             <div className="border border-border p-2 text-left">{file.id}</div>
 
             <div className="border border-border p-2 text-left">File Name</div>
-            <div className="border border-border p-2 text-left whitespace-nowrap overflow-hidden truncate">
-              {file.originalname}
-            </div>
+            <div className="border border-border p-2 text-left truncate">{file.originalname}</div>
 
             <div className="border border-border p-2 text-left">File Size</div>
             <div className="border border-border p-2 text-left">{fileSizeFormatter(file.size)}</div>
 
             <div className="border border-border p-2 text-left">File Type</div>
-            <div className="border border-border p-2 text-left">{file.mimetype}</div>
+            <div className="border border-border p-2 text-left truncate">{file.mimetype}</div>
 
             <div className="border border-border p-2 text-left">File Created Time</div>
             <div className="border border-border p-2 text-left">{fileDateFormatter(file.created_at)[0]}</div>
