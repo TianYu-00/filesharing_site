@@ -77,7 +77,7 @@ const FilePreview = ({ previewInfo, onClose }) => {
         <div className="flex-grow flex items-center justify-center rounded-md overflow-hidden">
           {/* image/ */}
           {fileType.startsWith("image/") && (
-            <img src={filePreview} alt="File Preview" className="max-h-full max-w-full object-contain" />
+            <img src={filePreview} alt="File Preview" className="max-h-full max-w-full object-contain bg-white/10" />
           )}
 
           {/* video/ */}
@@ -101,7 +101,7 @@ const FilePreview = ({ previewInfo, onClose }) => {
           )}
 
           {/* not matched */}
-          {!filePreview && <p className="text-copy-primary/80">Unsupported file type or no preview available.</p>}
+          {!filePreview && <p className="text-white">Unsupported file type or no preview available.</p>}
         </div>
       </div>
     </div>
