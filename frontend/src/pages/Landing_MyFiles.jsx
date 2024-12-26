@@ -112,7 +112,12 @@ function Landing_MyFiles() {
   const checkError = useErrorChecker();
 
   // preview
-  const [fileBlob, setFileBlob] = useState(null);
+  const [previewFileDetails, setPreviewFileDetails] = useState({
+    isPreviewing: false,
+    fileId: "",
+    fileLink: "",
+    filePassword: "",
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -679,7 +684,19 @@ function Landing_MyFiles() {
     <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
       <div className="">
         {/* Preview Modal */}
-        {fileBlob && <FilePreview fileBlob={fileBlob} onClose={() => setFileBlob(null)} />}
+        {previewFileDetails.isPreviewing && (
+          <FilePreview
+            previewInfo={previewFileDetails}
+            onClose={() =>
+              setPreviewFileDetails({
+                isPreviewing: false,
+                fileId: "",
+                fileLink: "",
+                filePassword: "",
+              })
+            }
+          />
+        )}
 
         {/* Delete Confirmation Modal */}
         {isDeleteConfirmationModalOpen && (
@@ -1148,8 +1165,10 @@ function Landing_MyFiles() {
                                   <button
                                     className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
                                     onClick={async () => {
-                                      const blob = await downloadFileByID(file.id);
-                                      setFileBlob(blob);
+                                      setPreviewFileDetails({
+                                        isPreviewing: true,
+                                        fileId: file.id,
+                                      });
                                     }}
                                   >
                                     <TbEye size={17} className="mr-2" />

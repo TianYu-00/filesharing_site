@@ -28,7 +28,12 @@ function Landing_Download() {
   });
   const [linkTooltipContent, setLinkTooltipContent] = useState("Copy file link to clipboard");
   const [previewTooltipContent, setPreviewTooltipContent] = useState("Preview file");
-  const [fileBlob, setFileBlob] = useState(null);
+  const [previewFileDetails, setPreviewFileDetails] = useState({
+    isPreviewing: false,
+    fileId: "",
+    fileLink: "",
+    filePassword: "",
+  });
 
   useEffect(() => {
     const fetchDownloadLinkInfo = async () => {
@@ -242,8 +247,12 @@ function Landing_Download() {
             <button
               className="mt-4 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
               onClick={async () => {
-                const blob = await downloadFileByID(file.id, download_link, passwordState.entered);
-                setFileBlob(blob);
+                setPreviewFileDetails({
+                  isPreviewing: true,
+                  fileId: file.id,
+                  fileLink: download_link,
+                  filePassword: passwordState.entered,
+                });
               }}
               data-tooltip-id="id_preview_button"
               data-tooltip-content={previewTooltipContent}
@@ -258,7 +267,19 @@ function Landing_Download() {
             />
           </div>
 
-          {fileBlob && <FilePreview fileBlob={fileBlob} onClose={() => setFileBlob(null)} />}
+          {previewFileDetails.isPreviewing && (
+            <FilePreview
+              previewInfo={previewFileDetails}
+              onClose={() =>
+                setPreviewFileDetails({
+                  isPreviewing: false,
+                  fileId: "",
+                  fileLink: "",
+                  filePassword: "",
+                })
+              }
+            />
+          )}
 
           <button
             onClick={handle_DownloadFile}
