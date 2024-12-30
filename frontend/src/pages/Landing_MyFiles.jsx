@@ -752,14 +752,12 @@ function Landing_MyFiles() {
           isToolBarSticky={isToolBarSticky}
           setIsSideBarOpen={setIsSideBarOpen}
           isSideBarOpen={isSideBarOpen}
-          TbMenu2={TbMenu2}
           setListOfSelectedFile={setListOfSelectedFile}
           listOfSelectedFile={listOfSelectedFile}
           pageState={pageState}
           handle_TrashManyFiles={handle_TrashManyFiles}
           handle_RestoreManyFiles={handle_RestoreManyFiles}
           handle_DeleteManyFiles={handle_DeleteManyFiles}
-          TbSearch={TbSearch}
           inputSearchTerm={inputSearchTerm}
           setInputSearchTerm={setInputSearchTerm}
           handle_OnClickSearchFileName={handle_OnClickSearchFileName}

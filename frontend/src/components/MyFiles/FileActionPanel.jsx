@@ -1,4 +1,5 @@
 import React from "react";
+import { TbSearch, TbMenu2 } from "react-icons/tb";
 
 function FileActionPanel({
   toolBarParentRef,
@@ -6,14 +7,12 @@ function FileActionPanel({
   isToolBarSticky,
   setIsSideBarOpen,
   isSideBarOpen,
-  TbMenu2,
   setListOfSelectedFile,
   listOfSelectedFile,
   pageState,
   handle_TrashManyFiles,
   handle_RestoreManyFiles,
   handle_DeleteManyFiles,
-  TbSearch,
   inputSearchTerm,
   setInputSearchTerm,
   handle_OnClickSearchFileName,
