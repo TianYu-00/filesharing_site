@@ -32,7 +32,7 @@ cd backend
 npm install
 ```
 
-2) Create the env files
+2) Create the ENV files
 
 command:
 ```
@@ -40,34 +40,56 @@ echo -e "\nPGDATABASE=\"\" \nFRONTEND_URL=\"\" \nJWT_USER_PASSWORD_RESET_SECRET=
 ```
 
 manually:
-1) Create a `.env.development` file in the backend directory.
-2) Add the following environment variables to the file:
+  1) Create a `.env.development` file in the backend directory.
+  2) Add the following environment variables to the file:
+  ```
+  # Database settings
+  PGDATABASE="" 
+  
+  # Frontend settings
+  FRONTEND_URL="" 
+  
+  # JWT secrets for tokens
+  JWT_USER_PASSWORD_RESET_SECRET="" 
+  JWT_USER_ACCESS_TOKEN_SECRET="" 
+  JWT_USER_REFRESH_TOKEN_SECRET="" 
+  
+  # SendGrid settings
+  SENDGRID_API_KEY="" 
+  SECRET_SENDER_EMAIL="" 
+  SECRET_SENDER_REPLY_TO=""
+  ```
+  notes:
+  - pg database is your database name
+  - frontend url is usually `http://localhost:5173/`
+  - could use `npm run fetch-secret-key` to generate your secret keys (refer to package.json)
+  - sendgrid information can be accessed at `https://sendgrid.com`
+
+3) Create the database
 ```
-# Database settings
-PGDATABASE="" 
-
-# Frontend settings
-FRONTEND_URL="" 
-
-# JWT secrets for tokens
-JWT_USER_PASSWORD_RESET_SECRET="" 
-JWT_USER_ACCESS_TOKEN_SECRET="" 
-JWT_USER_REFRESH_TOKEN_SECRET="" 
-
-# SendGrid settings
-SENDGRID_API_KEY="" 
-SECRET_SENDER_EMAIL="" 
-SECRET_SENDER_REPLY_TO=""
+npm run setup-db
 ```
-3) Save the file.
 
-notes:
-1) pg database is your database name
-2) frontend url is usually `http://localhost:5173/`
-3) could use `npm run fetch-secret-key` to generate your secret keys (refer to package.json)
-4) sendgrid information can be accessed at `https://sendgrid.com`
+4) Seed the database
+```
+npm run seed
+```
+
+5) Start the server
+```
+npm start
+```
 
 
 ## Frontend 
-*To be done...*
+1) Navigate to frontend directory and install the packages
+```
+cd frontend
+npm install
+```
+
+2) Start the server
+```
+npm run dev
+```
 
