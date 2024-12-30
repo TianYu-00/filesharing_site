@@ -18,6 +18,7 @@ Dropboxer also includes secure login and registration through JWT, bcrypt, and H
 - **Node.js** v21.7.2
 - **PostgreSQL** v14.15
 - **SendGrid API**
+- **Libreoffice** v7.3.7.2
 
 ### Clone the repo
 ```

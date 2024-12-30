@@ -21,6 +21,7 @@ import { Tooltip } from "react-tooltip";
 import { useSpring, animated } from "@react-spring/web";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
+import FilePreview from "../components/FileViewer";
 
 import {
   TbTrash,
@@ -39,6 +40,7 @@ import {
   TbTrashX,
   TbArrowBackUp,
   TbX,
+  TbEye,
 } from "react-icons/tb";
 
 function Landing_MyFiles() {
@@ -93,6 +95,7 @@ function Landing_MyFiles() {
   // button
   const [buttonMenu, setButtonMenu] = useState({
     download: true,
+    preview: true,
     rename: true,
     manage_link: true,
     delete: false,
@@ -107,6 +110,14 @@ function Landing_MyFiles() {
 
   // error handler
   const checkError = useErrorChecker();
+
+  // preview
+  const [previewFileDetails, setPreviewFileDetails] = useState({
+    isPreviewing: false,
+    fileId: "",
+    fileLink: "",
+    filePassword: "",
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -485,6 +496,7 @@ function Landing_MyFiles() {
     setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
+      preview: true,
       rename: true,
       manage_link: true,
       delete: false,
@@ -511,6 +523,7 @@ function Landing_MyFiles() {
     setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
+      preview: true,
       rename: true,
       manage_link: true,
       delete: false,
@@ -537,6 +550,7 @@ function Landing_MyFiles() {
     setDisplayFiles(filteredFiles);
     setButtonMenu({
       download: true,
+      preview: true,
       rename: false,
       manage_link: false,
       delete: true,
@@ -669,6 +683,21 @@ function Landing_MyFiles() {
   return (
     <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
       <div className="">
+        {/* Preview Modal */}
+        {previewFileDetails.isPreviewing && (
+          <FilePreview
+            previewInfo={previewFileDetails}
+            onClose={() =>
+              setPreviewFileDetails({
+                isPreviewing: false,
+                fileId: "",
+                fileLink: "",
+                filePassword: "",
+              })
+            }
+          />
+        )}
+
         {/* Delete Confirmation Modal */}
         {isDeleteConfirmationModalOpen && (
           <Modal
@@ -1132,6 +1161,21 @@ function Landing_MyFiles() {
                                   </button>
                                 )}
 
+                                {buttonMenu.preview && (
+                                  <button
+                                    className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
+                                    onClick={async () => {
+                                      setPreviewFileDetails({
+                                        isPreviewing: true,
+                                        fileId: file.id,
+                                      });
+                                    }}
+                                  >
+                                    <TbEye size={17} className="mr-2" />
+                                    Preview
+                                  </button>
+                                )}
+
                                 {buttonMenu.rename && (
                                   <button
                                     className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"
@@ -1179,6 +1223,7 @@ function Landing_MyFiles() {
                                     Trash
                                   </button>
                                 )}
+
                                 {buttonMenu.restore && (
                                   <button
                                     className="p-2 hover:bg-background-opp hover:text-copy-opp w-full text-left rounded font-medium text-sm flex flex-row"

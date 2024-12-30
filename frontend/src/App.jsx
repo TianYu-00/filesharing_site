@@ -16,6 +16,7 @@ const Landing_ForgotPassword = lazy(() => import("./pages/Landing_ForgotPassword
 const Landing_ResetPassword = lazy(() => import("./pages/Landing_ResetPassword"));
 const Landing_MyFiles = lazy(() => import("./pages/Landing_MyFiles"));
 const Landing_LoginRegistration = lazy(() => import("./pages/Landing_LoginRegistration"));
+const Landing_Playground = lazy(() => import("./pages/Landing_Playground"));
 
 const App = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
@@ -60,6 +61,7 @@ const App = () => {
                 <Route path="/password-reset-confirm" element={<Landing_ResetPassword />} />
                 <Route path="/files/download/:file_id" element={<Landing_Download />} />
                 <Route path="/my-files" element={<Landing_MyFiles />} />
+                <Route path="/playground" element={<Landing_Playground />} />
               </Routes>
             </Suspense>
           </div>

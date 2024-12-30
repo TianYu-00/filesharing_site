@@ -9,9 +9,10 @@ import {
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useParams, useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
-import { TbLink } from "react-icons/tb";
+import { TbLink, TbEye } from "react-icons/tb";
 import Page_BoilerPlate from "../components/Page_BoilerPlate";
 import { toast } from "react-toastify";
+import FilePreview from "../components/FileViewer";
 
 function Landing_Download() {
   const { file_id: download_link } = useParams();
@@ -25,7 +26,14 @@ function Landing_Download() {
     correct: null,
     entered: "",
   });
-  const [tooltipContent, setTooltipContent] = useState("Copy file link to clipboard");
+  const [linkTooltipContent, setLinkTooltipContent] = useState("Copy file link to clipboard");
+  const [previewTooltipContent, setPreviewTooltipContent] = useState("Preview file");
+  const [previewFileDetails, setPreviewFileDetails] = useState({
+    isPreviewing: false,
+    fileId: "",
+    fileLink: "",
+    filePassword: "",
+  });
 
   useEffect(() => {
     const fetchDownloadLinkInfo = async () => {
@@ -34,7 +42,6 @@ function Landing_Download() {
         if (response.success) {
           setDownloadLinkInfo(response.data);
           setPasswordState((prev) => ({ ...prev, needed: !!response.data.password }));
-          // console.log(response.data);
         }
       } catch (error) {
         toast.error(error.response?.data?.msg || "Failed to fetch info");
@@ -92,7 +99,6 @@ function Landing_Download() {
         download_count: prevInfo.download_count + 1,
       }));
     } catch (error) {
-      // console.error("Failed to download file:", error);
       toast.error("Failed to download");
     }
   };
@@ -109,11 +115,11 @@ function Landing_Download() {
   const copyLinkToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setTooltipContent("Link copied!");
+      setLinkTooltipContent("Link copied!");
     } catch (error) {
-      setTooltipContent("Failed to copy!");
+      setLinkTooltipContent("Failed to copy!");
     } finally {
-      setTimeout(() => setTooltipContent("Copy file link to clipboard"), 2000);
+      setTimeout(() => setLinkTooltipContent("Copy file link to clipboard"), 2000);
     }
   };
 
@@ -191,9 +197,6 @@ function Landing_Download() {
           >
             Submit Password
           </button>
-          {/* {passwordState.correct === false && (
-            <p className="text-red-500 mt-2">Incorrect password, please try again.</p>
-          )} */}
         </form>
       )}
 
@@ -204,15 +207,13 @@ function Landing_Download() {
             <div className="border border-border p-2 text-left">{file.id}</div>
 
             <div className="border border-border p-2 text-left">File Name</div>
-            <div className="border border-border p-2 text-left whitespace-nowrap overflow-hidden truncate">
-              {file.originalname}
-            </div>
+            <div className="border border-border p-2 text-left truncate">{file.originalname}</div>
 
             <div className="border border-border p-2 text-left">File Size</div>
             <div className="border border-border p-2 text-left">{fileSizeFormatter(file.size)}</div>
 
             <div className="border border-border p-2 text-left">File Type</div>
-            <div className="border border-border p-2 text-left">{file.mimetype}</div>
+            <div className="border border-border p-2 text-left truncate">{file.mimetype}</div>
 
             <div className="border border-border p-2 text-left">File Created Time</div>
             <div className="border border-border p-2 text-left">{fileDateFormatter(file.created_at)[0]}</div>
@@ -232,7 +233,7 @@ function Landing_Download() {
               className="mt-4 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
               onClick={copyLinkToClipboard}
               data-tooltip-id="id_link_button"
-              data-tooltip-content={tooltipContent}
+              data-tooltip-content={linkTooltipContent}
             >
               <TbLink className="p-1" size={30} />
             </button>
@@ -242,7 +243,43 @@ function Landing_Download() {
               opacity={0.9}
               place="bottom"
             />
+
+            <button
+              className="mt-4 text-copy-primary hover:text-copy-opp hover:bg-background-opp p-1 rounded-md"
+              onClick={async () => {
+                setPreviewFileDetails({
+                  isPreviewing: true,
+                  fileId: file.id,
+                  fileLink: download_link,
+                  filePassword: passwordState.entered,
+                });
+              }}
+              data-tooltip-id="id_preview_button"
+              data-tooltip-content={previewTooltipContent}
+            >
+              <TbEye className="p-1" size={30} />
+            </button>
+            <Tooltip
+              id="id_preview_button"
+              style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
+              opacity={0.9}
+              place="bottom"
+            />
           </div>
+
+          {previewFileDetails.isPreviewing && (
+            <FilePreview
+              previewInfo={previewFileDetails}
+              onClose={() =>
+                setPreviewFileDetails({
+                  isPreviewing: false,
+                  fileId: "",
+                  fileLink: "",
+                  filePassword: "",
+                })
+              }
+            />
+          )}
 
           <button
             onClick={handle_DownloadFile}

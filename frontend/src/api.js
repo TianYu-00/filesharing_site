@@ -50,6 +50,20 @@ export const downloadFileByID = async (file_id, link = "", password = "") => {
   }
 };
 
+export const previewFileByID = async (file_id, link = "", password = "") => {
+  try {
+    const encodedLink = encodeURIComponent(link);
+    const encodedPassword = encodeURIComponent(password);
+    const response = await api.get(`/files/preview-file/${file_id}?link=${encodedLink}&password=${encodedPassword}`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const registerUser = async (username, email, password) => {
   const data = { username: username, email: email, password: password };
   try {
