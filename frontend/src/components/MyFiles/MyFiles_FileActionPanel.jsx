@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { TbSearch, TbMenu2 } from "react-icons/tb";
+import { updateManyTrashFileByFiles, removeManyFilesByFileInfo } from "../../api";
+import useErrorChecker from "../UseErrorChecker";
+import { toast } from "react-toastify";
 
 function MyFiles_FileActionPanel({
   setIsSideBarOpen,
@@ -7,16 +10,17 @@ function MyFiles_FileActionPanel({
   setListOfSelectedFile,
   listOfSelectedFile,
   pageState,
-  handle_TrashManyFiles,
-  handle_RestoreManyFiles,
-  handle_DeleteManyFiles,
-  inputSearchTerm,
-  setInputSearchTerm,
-  handle_OnClickSearchFileName,
+  setSubmitSearchTerm,
+  setAllFiles,
+  setDisplayFiles,
+  allFiles,
+  displayFiles,
 }) {
   const [isPanelSticky, setIsPanelSticky] = useState(false);
   const panelRef = useRef(null);
   const panelParentRef = useRef(null);
+  const [inputSearchTerm, setInputSearchTerm] = useState("");
+  const checkError = useErrorChecker();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +37,97 @@ function MyFiles_FileActionPanel({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    setInputSearchTerm("");
+  }, [pageState]);
+
+  // Trash Many
+  const handle_TrashManyFiles = async (trashState) => {
+    try {
+      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
+
+      if (response.success) {
+        const updatedAllFiles = allFiles.map((file) =>
+          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
+        );
+
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
+        setListOfSelectedFile([]);
+
+        const trashFileCount = response.data.length;
+        toast.success(`${trashFileCount} file(s) trashed successfully`);
+      } else {
+        toast.error("Failed to trash files");
+      }
+    } catch (err) {
+      console.error(err);
+      checkError(err);
+    }
+  };
+
+  // Restore Many
+  const handle_RestoreManyFiles = async (trashState) => {
+    try {
+      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
+
+      if (response.success) {
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        const updatedAllFiles = allFiles.map((file) =>
+          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
+        );
+
+        setDisplayFiles(updatedDisplayFiles);
+        setAllFiles(updatedAllFiles);
+        setListOfSelectedFile([]);
+
+        const restoredFileCount = response.data.length;
+        toast.success(`${restoredFileCount} file(s) restored successfully`);
+      } else {
+        toast.error("Failed to restore files");
+      }
+    } catch (err) {
+      console.error(err);
+      checkError(err);
+    }
+  };
+
+  // Delete Many
+  const handle_DeleteManyFiles = async () => {
+    try {
+      const response = await removeManyFilesByFileInfo(listOfSelectedFile);
+
+      if (response.success) {
+        const updatedAllFiles = allFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        const updatedDisplayFiles = displayFiles.filter(
+          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
+        );
+
+        setAllFiles(updatedAllFiles);
+        setDisplayFiles(updatedDisplayFiles);
+        setListOfSelectedFile([]);
+
+        const deletedFileCount = response.data.deletedFileCount || 0;
+        toast.success(`${deletedFileCount} file(s) deleted successfully`);
+      } else {
+        toast.error(response.msg || "Failed to delete files");
+      }
+    } catch (err) {
+      console.error(err);
+      checkError(err);
+    }
+  };
 
   return (
     <div ref={panelParentRef} className="max-w-full rounded-md h-14 px-2 my-4">
@@ -98,7 +193,7 @@ function MyFiles_FileActionPanel({
             value={inputSearchTerm}
             onChange={(e) => setInputSearchTerm(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handle_OnClickSearchFileName();
+              if (e.key === "Enter") setSubmitSearchTerm(inputSearchTerm);
             }}
           />
         </div>

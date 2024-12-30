@@ -79,7 +79,6 @@ function Landing_MyFiles() {
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
 
   // search
-  const [inputSearchTerm, setInputSearchTerm] = useState("");
   const [submitSearchTerm, setSubmitSearchTerm] = useState("");
 
   // sidebar
@@ -422,38 +421,6 @@ function Landing_MyFiles() {
     handle_FileSelectedCheckboxChange(file, !isSelected);
   };
 
-  const handle_DeleteManyFiles = async () => {
-    try {
-      const response = await removeManyFilesByFileInfo(listOfSelectedFile);
-
-      if (response.success) {
-        const updatedAllFiles = allFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        setAllFiles(updatedAllFiles);
-        setDisplayFiles(updatedDisplayFiles);
-        setListOfSelectedFile([]);
-
-        const deletedFileCount = response.data.deletedFileCount || 0;
-        toast.success(`${deletedFileCount} file(s) deleted successfully`);
-      } else {
-        toast.error(response.msg || "Failed to delete files");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
-      checkError(err);
-    }
-  };
-
-  const handle_OnClickSearchFileName = () => {
-    setSubmitSearchTerm(inputSearchTerm);
-  };
-
   const filteredFiles = useMemo(() => {
     return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
   }, [sortedFiles, submitSearchTerm]);
@@ -467,7 +434,6 @@ function Landing_MyFiles() {
       sortByKey: null,
       direction: "asc",
     });
-    setInputSearchTerm("");
     setSubmitSearchTerm("");
     const filteredFiles = allFiles.filter((file) => file.trash !== true);
     setDisplayFiles(filteredFiles);
@@ -494,7 +460,6 @@ function Landing_MyFiles() {
       sortByKey: null,
       direction: "asc",
     });
-    setInputSearchTerm("");
     setSubmitSearchTerm("");
     const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
     setDisplayFiles(filteredFiles);
@@ -521,7 +486,6 @@ function Landing_MyFiles() {
       sortByKey: null,
       direction: "asc",
     });
-    setInputSearchTerm("");
     setSubmitSearchTerm("");
     const filteredFiles = allFiles.filter((file) => file.trash === true);
     setDisplayFiles(filteredFiles);
@@ -599,63 +563,6 @@ function Landing_MyFiles() {
     immediate: !isSideBarOpen,
   });
 
-  const handle_TrashManyFiles = async (trashState) => {
-    try {
-      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
-
-      if (response.success) {
-        const updatedAllFiles = allFiles.map((file) =>
-          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
-        );
-
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        setAllFiles(updatedAllFiles);
-        setDisplayFiles(updatedDisplayFiles);
-        setListOfSelectedFile([]);
-
-        const trashFileCount = response.data.length;
-        toast.success(`${trashFileCount} file(s) trashed successfully`);
-      } else {
-        toast.error("Failed to trash files");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
-      checkError(err);
-    }
-  };
-
-  const handle_RestoreManyFiles = async (trashState) => {
-    try {
-      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
-
-      if (response.success) {
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        const updatedAllFiles = allFiles.map((file) =>
-          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
-        );
-
-        setDisplayFiles(updatedDisplayFiles);
-        setAllFiles(updatedAllFiles);
-
-        setListOfSelectedFile([]);
-
-        const restoredFileCount = response.data.length;
-        toast.success(`${restoredFileCount} file(s) restored successfully`);
-      } else {
-        toast.error("Failed to restore files");
-      }
-    } catch (err) {
-      console.log(err);
-      checkError(err);
-    }
-  };
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
     <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
@@ -725,12 +632,11 @@ function Landing_MyFiles() {
           setListOfSelectedFile={setListOfSelectedFile}
           listOfSelectedFile={listOfSelectedFile}
           pageState={pageState}
-          handle_TrashManyFiles={handle_TrashManyFiles}
-          handle_RestoreManyFiles={handle_RestoreManyFiles}
-          handle_DeleteManyFiles={handle_DeleteManyFiles}
-          inputSearchTerm={inputSearchTerm}
-          setInputSearchTerm={setInputSearchTerm}
-          handle_OnClickSearchFileName={handle_OnClickSearchFileName}
+          setSubmitSearchTerm={setSubmitSearchTerm}
+          setAllFiles={setAllFiles}
+          setDisplayFiles={setDisplayFiles}
+          allFiles={allFiles}
+          displayFiles={displayFiles}
         />
 
         <div className="w-full">
