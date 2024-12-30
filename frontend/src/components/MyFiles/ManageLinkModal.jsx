@@ -1,5 +1,8 @@
 import React from "react";
 import Modal from "../Modal";
+import { fileDateFormatter } from "../File_Formatter";
+import { TbX } from "react-icons/tb";
+import { Tooltip } from "react-tooltip";
 
 function ManageLinkModal({
   isManageLinkModalOpen,
@@ -11,14 +14,11 @@ function ManageLinkModal({
   listOfDownloadLinks,
   setManageLink_LinkTooltip,
   manageLink_LinkTooltip,
-  fileDateFormatter,
   handle_DeleteDownloadLinkById,
-  TbX,
   createLinkExpiresAt,
   handle_CreateDownloadLink,
   createLinkDownloadLimit,
   createLinkPassword,
-  Tooltip,
   currentSelectedFile,
 }) {
   return (

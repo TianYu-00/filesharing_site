@@ -15,10 +15,9 @@ import {
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useNavigate } from "react-router-dom";
-import Modal from "../components/Modal";
 import { toast } from "react-toastify";
-import { Tooltip } from "react-tooltip";
-import { useSpring, animated } from "@react-spring/web";
+
+import { useSpring } from "@react-spring/web";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
 import FilePreview from "../components/FileViewer";
@@ -738,14 +737,11 @@ function Landing_MyFiles() {
             listOfDownloadLinks={listOfDownloadLinks}
             setManageLink_LinkTooltip={setManageLink_LinkTooltip}
             manageLink_LinkTooltip={manageLink_LinkTooltip}
-            fileDateFormatter={fileDateFormatter}
             handle_DeleteDownloadLinkById={handle_DeleteDownloadLinkById}
-            TbX={TbX}
             createLinkExpiresAt={createLinkExpiresAt}
             handle_CreateDownloadLink={handle_CreateDownloadLink}
             createLinkDownloadLimit={createLinkDownloadLimit}
             createLinkPassword={createLinkPassword}
-            Tooltip={Tooltip}
             currentSelectedFile={currentSelectedFile}
           />
         )}
