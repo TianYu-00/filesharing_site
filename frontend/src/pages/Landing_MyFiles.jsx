@@ -425,8 +425,7 @@ function Landing_MyFiles() {
     return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
   }, [sortedFiles, submitSearchTerm]);
 
-  const handle_AllFiles = () => {
-    setPageState("all");
+  useEffect(() => {
     setOpenFileMenu(null);
     setCurrentSelectedFile(null);
     setListOfSelectedFile([]);
@@ -435,6 +434,11 @@ function Landing_MyFiles() {
       direction: "asc",
     });
     setSubmitSearchTerm("");
+    setIsSideBarOpen(false);
+  }, [pageState]);
+
+  const handle_AllFiles = () => {
+    setPageState("all");
     const filteredFiles = allFiles.filter((file) => file.trash !== true);
     setDisplayFiles(filteredFiles);
     setButtonMenu({
@@ -448,19 +452,10 @@ function Landing_MyFiles() {
       trash: true,
       restore: false,
     });
-    setIsSideBarOpen(false);
   };
 
   const handle_AllFavourite = () => {
     setPageState("favourite");
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setSubmitSearchTerm("");
     const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
     setDisplayFiles(filteredFiles);
     setButtonMenu({
@@ -474,19 +469,10 @@ function Landing_MyFiles() {
       trash: true,
       restore: false,
     });
-    setIsSideBarOpen(false);
   };
 
   const handle_AllTrash = () => {
     setPageState("trash");
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setSubmitSearchTerm("");
     const filteredFiles = allFiles.filter((file) => file.trash === true);
     setDisplayFiles(filteredFiles);
     setButtonMenu({
@@ -500,7 +486,6 @@ function Landing_MyFiles() {
       trash: false,
       restore: true,
     });
-    setIsSideBarOpen(false);
   };
 
   const handle_favouriteState = async (file_id, favouriteState) => {
