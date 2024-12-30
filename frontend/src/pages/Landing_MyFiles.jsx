@@ -6,8 +6,6 @@ import {
   downloadFileByID,
   renameFileById,
   getDownloadLinksByFileId,
-  createDownloadLinkByFileId,
-  removeDownloadLinkByLinkId,
   updateFavouriteFileById,
   updateTrashFileById,
 } from "../api";
@@ -58,13 +56,9 @@ function Landing_MyFiles() {
   // manage link
   const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
   const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
-  const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
-  const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
-  const [createLinkPassword, setCreateLinkPassword] = useState("");
+
   // delete confirmation
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-  // tooltips
-  const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
   // sort
   const [fileSortingConfig, setFileSortingConfig] = useState({
     sortByKey: null,
@@ -361,49 +355,6 @@ function Landing_MyFiles() {
 
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to fetch download links");
-      checkError(err);
-    }
-  };
-
-  const handle_CreateDownloadLink = async (e, file_id) => {
-    e.preventDefault();
-    try {
-      const tempExpiresAt = createLinkExpiresAt || null;
-      const tempDownloadLimit = createLinkDownloadLimit || null;
-      const tempPassword = createLinkPassword || null;
-
-      const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
-      if (response.success) {
-        setCreateLinkExpiresAt("");
-        setCreateLinkDownloadLimit("");
-        setCreateLinkPassword("");
-        const newLinks = {
-          ...response.data,
-          password: !!tempPassword,
-        };
-        setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
-        toast.success("Download link has been created");
-      } else {
-        toast.error("Failed to create download link");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to create download link");
-      checkError(err);
-    }
-  };
-
-  const handle_DeleteDownloadLinkById = async (link_id) => {
-    try {
-      const response = await removeDownloadLinkByLinkId(link_id);
-      if (response.success) {
-        setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
-        toast.success("Download link has been deleted");
-      } else {
-        toast.error("Failed to delete download link");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to delete download link");
       checkError(err);
     }
   };
@@ -529,19 +480,10 @@ function Landing_MyFiles() {
           <MyFiles_ManageLinkModal
             isManageLinkModalOpen={isManageLinkModalOpen}
             setIsManageLinkModalOpen={setIsManageLinkModalOpen}
-            setCreateLinkExpiresAt={setCreateLinkExpiresAt}
-            setCreateLinkDownloadLimit={setCreateLinkDownloadLimit}
-            setCreateLinkPassword={setCreateLinkPassword}
             setCurrentSelectedFile={setCurrentSelectedFile}
             listOfDownloadLinks={listOfDownloadLinks}
-            setManageLink_LinkTooltip={setManageLink_LinkTooltip}
-            manageLink_LinkTooltip={manageLink_LinkTooltip}
-            handle_DeleteDownloadLinkById={handle_DeleteDownloadLinkById}
-            createLinkExpiresAt={createLinkExpiresAt}
-            handle_CreateDownloadLink={handle_CreateDownloadLink}
-            createLinkDownloadLimit={createLinkDownloadLimit}
-            createLinkPassword={createLinkPassword}
             currentSelectedFile={currentSelectedFile}
+            setListOfDownloadLinks={setListOfDownloadLinks}
           />
         )}
 

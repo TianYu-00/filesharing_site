@@ -1,26 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
 import Modal from "../Modal";
 import { fileDateFormatter } from "../File_Formatter";
 import { TbX } from "react-icons/tb";
 import { Tooltip } from "react-tooltip";
+import { toast } from "react-toastify";
+import useErrorChecker from "../UseErrorChecker";
+import { createDownloadLinkByFileId, removeDownloadLinkByLinkId } from "../../api";
 
 function MyFiles_ManageLinkModal({
   isManageLinkModalOpen,
   setIsManageLinkModalOpen,
-  setCreateLinkExpiresAt,
-  setCreateLinkDownloadLimit,
-  setCreateLinkPassword,
   setCurrentSelectedFile,
   listOfDownloadLinks,
-  setManageLink_LinkTooltip,
-  manageLink_LinkTooltip,
-  handle_DeleteDownloadLinkById,
-  createLinkExpiresAt,
-  handle_CreateDownloadLink,
-  createLinkDownloadLimit,
-  createLinkPassword,
   currentSelectedFile,
+  setListOfDownloadLinks,
 }) {
+  const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
+  const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
+  const [createLinkPassword, setCreateLinkPassword] = useState("");
+  const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
+  const checkError = useErrorChecker();
+
+  const handle_CreateDownloadLink = async (e, file_id) => {
+    e.preventDefault();
+    try {
+      const tempExpiresAt = createLinkExpiresAt || null;
+      const tempDownloadLimit = createLinkDownloadLimit || null;
+      const tempPassword = createLinkPassword || null;
+
+      const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
+      if (response.success) {
+        setCreateLinkExpiresAt("");
+        setCreateLinkDownloadLimit("");
+        setCreateLinkPassword("");
+        const newLinks = {
+          ...response.data,
+          password: !!tempPassword,
+        };
+        setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
+        toast.success("Download link has been created");
+      } else {
+        toast.error("Failed to create download link");
+      }
+    } catch (err) {
+      console.error(err);
+      checkError(err);
+    }
+  };
+
+  const handle_DeleteDownloadLinkById = async (link_id) => {
+    try {
+      const response = await removeDownloadLinkByLinkId(link_id);
+      if (response.success) {
+        setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
+        toast.success("Download link has been deleted");
+      } else {
+        toast.error("Failed to delete download link");
+      }
+    } catch (err) {
+      console.error(err);
+      checkError(err);
+    }
+  };
+
   return (
     <Modal
       isOpen={isManageLinkModalOpen}
@@ -31,7 +73,6 @@ function MyFiles_ManageLinkModal({
         setCreateLinkPassword("");
         setCurrentSelectedFile(null);
       }}
-      // modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
       modalTitle={`Manage Share Links`}
     >
       <div className="overflow-auto">
