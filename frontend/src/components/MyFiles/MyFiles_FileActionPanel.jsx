@@ -1,10 +1,7 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { TbSearch, TbMenu2 } from "react-icons/tb";
 
 function MyFiles_FileActionPanel({
-  toolBarParentRef,
-  toolBarRef,
-  isToolBarSticky,
   setIsSideBarOpen,
   isSideBarOpen,
   setListOfSelectedFile,
@@ -17,12 +14,32 @@ function MyFiles_FileActionPanel({
   setInputSearchTerm,
   handle_OnClickSearchFileName,
 }) {
+  const [isPanelSticky, setIsPanelSticky] = useState(false);
+  const panelRef = useRef(null);
+  const panelParentRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (panelParentRef.current) {
+        const toolbarRect = panelParentRef.current.getBoundingClientRect();
+        setIsPanelSticky(toolbarRect.top < 0);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <div ref={toolBarParentRef} className="max-w-full rounded-md h-14 px-2 my-4">
+    <div ref={panelParentRef} className="max-w-full rounded-md h-14 px-2 my-4">
       <div
-        ref={toolBarRef}
+        ref={panelRef}
         className={`${
-          isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-background" : ""
+          isPanelSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-background" : ""
         } max-w-full p-2 rounded-md flex flex-row h-14`}
       >
         <button

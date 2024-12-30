@@ -78,11 +78,6 @@ function Landing_MyFiles() {
   // selected
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
 
-  // sticky options
-  const [isToolBarSticky, setIsToolBarSticky] = useState(false);
-  const toolBarRef = useRef(null);
-  const toolBarParentRef = useRef(null);
-
   // search
   const [inputSearchTerm, setInputSearchTerm] = useState("");
   const [submitSearchTerm, setSubmitSearchTerm] = useState("");
@@ -116,22 +111,6 @@ function Landing_MyFiles() {
     fileLink: "",
     filePassword: "",
   });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (toolBarParentRef.current) {
-        const toolbarRect = toolBarParentRef.current.getBoundingClientRect();
-        setIsToolBarSticky(toolbarRect.top < 0);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   const sortedFiles = useMemo(() => {
     if (!displayFiles.length || !fileSortingConfig.sortByKey) return displayFiles;
@@ -741,9 +720,6 @@ function Landing_MyFiles() {
         )}
 
         <MyFiles_FileActionPanel
-          toolBarParentRef={toolBarParentRef}
-          toolBarRef={toolBarRef}
-          isToolBarSticky={isToolBarSticky}
           setIsSideBarOpen={setIsSideBarOpen}
           isSideBarOpen={isSideBarOpen}
           setListOfSelectedFile={setListOfSelectedFile}
