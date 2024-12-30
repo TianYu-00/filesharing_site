@@ -43,6 +43,7 @@ import {
   TbEye,
 } from "react-icons/tb";
 import DeleteConfirmationModal from "../components/MyFiles/DeleteConfirmationModal";
+import RenameModal from "../components/MyFiles/RenameModal";
 
 function Landing_MyFiles() {
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -710,36 +711,16 @@ function Landing_MyFiles() {
           />
         )}
 
-        {/* Rename Modal */}
+        {/* New Rename Modal */}
         {isRenameModalOpen && (
-          <Modal
-            isOpen={isRenameModalOpen}
-            onClose={() => {
-              setIsRenameModalOpen(false);
-              setFileRenameString("");
-              setCurrentSelectedFile(null);
-            }}
-            modalTitle={`Rename File`}
-          >
-            <div className="flex flex-col">
-              <div className="flex flex-col mb-4">
-                <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
-                <input
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
-                  onChange={(e) => setFileRenameString(e.target.value)}
-                  value={fileRenameString}
-                  placeholder="Enter new name here"
-                />
-              </div>
-
-              <button
-                className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold"
-                onClick={() => handle_FileRename()}
-              >
-                Update
-              </button>
-            </div>
-          </Modal>
+          <RenameModal
+            isRenameModalOpen={isRenameModalOpen}
+            setIsRenameModalOpen={setIsRenameModalOpen}
+            setFileRenameString={setFileRenameString}
+            setCurrentSelectedFile={setCurrentSelectedFile}
+            fileRenameString={fileRenameString}
+            handle_FileRename={handle_FileRename}
+          />
         )}
 
         {/* Manage Links Modal */}
