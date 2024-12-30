@@ -26,11 +26,8 @@ import {
   TbTrash,
   TbStar,
   TbStarFilled,
-  TbFiles,
-  TbSearch,
   TbArrowUp,
   TbArrowDown,
-  TbMenu2,
   TbDotsVertical,
   TbDownload,
   TbFilePencil,
@@ -38,7 +35,6 @@ import {
   TbStarOff,
   TbTrashX,
   TbArrowBackUp,
-  TbX,
   TbEye,
 } from "react-icons/tb";
 import DeleteConfirmationModal from "../components/MyFiles/DeleteConfirmationModal";
@@ -768,14 +764,10 @@ function Landing_MyFiles() {
             <SidePanel
               setIsSideBarOpen={setIsSideBarOpen}
               sideBarDrawerAnimation={sideBarDrawerAnimation}
-              TbX={TbX}
               pageState={pageState}
               handle_AllFiles={handle_AllFiles}
-              TbFiles={TbFiles}
               handle_AllFavourite={handle_AllFavourite}
-              TbStar={TbStar}
               handle_AllTrash={handle_AllTrash}
-              TbTrash={TbTrash}
             />
           )}
 

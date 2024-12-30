@@ -1,19 +1,15 @@
 import React from "react";
 import { useUser } from "../../context/UserContext";
-
 import { animated } from "@react-spring/web";
+import { TbTrash, TbStar, TbFiles, TbX } from "react-icons/tb";
 
 function SidePanel({
   setIsSideBarOpen,
   sideBarDrawerAnimation,
-  TbX,
   pageState,
   handle_AllFiles,
-  TbFiles,
   handle_AllFavourite,
-  TbStar,
   handle_AllTrash,
-  TbTrash,
 }) {
   const { user } = useUser();
 
