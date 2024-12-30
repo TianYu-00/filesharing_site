@@ -16,7 +16,7 @@ import {
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useSpring } from "@react-spring/web";
+
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
 import FilePreview from "../components/FileViewer";
@@ -437,57 +437,6 @@ function Landing_MyFiles() {
     setIsSideBarOpen(false);
   }, [pageState]);
 
-  const handle_AllFiles = () => {
-    setPageState("all");
-    const filteredFiles = allFiles.filter((file) => file.trash !== true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: true,
-      manage_link: true,
-      delete: false,
-      favourite: true,
-      unfavourite: false,
-      trash: true,
-      restore: false,
-    });
-  };
-
-  const handle_AllFavourite = () => {
-    setPageState("favourite");
-    const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: true,
-      manage_link: true,
-      delete: false,
-      favourite: false,
-      unfavourite: true,
-      trash: true,
-      restore: false,
-    });
-  };
-
-  const handle_AllTrash = () => {
-    setPageState("trash");
-    const filteredFiles = allFiles.filter((file) => file.trash === true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: false,
-      manage_link: false,
-      delete: true,
-      favourite: false,
-      unfavourite: false,
-      trash: false,
-      restore: true,
-    });
-  };
-
   const handle_favouriteState = async (file_id, favouriteState) => {
     try {
       const response = await updateFavouriteFileById(file_id, favouriteState);
@@ -540,13 +489,6 @@ function Landing_MyFiles() {
       checkError(err);
     }
   };
-
-  const sideBarDrawerAnimation = useSpring({
-    transform: isSideBarOpen ? "translateX(0)" : "translateX(-100%)",
-    opacity: isSideBarOpen ? 1 : 0,
-    config: { tension: 300, friction: 30 },
-    immediate: !isSideBarOpen,
-  });
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
   return (
@@ -628,11 +570,12 @@ function Landing_MyFiles() {
           {isSideBarOpen && (
             <MyFiles_SidePanel
               setIsSideBarOpen={setIsSideBarOpen}
-              sideBarDrawerAnimation={sideBarDrawerAnimation}
               pageState={pageState}
-              handle_AllFiles={handle_AllFiles}
-              handle_AllFavourite={handle_AllFavourite}
-              handle_AllTrash={handle_AllTrash}
+              setPageState={setPageState}
+              allFiles={allFiles}
+              setDisplayFiles={setDisplayFiles}
+              setButtonMenu={setButtonMenu}
+              isSideBarOpen={isSideBarOpen}
             />
           )}
 
