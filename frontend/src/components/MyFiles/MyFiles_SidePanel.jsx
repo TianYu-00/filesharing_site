@@ -3,7 +3,7 @@ import { useUser } from "../../context/UserContext";
 import { animated } from "@react-spring/web";
 import { TbTrash, TbStar, TbFiles, TbX } from "react-icons/tb";
 
-function SidePanel({
+function MyFiles_SidePanel({
   setIsSideBarOpen,
   sideBarDrawerAnimation,
   pageState,
@@ -78,4 +78,4 @@ function SidePanel({
   );
 }
 
-export default SidePanel;
+export default MyFiles_SidePanel;

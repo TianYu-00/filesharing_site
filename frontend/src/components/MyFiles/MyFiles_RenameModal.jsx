@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "../Modal";
 
-function RenameModal({
+function MyFiles_RenameModal({
   isRenameModalOpen,
   setIsRenameModalOpen,
   setFileRenameString,
@@ -41,4 +41,4 @@ function RenameModal({
   );
 }
 
-export default RenameModal;
+export default MyFiles_RenameModal;

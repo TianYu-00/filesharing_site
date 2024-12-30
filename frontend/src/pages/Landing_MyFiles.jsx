@@ -16,12 +16,10 @@ import {
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import { useSpring } from "@react-spring/web";
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
 import FilePreview from "../components/FileViewer";
-
 import {
   TbTrash,
   TbStar,
@@ -37,11 +35,11 @@ import {
   TbArrowBackUp,
   TbEye,
 } from "react-icons/tb";
-import DeleteConfirmationModal from "../components/MyFiles/DeleteConfirmationModal";
-import RenameModal from "../components/MyFiles/RenameModal";
-import ManageLinkModal from "../components/MyFiles/ManageLinkModal";
-import FileActionPanel from "../components/MyFiles/FileActionPanel";
-import SidePanel from "../components/MyFiles/SidePanel";
+import MyFiles_DeleteConfirmationModal from "../components/MyFiles/MyFiles_DeleteConfirmationModal";
+import MyFiles_RenameModal from "../components/MyFiles/MyFiles_RenameModal";
+import MyFiles_ManageLinkModal from "../components/MyFiles/MyFiles_ManageLinkModal";
+import MyFiles_FileActionPanel from "../components/MyFiles/MyFiles_FileActionPanel";
+import MyFiles_SidePanel from "../components/MyFiles/MyFiles_SidePanel";
 
 function Landing_MyFiles() {
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -700,7 +698,7 @@ function Landing_MyFiles() {
 
         {/* New Delete Confirmation Modal */}
         {isDeleteConfirmationModalOpen && (
-          <DeleteConfirmationModal
+          <MyFiles_DeleteConfirmationModal
             isDeleteConfirmationModalOpen={isDeleteConfirmationModalOpen}
             setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
             setCurrentSelectedFile={setCurrentSelectedFile}
@@ -711,7 +709,7 @@ function Landing_MyFiles() {
 
         {/* New Rename Modal */}
         {isRenameModalOpen && (
-          <RenameModal
+          <MyFiles_RenameModal
             isRenameModalOpen={isRenameModalOpen}
             setIsRenameModalOpen={setIsRenameModalOpen}
             setFileRenameString={setFileRenameString}
@@ -723,7 +721,7 @@ function Landing_MyFiles() {
 
         {/* New Manage Link Modal */}
         {isManageLinkModalOpen && (
-          <ManageLinkModal
+          <MyFiles_ManageLinkModal
             isManageLinkModalOpen={isManageLinkModalOpen}
             setIsManageLinkModalOpen={setIsManageLinkModalOpen}
             setCreateLinkExpiresAt={setCreateLinkExpiresAt}
@@ -742,7 +740,7 @@ function Landing_MyFiles() {
           />
         )}
 
-        <FileActionPanel
+        <MyFiles_FileActionPanel
           toolBarParentRef={toolBarParentRef}
           toolBarRef={toolBarRef}
           isToolBarSticky={isToolBarSticky}
@@ -761,7 +759,7 @@ function Landing_MyFiles() {
 
         <div className="w-full">
           {isSideBarOpen && (
-            <SidePanel
+            <MyFiles_SidePanel
               setIsSideBarOpen={setIsSideBarOpen}
               sideBarDrawerAnimation={sideBarDrawerAnimation}
               pageState={pageState}

@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "../Modal";
 
-function DeleteConfirmationModal({
+function MyFiles_DeleteConfirmationModal({
   isDeleteConfirmationModalOpen,
   setIsDeleteConfirmModalOpen,
   setCurrentSelectedFile,
@@ -42,4 +42,4 @@ function DeleteConfirmationModal({
   );
 }
 
-export default DeleteConfirmationModal;
+export default MyFiles_DeleteConfirmationModal;

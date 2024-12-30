@@ -4,7 +4,7 @@ import { fileDateFormatter } from "../File_Formatter";
 import { TbX } from "react-icons/tb";
 import { Tooltip } from "react-tooltip";
 
-function ManageLinkModal({
+function MyFiles_ManageLinkModal({
   isManageLinkModalOpen,
   setIsManageLinkModalOpen,
   setCreateLinkExpiresAt,
@@ -156,4 +156,4 @@ function ManageLinkModal({
   );
 }
 
-export default ManageLinkModal;
+export default MyFiles_ManageLinkModal;

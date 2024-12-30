@@ -1,7 +1,7 @@
 import React from "react";
 import { TbSearch, TbMenu2 } from "react-icons/tb";
 
-function FileActionPanel({
+function MyFiles_FileActionPanel({
   toolBarParentRef,
   toolBarRef,
   isToolBarSticky,
@@ -90,4 +90,4 @@ function FileActionPanel({
   );
 }
 
-export default FileActionPanel;
+export default MyFiles_FileActionPanel;
