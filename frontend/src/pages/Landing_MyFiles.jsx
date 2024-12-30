@@ -8,10 +8,8 @@ import {
   getDownloadLinksByFileId,
   createDownloadLinkByFileId,
   removeDownloadLinkByLinkId,
-  removeManyFilesByFileInfo,
   updateFavouriteFileById,
   updateTrashFileById,
-  updateManyTrashFileByFiles,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useNavigate } from "react-router-dom";
@@ -42,6 +40,9 @@ import MyFiles_FileActionPanel from "../components/MyFiles/MyFiles_FileActionPan
 import MyFiles_SidePanel from "../components/MyFiles/MyFiles_SidePanel";
 
 function Landing_MyFiles() {
+  {
+    /* Variables ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const navigate = useNavigate();
   const { user, isLoadingUser } = useUser();
@@ -51,39 +52,30 @@ function Landing_MyFiles() {
   const fileMenuRef = useRef(null);
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
   const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
-
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileRenameString, setFileRenameString] = useState("");
-
   // manage link
   const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
   const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
   const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
   const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
   const [createLinkPassword, setCreateLinkPassword] = useState("");
-
   // delete confirmation
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-
   // tooltips
   const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
-
   // sort
   const [fileSortingConfig, setFileSortingConfig] = useState({
     sortByKey: null,
     direction: "asc",
   });
-
   // selected
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
-
   // search
   const [submitSearchTerm, setSubmitSearchTerm] = useState("");
-
   // sidebar
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
-
   // button
   const [buttonMenu, setButtonMenu] = useState({
     download: true,
@@ -96,13 +88,10 @@ function Landing_MyFiles() {
     trash: true,
     restore: false,
   });
-
   // page state
   const [pageState, setPageState] = useState("all");
-
   // error handler
   const checkError = useErrorChecker();
-
   // preview
   const [previewFileDetails, setPreviewFileDetails] = useState({
     isPreviewing: false,
@@ -110,7 +99,7 @@ function Landing_MyFiles() {
     fileLink: "",
     filePassword: "",
   });
-
+  // file sorting
   const sortedFiles = useMemo(() => {
     if (!displayFiles.length || !fileSortingConfig.sortByKey) return displayFiles;
 
@@ -140,26 +129,14 @@ function Landing_MyFiles() {
 
     return sortedList;
   }, [displayFiles, fileSortingConfig]);
+  // file filtering
+  const filteredFiles = useMemo(() => {
+    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
+  }, [sortedFiles, submitSearchTerm]);
 
-  const handle_FileSorting = (sortByKey) => {
-    setOpenFileMenu(null);
-    setFileSortingConfig((prevConfig) => {
-      let newSortByKey = sortByKey;
-      let newDirection = "asc";
-
-      if (prevConfig.sortByKey === sortByKey) {
-        if (prevConfig.direction === "asc") {
-          newDirection = "desc";
-        } else if (prevConfig.direction === "desc") {
-          newSortByKey = "";
-          newDirection = "";
-        }
-      }
-
-      return { sortByKey: newSortByKey, direction: newDirection };
-    });
-  };
-
+  {
+    /* Use Effects ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   useEffect(() => {
     if (!user && !isLoadingUser) {
       setTimeout(() => navigate("/auth"), 0);
@@ -202,6 +179,40 @@ function Landing_MyFiles() {
       document.removeEventListener("mousedown", handle_OutOfContentClick);
     };
   }, []);
+
+  useEffect(() => {
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setSubmitSearchTerm("");
+    setIsSideBarOpen(false);
+  }, [pageState]);
+
+  {
+    /* Methods ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
+  const handle_FileSorting = (sortByKey) => {
+    setOpenFileMenu(null);
+    setFileSortingConfig((prevConfig) => {
+      let newSortByKey = sortByKey;
+      let newDirection = "asc";
+
+      if (prevConfig.sortByKey === sortByKey) {
+        if (prevConfig.direction === "asc") {
+          newDirection = "desc";
+        } else if (prevConfig.direction === "desc") {
+          newSortByKey = "";
+          newDirection = "";
+        }
+      }
+
+      return { sortByKey: newSortByKey, direction: newDirection };
+    });
+  };
 
   const getFileButtonDropdownPosition = (buttonElement) => {
     const buttonRect = buttonElement.getBoundingClientRect();
@@ -397,11 +408,6 @@ function Landing_MyFiles() {
     }
   };
 
-  // debug
-  // useEffect(() => {
-  //   console.log(listOfSelectedFile);
-  // }, [listOfSelectedFile]);
-
   const handle_FileSelectedCheckboxChange = (file, isChecked) => {
     setListOfSelectedFile((prevSelectedFiles) =>
       isChecked ? [...prevSelectedFiles, file] : prevSelectedFiles.filter((selectedFile) => selectedFile.id !== file.id)
@@ -420,22 +426,6 @@ function Landing_MyFiles() {
     const isSelected = listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id);
     handle_FileSelectedCheckboxChange(file, !isSelected);
   };
-
-  const filteredFiles = useMemo(() => {
-    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
-  }, [sortedFiles, submitSearchTerm]);
-
-  useEffect(() => {
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setSubmitSearchTerm("");
-    setIsSideBarOpen(false);
-  }, [pageState]);
 
   const handle_favouriteState = async (file_id, favouriteState) => {
     try {
@@ -490,7 +480,9 @@ function Landing_MyFiles() {
     }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
+  {
+    /* X ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   return (
     <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
       <div className="">
