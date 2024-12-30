@@ -6,32 +6,22 @@ import {
   downloadFileByID,
   renameFileById,
   getDownloadLinksByFileId,
-  createDownloadLinkByFileId,
-  removeDownloadLinkByLinkId,
-  removeManyFilesByFileInfo,
   updateFavouriteFileById,
   updateTrashFileById,
-  updateManyTrashFileByFiles,
 } from "../api";
 import { fileSizeFormatter, fileDateFormatter } from "../components/File_Formatter";
 import { useNavigate } from "react-router-dom";
-import Modal from "../components/Modal";
 import { toast } from "react-toastify";
-import { Tooltip } from "react-tooltip";
-import { useSpring, animated } from "@react-spring/web";
+
 import useErrorChecker from "../components/UseErrorChecker";
 import PageLoader from "../components/PageLoader";
 import FilePreview from "../components/FileViewer";
-
 import {
   TbTrash,
   TbStar,
   TbStarFilled,
-  TbFiles,
-  TbSearch,
   TbArrowUp,
   TbArrowDown,
-  TbMenu2,
   TbDotsVertical,
   TbDownload,
   TbFilePencil,
@@ -39,11 +29,18 @@ import {
   TbStarOff,
   TbTrashX,
   TbArrowBackUp,
-  TbX,
   TbEye,
 } from "react-icons/tb";
+import MyFiles_DeleteConfirmationModal from "../components/MyFiles/MyFiles_DeleteConfirmationModal";
+import MyFiles_RenameModal from "../components/MyFiles/MyFiles_RenameModal";
+import MyFiles_ManageLinkModal from "../components/MyFiles/MyFiles_ManageLinkModal";
+import MyFiles_FileActionPanel from "../components/MyFiles/MyFiles_FileActionPanel";
+import MyFiles_SidePanel from "../components/MyFiles/MyFiles_SidePanel";
 
 function Landing_MyFiles() {
+  {
+    /* Variables ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const navigate = useNavigate();
   const { user, isLoadingUser } = useUser();
@@ -53,45 +50,26 @@ function Landing_MyFiles() {
   const fileMenuRef = useRef(null);
   const [currentSelectedFile, setCurrentSelectedFile] = useState(null);
   const [fileMenuDropdownPosition, setFileMenuDropdownPosition] = useState("down");
-
   // rename
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [fileRenameString, setFileRenameString] = useState("");
-
   // manage link
   const [isManageLinkModalOpen, setIsManageLinkModalOpen] = useState(false);
   const [listOfDownloadLinks, setListOfDownloadLinks] = useState([]);
-  const [createLinkExpiresAt, setCreateLinkExpiresAt] = useState("");
-  const [createLinkDownloadLimit, setCreateLinkDownloadLimit] = useState("");
-  const [createLinkPassword, setCreateLinkPassword] = useState("");
 
   // delete confirmation
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-
-  // tooltips
-  const [manageLink_LinkTooltip, setManageLink_LinkTooltip] = useState("Click to copy link");
-
   // sort
   const [fileSortingConfig, setFileSortingConfig] = useState({
     sortByKey: null,
     direction: "asc",
   });
-
   // selected
   const [listOfSelectedFile, setListOfSelectedFile] = useState([]);
-
-  // sticky options
-  const [isToolBarSticky, setIsToolBarSticky] = useState(false);
-  const toolBarRef = useRef(null);
-  const toolBarParentRef = useRef(null);
-
   // search
-  const [inputSearchTerm, setInputSearchTerm] = useState("");
   const [submitSearchTerm, setSubmitSearchTerm] = useState("");
-
   // sidebar
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
-
   // button
   const [buttonMenu, setButtonMenu] = useState({
     download: true,
@@ -104,13 +82,10 @@ function Landing_MyFiles() {
     trash: true,
     restore: false,
   });
-
   // page state
   const [pageState, setPageState] = useState("all");
-
   // error handler
   const checkError = useErrorChecker();
-
   // preview
   const [previewFileDetails, setPreviewFileDetails] = useState({
     isPreviewing: false,
@@ -118,23 +93,7 @@ function Landing_MyFiles() {
     fileLink: "",
     filePassword: "",
   });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (toolBarParentRef.current) {
-        const toolbarRect = toolBarParentRef.current.getBoundingClientRect();
-        setIsToolBarSticky(toolbarRect.top < 0);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
+  // file sorting
   const sortedFiles = useMemo(() => {
     if (!displayFiles.length || !fileSortingConfig.sortByKey) return displayFiles;
 
@@ -164,26 +123,14 @@ function Landing_MyFiles() {
 
     return sortedList;
   }, [displayFiles, fileSortingConfig]);
+  // file filtering
+  const filteredFiles = useMemo(() => {
+    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
+  }, [sortedFiles, submitSearchTerm]);
 
-  const handle_FileSorting = (sortByKey) => {
-    setOpenFileMenu(null);
-    setFileSortingConfig((prevConfig) => {
-      let newSortByKey = sortByKey;
-      let newDirection = "asc";
-
-      if (prevConfig.sortByKey === sortByKey) {
-        if (prevConfig.direction === "asc") {
-          newDirection = "desc";
-        } else if (prevConfig.direction === "desc") {
-          newSortByKey = "";
-          newDirection = "";
-        }
-      }
-
-      return { sortByKey: newSortByKey, direction: newDirection };
-    });
-  };
-
+  {
+    /* Use Effects ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   useEffect(() => {
     if (!user && !isLoadingUser) {
       setTimeout(() => navigate("/auth"), 0);
@@ -226,6 +173,40 @@ function Landing_MyFiles() {
       document.removeEventListener("mousedown", handle_OutOfContentClick);
     };
   }, []);
+
+  useEffect(() => {
+    setOpenFileMenu(null);
+    setCurrentSelectedFile(null);
+    setListOfSelectedFile([]);
+    setFileSortingConfig({
+      sortByKey: null,
+      direction: "asc",
+    });
+    setSubmitSearchTerm("");
+    setIsSideBarOpen(false);
+  }, [pageState]);
+
+  {
+    /* Methods ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
+  const handle_FileSorting = (sortByKey) => {
+    setOpenFileMenu(null);
+    setFileSortingConfig((prevConfig) => {
+      let newSortByKey = sortByKey;
+      let newDirection = "asc";
+
+      if (prevConfig.sortByKey === sortByKey) {
+        if (prevConfig.direction === "asc") {
+          newDirection = "desc";
+        } else if (prevConfig.direction === "desc") {
+          newSortByKey = "";
+          newDirection = "";
+        }
+      }
+
+      return { sortByKey: newSortByKey, direction: newDirection };
+    });
+  };
 
   const getFileButtonDropdownPosition = (buttonElement) => {
     const buttonRect = buttonElement.getBoundingClientRect();
@@ -374,57 +355,9 @@ function Landing_MyFiles() {
 
       setListOfDownloadLinks(response.data);
     } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to fetch download links");
       checkError(err);
     }
   };
-
-  const handle_CreateDownloadLink = async (e, file_id) => {
-    e.preventDefault();
-    try {
-      const tempExpiresAt = createLinkExpiresAt || null;
-      const tempDownloadLimit = createLinkDownloadLimit || null;
-      const tempPassword = createLinkPassword || null;
-
-      const response = await createDownloadLinkByFileId(file_id, tempExpiresAt, tempDownloadLimit, tempPassword);
-      if (response.success) {
-        setCreateLinkExpiresAt("");
-        setCreateLinkDownloadLimit("");
-        setCreateLinkPassword("");
-        const newLinks = {
-          ...response.data,
-          password: !!tempPassword,
-        };
-        setListOfDownloadLinks((prevLinks) => [...prevLinks, newLinks]);
-        toast.success("Download link has been created");
-      } else {
-        toast.error("Failed to create download link");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to create download link");
-      checkError(err);
-    }
-  };
-
-  const handle_DeleteDownloadLinkById = async (link_id) => {
-    try {
-      const response = await removeDownloadLinkByLinkId(link_id);
-      if (response.success) {
-        setListOfDownloadLinks(listOfDownloadLinks.filter((link) => link.id !== link_id));
-        toast.success("Download link has been deleted");
-      } else {
-        toast.error("Failed to delete download link");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "Failed to delete download link");
-      checkError(err);
-    }
-  };
-
-  // debug
-  // useEffect(() => {
-  //   console.log(listOfSelectedFile);
-  // }, [listOfSelectedFile]);
 
   const handle_FileSelectedCheckboxChange = (file, isChecked) => {
     setListOfSelectedFile((prevSelectedFiles) =>
@@ -443,123 +376,6 @@ function Landing_MyFiles() {
     }
     const isSelected = listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id);
     handle_FileSelectedCheckboxChange(file, !isSelected);
-  };
-
-  const handle_DeleteManyFiles = async () => {
-    try {
-      const response = await removeManyFilesByFileInfo(listOfSelectedFile);
-
-      if (response.success) {
-        const updatedAllFiles = allFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        setAllFiles(updatedAllFiles);
-        setDisplayFiles(updatedDisplayFiles);
-        setListOfSelectedFile([]);
-
-        const deletedFileCount = response.data.deletedFileCount || 0;
-        toast.success(`${deletedFileCount} file(s) deleted successfully`);
-      } else {
-        toast.error(response.msg || "Failed to delete files");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
-      checkError(err);
-    }
-  };
-
-  const handle_OnClickSearchFileName = () => {
-    setSubmitSearchTerm(inputSearchTerm);
-  };
-
-  const filteredFiles = useMemo(() => {
-    return sortedFiles.filter((file) => file.originalname.toLowerCase().includes(submitSearchTerm.toLowerCase()));
-  }, [sortedFiles, submitSearchTerm]);
-
-  const handle_AllFiles = () => {
-    setPageState("all");
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setInputSearchTerm("");
-    setSubmitSearchTerm("");
-    const filteredFiles = allFiles.filter((file) => file.trash !== true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: true,
-      manage_link: true,
-      delete: false,
-      favourite: true,
-      unfavourite: false,
-      trash: true,
-      restore: false,
-    });
-    setIsSideBarOpen(false);
-  };
-
-  const handle_AllFavourite = () => {
-    setPageState("favourite");
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setInputSearchTerm("");
-    setSubmitSearchTerm("");
-    const filteredFiles = allFiles.filter((file) => file.favourite === true && file.trash !== true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: true,
-      manage_link: true,
-      delete: false,
-      favourite: false,
-      unfavourite: true,
-      trash: true,
-      restore: false,
-    });
-    setIsSideBarOpen(false);
-  };
-
-  const handle_AllTrash = () => {
-    setPageState("trash");
-    setOpenFileMenu(null);
-    setCurrentSelectedFile(null);
-    setListOfSelectedFile([]);
-    setFileSortingConfig({
-      sortByKey: null,
-      direction: "asc",
-    });
-    setInputSearchTerm("");
-    setSubmitSearchTerm("");
-    const filteredFiles = allFiles.filter((file) => file.trash === true);
-    setDisplayFiles(filteredFiles);
-    setButtonMenu({
-      download: true,
-      preview: true,
-      rename: false,
-      manage_link: false,
-      delete: true,
-      favourite: false,
-      unfavourite: false,
-      trash: false,
-      restore: true,
-    });
-    setIsSideBarOpen(false);
   };
 
   const handle_favouriteState = async (file_id, favouriteState) => {
@@ -615,71 +431,9 @@ function Landing_MyFiles() {
     }
   };
 
-  const sideBarDrawerAnimation = useSpring({
-    transform: isSideBarOpen ? "translateX(0)" : "translateX(-100%)",
-    opacity: isSideBarOpen ? 1 : 0,
-    config: { tension: 300, friction: 30 },
-    immediate: !isSideBarOpen,
-  });
-
-  const handle_TrashManyFiles = async (trashState) => {
-    try {
-      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
-
-      if (response.success) {
-        const updatedAllFiles = allFiles.map((file) =>
-          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
-        );
-
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        setAllFiles(updatedAllFiles);
-        setDisplayFiles(updatedDisplayFiles);
-        setListOfSelectedFile([]);
-
-        const trashFileCount = response.data.length;
-        toast.success(`${trashFileCount} file(s) trashed successfully`);
-      } else {
-        toast.error("Failed to trash files");
-      }
-    } catch (err) {
-      // toast.error(err?.response?.data?.msg || "An error occurred while deleting files");
-      checkError(err);
-    }
-  };
-
-  const handle_RestoreManyFiles = async (trashState) => {
-    try {
-      const response = await updateManyTrashFileByFiles(listOfSelectedFile, trashState);
-
-      if (response.success) {
-        const updatedDisplayFiles = displayFiles.filter(
-          (file) => !listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)
-        );
-
-        const updatedAllFiles = allFiles.map((file) =>
-          listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id) ? { ...file, trash: trashState } : file
-        );
-
-        setDisplayFiles(updatedDisplayFiles);
-        setAllFiles(updatedAllFiles);
-
-        setListOfSelectedFile([]);
-
-        const restoredFileCount = response.data.length;
-        toast.success(`${restoredFileCount} file(s) restored successfully`);
-      } else {
-        toast.error("Failed to restore files");
-      }
-    } catch (err) {
-      console.log(err);
-      checkError(err);
-    }
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RETURN
+  {
+    /* X ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+  }
   return (
     <PageLoader isLoading={isLoadingPage} timer={2000} message="Fetching Files">
       <div className="">
@@ -698,342 +452,65 @@ function Landing_MyFiles() {
           />
         )}
 
-        {/* Delete Confirmation Modal */}
+        {/* New Delete Confirmation Modal */}
         {isDeleteConfirmationModalOpen && (
-          <Modal
-            isOpen={isDeleteConfirmationModalOpen}
-            onClose={() => {
-              setIsDeleteConfirmModalOpen(false);
-              setCurrentSelectedFile(null);
-            }}
-            modalTitle={`Delete Confirmation`}
-          >
-            <p className="text-copy-primary text-lg mb-4">Are you sure you want to delete the file?</p>
-            <p className="text-copy-secondary text-lg mb-4">{currentSelectedFile.originalname}</p>
-            <div className="flex justify-center items-align space-x-6">
-              <button
-                className="bg-cta font-bold p-2 rounded text-cta-text hover:bg-cta-active transition duration-500 ease-in-out"
-                onClick={() => {
-                  setIsDeleteConfirmModalOpen(false);
-                  setCurrentSelectedFile(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-700 transition duration-500 ease-in-out"
-                onClick={() => {
-                  handle_FileDelete(currentSelectedFile.id);
-                }}
-              >
-                Confirm
-              </button>
-            </div>
-          </Modal>
+          <MyFiles_DeleteConfirmationModal
+            isDeleteConfirmationModalOpen={isDeleteConfirmationModalOpen}
+            setIsDeleteConfirmModalOpen={setIsDeleteConfirmModalOpen}
+            setCurrentSelectedFile={setCurrentSelectedFile}
+            currentSelectedFile={currentSelectedFile}
+            handle_FileDelete={handle_FileDelete}
+          />
         )}
 
-        {/* Rename Modal */}
+        {/* New Rename Modal */}
         {isRenameModalOpen && (
-          <Modal
-            isOpen={isRenameModalOpen}
-            onClose={() => {
-              setIsRenameModalOpen(false);
-              setFileRenameString("");
-              setCurrentSelectedFile(null);
-            }}
-            modalTitle={`Rename File`}
-          >
-            <div className="flex flex-col">
-              <div className="flex flex-col mb-4">
-                <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
-                <input
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
-                  onChange={(e) => setFileRenameString(e.target.value)}
-                  value={fileRenameString}
-                  placeholder="Enter new name here"
-                />
-              </div>
-
-              <button
-                className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold"
-                onClick={() => handle_FileRename()}
-              >
-                Update
-              </button>
-            </div>
-          </Modal>
+          <MyFiles_RenameModal
+            isRenameModalOpen={isRenameModalOpen}
+            setIsRenameModalOpen={setIsRenameModalOpen}
+            setFileRenameString={setFileRenameString}
+            setCurrentSelectedFile={setCurrentSelectedFile}
+            fileRenameString={fileRenameString}
+            handle_FileRename={handle_FileRename}
+          />
         )}
 
-        {/* Manage Links Modal */}
+        {/* New Manage Link Modal */}
         {isManageLinkModalOpen && (
-          <Modal
-            isOpen={isManageLinkModalOpen}
-            onClose={() => {
-              setIsManageLinkModalOpen(false);
-              setCreateLinkExpiresAt("");
-              setCreateLinkDownloadLimit("");
-              setCreateLinkPassword("");
-              setCurrentSelectedFile(null);
-            }}
-            // modalTitle={`Manage Links: ${currentSelectedFile.originalname}`}
-            modalTitle={`Manage Share Links`}
-          >
-            <div className="overflow-auto">
-              <div className="overflow-y-auto">
-                <div className="flex flex-col w-full">
-                  <div className="flex border-b border-border text-copy-primary/80 text-sm font-medium ">
-                    <div className="px-2 py-2 w-1/4 ">Link</div>
-                    <div className="px-2 py-2 w-1/4 ">Expires</div>
-                    <div className="px-2 py-2 w-1/4 ">Limit</div>
-                    <div className="px-2 py-2 w-1/4 ">Password</div>
-                    <div className="px-2 py-2 w-8"></div>
-                  </div>
-
-                  <div className="max-h-[200px]">
-                    {listOfDownloadLinks && listOfDownloadLinks.length > 0 ? (
-                      listOfDownloadLinks.map((currentLink) => (
-                        <div key={currentLink.id} className="flex border-b border-border/50 text-copy-primary/70">
-                          <div
-                            className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate cursor-pointer "
-                            onClick={async () => {
-                              const fullUrl = `${window.location.origin}/files/download/${currentLink.download_url}`;
-                              await navigator.clipboard.writeText(fullUrl);
-                              setManageLink_LinkTooltip("Link copied!");
-                              setTimeout(() => setManageLink_LinkTooltip("Click to copy link"), 2000);
-                            }}
-                            data-tooltip-id="id_managelink_link"
-                            data-tooltip-content={manageLink_LinkTooltip}
-                          >
-                            {currentLink.download_url}
-                          </div>
-                          <Tooltip
-                            id="id_managelink_link"
-                            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222" }}
-                            opacity={0.9}
-                            place="bottom"
-                          />
-
-                          {/* expires */}
-                          <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
-                            {fileDateFormatter(currentLink.expires_at)[2]}
-                          </div>
-
-                          {/* limit */}
-                          <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
-                            {currentLink.download_count}/{currentLink.download_limit || "Null"}
-                          </div>
-
-                          {/* password */}
-                          <div className="px-2 py-1 text-sm flex-1 whitespace-nowrap overflow-hidden truncate ">
-                            {currentLink.password ? "Yes" : "No"}
-                          </div>
-
-                          {/* X button */}
-                          <div className="flex justify-center">
-                            <button
-                              className="text-gray-500 hover:text-red-500 text-2xl mr-2"
-                              onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}
-                            >
-                              <TbX size={17} strokeWidth={3} />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-copy-primary mb-4 my-8">
-                <p className="font-bold">Create Link</p>
-                <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">
-                  Create a new custom download link below
-                </p>
-              </div>
-
-              <form className="flex flex-col space-y-4 p-1">
-                {/* Expires At */}
-                <div>
-                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Expires At</label>
-                  <input
-                    type="datetime-local"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
-                    value={createLinkExpiresAt}
-                    onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
-                  />
-                </div>
-
-                {/* Download Limit  */}
-                <div>
-                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Download Limit</label>
-                  <input
-                    type="number"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
-                    value={createLinkDownloadLimit}
-                    onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-sm font-medium text-copy-primary/80 ml-1">Link Password</label>
-                  <input
-                    type="password"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
-                    autoComplete="new-password"
-                    value={createLinkPassword}
-                    onChange={(e) => setCreateLinkPassword(e.target.value)}
-                  />
-                </div>
-
-                <button
-                  className="text-cta-text bg-cta transition duration-500 ease-in-out hover:bg-cta-active p-2 rounded font-bold w-full"
-                  onClick={(e) => handle_CreateDownloadLink(e, currentSelectedFile.id)}
-                >
-                  Create Link
-                </button>
-              </form>
-            </div>
-          </Modal>
+          <MyFiles_ManageLinkModal
+            isManageLinkModalOpen={isManageLinkModalOpen}
+            setIsManageLinkModalOpen={setIsManageLinkModalOpen}
+            setCurrentSelectedFile={setCurrentSelectedFile}
+            listOfDownloadLinks={listOfDownloadLinks}
+            currentSelectedFile={currentSelectedFile}
+            setListOfDownloadLinks={setListOfDownloadLinks}
+          />
         )}
 
-        {/* Selected Options ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
-        <div ref={toolBarParentRef} className="max-w-full rounded-md h-14 px-2 my-4">
-          <div
-            ref={toolBarRef}
-            className={`${
-              isToolBarSticky ? "fixed top-0 left-0 w-full z-10 rounded-none border-none bg-background" : ""
-            } max-w-full p-2 rounded-md flex flex-row h-14`}
-          >
-            <button
-              className="bg-background text-copy-primary hover:bg-background-opp/10 rounded-md mr-4"
-              onClick={() => setIsSideBarOpen(!isSideBarOpen)}
-            >
-              <TbMenu2 className="mx-2" size={25} />
-            </button>
-
-            {listOfSelectedFile.length > 0 && (
-              <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
-                onClick={() => setListOfSelectedFile([])}
-                disabled={listOfSelectedFile.length === 0}
-              >
-                Deselect
-              </button>
-            )}
-
-            {listOfSelectedFile.length > 0 && pageState !== "trash" && (
-              <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
-                onClick={() => handle_TrashManyFiles(true)}
-                disabled={listOfSelectedFile.length === 0}
-              >
-                Trash
-              </button>
-            )}
-
-            {listOfSelectedFile.length > 0 && pageState === "trash" && (
-              <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
-                onClick={() => handle_RestoreManyFiles(false)}
-                disabled={listOfSelectedFile.length === 0}
-              >
-                Restore
-              </button>
-            )}
-
-            {pageState === "trash" && listOfSelectedFile.length > 0 && (
-              <button
-                className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
-                onClick={handle_DeleteManyFiles}
-                disabled={listOfSelectedFile.length === 0}
-              >
-                Delete
-              </button>
-            )}
-
-            <div className="relative max-w-sm">
-              <TbSearch className="absolute left-2.5 top-3 h-4 w-4 text-background-opp" strokeWidth={4} />
-              <input
-                type="text"
-                className="pl-9 pr-4 w-full h-10 rounded-md border border-border/50 bg-transparent text-copy-primary focus:outline-none focus:border-border"
-                placeholder="Search"
-                value={inputSearchTerm}
-                onChange={(e) => setInputSearchTerm(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handle_OnClickSearchFileName();
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        <MyFiles_FileActionPanel
+          setIsSideBarOpen={setIsSideBarOpen}
+          isSideBarOpen={isSideBarOpen}
+          setListOfSelectedFile={setListOfSelectedFile}
+          listOfSelectedFile={listOfSelectedFile}
+          pageState={pageState}
+          setSubmitSearchTerm={setSubmitSearchTerm}
+          setAllFiles={setAllFiles}
+          setDisplayFiles={setDisplayFiles}
+          allFiles={allFiles}
+          displayFiles={displayFiles}
+        />
 
         <div className="w-full">
-          {/* Side Bar ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
           {isSideBarOpen && (
-            <div className="fixed top-0 left-0 w-full h-screen z-50">
-              <div
-                className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-80`}
-                onClick={() => setIsSideBarOpen(false)}
-              />
-              <animated.div
-                className={`flex flex-col text-white bg-background w-full h-full p-4 max-w-sm`}
-                style={sideBarDrawerAnimation}
-              >
-                <div className="p-2 py-4 relative">
-                  <button
-                    className="text-copy-secondary text-xl font-bold px-2 absolute right-0 top-4 hover:text-red-700"
-                    onClick={() => setIsSideBarOpen(false)}
-                  >
-                    <TbX size={17} strokeWidth={3} />
-                  </button>
-                  <p className="text-3xl font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate">
-                    {user?.username}
-                  </p>
-                  <p className="text-copy-secondary whitespace-nowrap overflow-hidden truncate">{user?.email}</p>
-                </div>
-
-                <div className="border border-border mb-4"></div>
-
-                <div className="text-copy-primary">
-                  <div className="my-2">
-                    <button
-                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
-                        pageState === "all" ? "text-copy-opp bg-background-opp" : ""
-                      }`}
-                      onClick={handle_AllFiles}
-                    >
-                      <TbFiles />
-                      <span className="pl-4">All Files</span>
-                    </button>
-                  </div>
-                  <div className="my-2">
-                    <button
-                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
-                        pageState === "favourite" ? "text-copy-opp bg-background-opp" : ""
-                      }`}
-                      onClick={handle_AllFavourite}
-                    >
-                      <TbStar />
-                      <span className="pl-4">Favourite</span>
-                    </button>
-                  </div>
-                  <div className="my-2">
-                    <button
-                      className={`w-full text-left rounded-lg p-2 py-3 flex items-center hover:text-copy-opp hover:bg-background-opp ${
-                        pageState === "trash" ? "text-copy-opp bg-background-opp" : ""
-                      }`}
-                      onClick={handle_AllTrash}
-                    >
-                      <TbTrash />
-                      <span className="pl-4">Trash</span>
-                    </button>
-                  </div>
-                </div>
-              </animated.div>
-            </div>
+            <MyFiles_SidePanel
+              setIsSideBarOpen={setIsSideBarOpen}
+              pageState={pageState}
+              setPageState={setPageState}
+              allFiles={allFiles}
+              setDisplayFiles={setDisplayFiles}
+              setButtonMenu={setButtonMenu}
+              isSideBarOpen={isSideBarOpen}
+            />
           )}
 
           {/* Table ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
