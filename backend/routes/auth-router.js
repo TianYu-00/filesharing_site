@@ -5,15 +5,18 @@ const forgotPasswordTokenChecker = require("../src/forgotPasswordTokenChecker");
 const isLoggedInChecker = require("../src/isLoggedInChecker");
 const authRouter = express.Router();
 
-authRouter.get("/", authController.fetchAllBlacklistTokens);
-authRouter.get("/test", userTokenChecker, isLoggedInChecker, authController.testUserTokens);
-authRouter.post("/test-forgot-password-token", forgotPasswordTokenChecker, authController.verifyForgotPasswordToken);
+// Token Management
+authRouter.get("/blacklist-tokens", authController.fetchAllBlacklistTokens);
+authRouter.get("/verify-user-token", userTokenChecker, isLoggedInChecker, authController.testUserTokens);
 
+// Authentication
 authRouter.post("/register", authController.attemptRegister);
 authRouter.post("/login", authController.attemptLogin);
 authRouter.post("/logout", authController.attemptLogout);
 
+// User Password management
 authRouter.post("/forgot-password", authController.sendPasswordResetLink);
+authRouter.post("/forgot-password/verify", forgotPasswordTokenChecker, authController.verifyForgotPasswordToken);
 authRouter.patch("/reset-password", forgotPasswordTokenChecker, authController.resetPassword);
 
 module.exports = authRouter;
