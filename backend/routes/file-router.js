@@ -30,8 +30,8 @@ fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFile
 fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById);
 fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById);
 fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile);
-fileRouter.patch("/trash-many", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
-fileRouter.delete("/delete-many", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
+fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
+fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
 
 // Public routes
 fileRouter.post("/upload", fileController.postFile);

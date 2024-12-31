@@ -13,7 +13,7 @@ exports.retrieveAllFilesInfo = async () => {
     const result = await db.query(`SELECT * FROM file_info;`);
     return result.rows;
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving files from database" });
+    console.error(err);
   }
 };
 
@@ -57,7 +57,7 @@ exports.uploadFile = async (req) => {
 
         resolve({ file: result.rows[0], fileId, downloadLink });
       } catch (dbError) {
-        reject({ code: "DB_ERROR", message: "Error inserting file info into database" });
+        console.error(dbError);
       }
     });
   });
@@ -85,7 +85,7 @@ exports.createDownloadLink = async (file_id, expires_at = null, password = null,
     return result.rows[0];
   } catch (err) {
     // console.log(err);
-    return Promise.reject({ code: "DB_ERROR", message: "Error creating download link" });
+    console.error(err);
   }
 };
 
@@ -99,7 +99,7 @@ exports.retrieveFileInfo = async (file_id) => {
 
     return result.rows[0];
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving file info" });
+    console.error(err);
   }
 };
 
@@ -196,7 +196,7 @@ exports.retrieveDownloadLinks = async (file_id) => {
     });
     return filteredResults;
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: "Error retrieving download links" });
+    console.error(err);
   }
 };
 
@@ -215,7 +215,7 @@ exports.deleteFile = async (file_id) => {
     await db.query(`DELETE FROM file_info WHERE id = $1`, [file_id]);
     await db.query(`DELETE FROM file_download_link WHERE file_id = $1`, [file_id]);
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: "Error deleting file" });
+    console.error(err);
   }
 };
 
@@ -248,10 +248,7 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
       return null;
     }
   } catch (err) {
-    return Promise.reject({
-      code: "DB_ERROR",
-      message: "Error retrieving file by download link",
-    });
+    console.error(err);
   }
 };
 
@@ -279,7 +276,7 @@ exports.updateFileNameById = async (fileInfo, newFileName) => {
     if (err.code === "ENOENT") {
       return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found on disk." });
     }
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -301,7 +298,7 @@ exports.retrieveFileInfoByDownloadLinkId = async (link_id) => {
 
     return fileInfoResult.rows[0];
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -316,7 +313,7 @@ exports.deleteDownloadLink = async (link_id) => {
     const result = await db.query(query, [link_id]);
     return result.rows[0];
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -339,7 +336,7 @@ exports.retrieveDownloadLinkInfo = async (downloadLink) => {
 
     return formattedLinkInfo;
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -380,7 +377,7 @@ exports.patchDownloadLinkLimitCount = async (link_id) => {
 
     return sanitizedResult;
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -407,7 +404,7 @@ exports.validateDownloadPassword = async (link_id, enteredPassword) => {
 
     return { isPasswordCorrect };
   } catch (err) {
-    return Promise.reject({ code: "DB_ERROR", message: err.message });
+    console.error(err);
   }
 };
 
@@ -436,10 +433,6 @@ exports.deleteManyFilesByFileIds = async (files) => {
     };
   } catch (err) {
     console.error(err);
-    return Promise.reject({
-      code: "DB_ERROR",
-      message: "Error deleting files from database and disk",
-    });
   }
 };
 
@@ -508,7 +501,7 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
 
     return isPasswordValid;
   } catch (err) {
-    console.error("Error validating download link and password:", err);
+    console.error(err);
     return false;
   }
 };
