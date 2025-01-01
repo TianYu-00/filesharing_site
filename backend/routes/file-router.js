@@ -6,69 +6,38 @@ const checkAdminRole = require("../src/checkAdminRole");
 const userTokenChecker = require("../src/userTokenChecker");
 const isLoggedInChecker = require("../src/isLoggedInChecker");
 
-// admin only
+// Admin only
 fileRouter.get("/", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getAllFilesInfo);
-fileRouter.get("/info/:file_id", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getFileInfo);
+fileRouter.get("/:file_id/info", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getFileInfo);
 
-// should be protected
-fileRouter.delete("/delete-file-by-file-id/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
-fileRouter.patch(
-  "/rename-file-by-file-id/:file_id",
-  userTokenChecker,
-  isLoggedInChecker,
-  fileController.renameFileById
-);
-fileRouter.get(
-  "/download-link-by-file-id/:file_id",
-  userTokenChecker,
-  isLoggedInChecker,
-  fileController.getDownloadLinks
-);
+// Protected routes
+fileRouter.delete("/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
+fileRouter.patch("/:file_id/rename", userTokenChecker, isLoggedInChecker, fileController.renameFileById);
+fileRouter.get("/:file_id/download-links", userTokenChecker, isLoggedInChecker, fileController.getDownloadLinks);
 fileRouter.post(
-  "/create-download-link-by-file-id/:file_id",
+  "/:file_id/download-link",
   userTokenChecker,
   isLoggedInChecker,
   fileController.createDownloadLinkByFileId
 );
 fileRouter.delete(
-  "/remove-download-link-by-link-id/:link_id",
+  "/download-links/:link_id",
   userTokenChecker,
   isLoggedInChecker,
   fileController.removeDownloadLinkByLinkId
 );
+fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFileById);
+fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById);
+fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById);
+fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile);
+fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
+fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
 
-fileRouter.delete(
-  "/remove-many-files-by-body-file-info",
-  userTokenChecker,
-  isLoggedInChecker,
-  fileController.removeManyFilesByFileInfo
-);
-
-fileRouter.patch(
-  "/update-favourite-file-by-file-id/:file_id",
-  userTokenChecker,
-  isLoggedInChecker,
-  fileController.favouriteFileById
-);
-
-fileRouter.patch(
-  "/update-trash-file-by-file-id/:file_id",
-  userTokenChecker,
-  isLoggedInChecker,
-  fileController.trashFileById
-);
-
-fileRouter.get("/download-file-by-id/:file_id", userTokenChecker, fileController.getFile);
-
-// new
-fileRouter.patch("/update-many-trash-file", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
-fileRouter.get("/preview-file/:file_id", userTokenChecker, fileController.previewFileById);
-
-// for all
-fileRouter.post("/file-upload", fileController.postFile);
-fileRouter.get("/file-info-by-link/:download_link", fileController.getFileInfoByLink);
-fileRouter.get("/download-link-info-by-link/:download_link", fileController.getDownloadLinkInfoByDownloadLink);
-fileRouter.patch("/increase-download-count-by-link-id/:link_id", fileController.updateDownloadLinkCount);
-fileRouter.post("/validate-download-password-by-link-id/:link_id", fileController.validateDownloadLinkPassword);
+// Public routes
+fileRouter.post("/upload", fileController.postFile);
+fileRouter.get("/download-links/:download_link/file-info", fileController.getFileInfoByLink);
+fileRouter.get("/download-links/:download_link/details", fileController.getDownloadLinkInfoByDownloadLink);
+fileRouter.patch("/download-links/:link_id/increase-download-count", fileController.updateDownloadLinkCount);
+fileRouter.post("/download-links/:link_id/validate-password", fileController.validateDownloadLinkPassword);
 
 module.exports = fileRouter;
