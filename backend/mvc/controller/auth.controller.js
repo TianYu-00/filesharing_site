@@ -161,7 +161,12 @@ exports.sendPasswordResetLink = [
   emailSendingRequestRateLimiter,
   async (req, res, next) => {
     try {
-      const { email, isTest = false } = req.body;
+      const { email, isTest } = req.body;
+      if (!email) {
+        const error = new Error("Missing credentials");
+        error.code = "MISSING_CREDENTIALS";
+        return next(error);
+      }
       const user = await getUserByEmail(email);
 
       const forgotPasswordToken = await createForgotPasswordToken(email);
@@ -188,7 +193,12 @@ exports.sendPasswordResetLink = [
       `;
 
       emailSendingSuccessfulRateLimiter(req, res, async () => {
-        const response = await sendEmail(email, "DropBoxer Password Reset", textContent, isTest);
+        const response = await sendEmail({
+          emailTo: email,
+          emailSubject: "DropBoxer Password Reset",
+          emailText: textContent,
+          isTest: isTest,
+        });
 
         if (response.success) {
           res.status(200).json({ success: true, msg: response.message, data: null });

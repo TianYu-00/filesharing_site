@@ -10,7 +10,14 @@ require("dotenv").config({
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTest = false, isAllowReplyTo = false) => {
+const sendEmail = async ({
+  emailTo,
+  emailSubject,
+  emailText,
+  emailHtml = "",
+  isTest = false,
+  isAllowReplyTo = false,
+}) => {
   try {
     const msg = {
       to: emailTo,
