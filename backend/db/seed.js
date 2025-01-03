@@ -2,6 +2,7 @@ const db = require("./connection");
 const format = require("pg-format");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 async function createTables({ users }) {
   try {
@@ -19,7 +20,7 @@ async function createTables({ users }) {
 
     await insertUsers(users);
 
-    console.log("Tables successfully seeded.");
+    // console.log("Tables successfully seeded.");
   } catch (err) {
     console.error("Error creating tables:", err);
   }
@@ -99,17 +100,21 @@ async function cleanUploadsFolder() {
         await fs.promises.unlink(fullPath);
       }
     }
-    console.log("Uploads directory cleared.");
+    // console.log("Uploads directory cleared.");
   } catch (err) {
     console.error(`Error clearing uploads directory: ${err}`);
   }
 }
 
 async function insertUsers(users) {
-  const query = format(
-    `INSERT INTO users (username, email, password) VALUES %L`,
-    users.map((user) => [user.username, user.email, user.password])
+  const usersWithHashedPasswords = await Promise.all(
+    users.map(async (user) => {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      return [user.username, user.email, hashedPassword];
+    })
   );
+
+  const query = format(`INSERT INTO users (username, email, password) VALUES %L`, usersWithHashedPasswords);
 
   await db.query(query);
 }
