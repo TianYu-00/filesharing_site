@@ -271,7 +271,7 @@ describe("POST api/auth/logout", () => {
 describe("POST api/auth/forgot-password", () => {
   test("should return a 400 status code, indicating the email is missing", async () => {
     try {
-      const tempBody = { email: "", isTest: true };
+      const tempBody = { email: "" };
       await request(app).post("/api/auth/forgot-password").send(tempBody).expect(400);
     } catch (error) {
       throw error;
@@ -280,7 +280,7 @@ describe("POST api/auth/forgot-password", () => {
 
   test("should return a 404 status code, indicating the email is not registered", async () => {
     try {
-      const tempBody = { email: "fakeemail@example.com", isTest: true };
+      const tempBody = { email: "fakeemail@example.com" };
       await request(app).post("/api/auth/forgot-password").send(tempBody).expect(404);
     } catch (error) {
       throw error;
@@ -289,7 +289,7 @@ describe("POST api/auth/forgot-password", () => {
 
   test("should return a 200 status code, indicating the email is sent", async () => {
     try {
-      const tempBody = { email: data.users[0].email, isTest: true };
+      const tempBody = { email: data.users[0].email };
       await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
     } catch (error) {
       throw error;

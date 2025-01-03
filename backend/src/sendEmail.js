@@ -26,7 +26,7 @@ const sendEmail = async ({
       text: emailText,
       mail_settings: {
         sandbox_mode: {
-          enable: isTest,
+          enable: process.env.NODE_ENV === "test" || isTest,
         },
       },
     };
@@ -47,7 +47,7 @@ const sendEmail = async ({
       data: null,
     };
 
-    if (isTest) {
+    if (isTest || process.env.NODE_ENV === "test") {
       if (response.statusCode === 200) {
         console.log("Sandbox Mode: Email successfully processed, but not sent.");
         result = { success: true, message: "Email has been successfully processed in sandbox mode.", data: null };
