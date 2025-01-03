@@ -49,7 +49,11 @@ function Header({ toggleTheme, theme }) {
                 <ThemeSwitcher isToggled={theme === "light"} toggleSwitch={toggleTheme} />
               </div>
               <div className="">
-                <button onClick={handle_MenuClick} className="mx-2 p-2 hover:bg-background-opp/10 rounded">
+                <button
+                  onClick={handle_MenuClick}
+                  className="mx-2 p-2 hover:bg-background-opp/10 rounded"
+                  aria-label="User Menu"
+                >
                   <TbUser size={25} className={`${theme === "dark" ? "text-white" : "text-black"}`} />
                 </button>
                 <DropdownMenu isOpen={isMenuClicked} setIsOpen={setIsMenuClicked}>
