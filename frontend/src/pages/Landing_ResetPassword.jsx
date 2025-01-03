@@ -111,8 +111,10 @@ function Landing_ResetPassword() {
       <div className="bg-card rounded-lg shadow-md p-6 w-full max-w-md">
         <form className="space-y-4" onSubmit={handle_PasswordReset}>
           <div className="flex flex-col">
-            <p className="text-center text-2xl font-bold mb-2 text-copy-primary">Reset Password</p>
-            <p className="text-center text-copy-secondary mb-6">Enter your new password to reset for {email}.</p>
+            <h2 className="text-center text-2xl font-bold mb-2 text-copy-primary">Password Reset</h2>
+            <p className="text-center text-copy-secondary mb-6">
+              Enter your new password to reset for <span className="text-copy-primary">{email}</span>.
+            </p>
           </div>
 
           <div className="pb-4">
@@ -127,24 +129,30 @@ function Landing_ResetPassword() {
           </div>
 
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-copy-primary/80">Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80" htmlFor="password">
+              New Password
+            </label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
               autoComplete="new-password"
               onChange={(e) => setPassword(e.target.value)}
               required
+              id="password"
             />
           </div>
 
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-copy-primary/80">Confirm Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80" htmlFor="confirm-password">
+              Confirm Password
+            </label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="password"
               autoComplete="new-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              id="confirm-password"
             />
           </div>
 
