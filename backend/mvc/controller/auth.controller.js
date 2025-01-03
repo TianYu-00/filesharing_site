@@ -133,7 +133,7 @@ const emailSendingSuccessfulRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 1,
   message: "Email has already been sent, Please wait and try again after a minute.",
-  handler: (req, res) => {
+  handler: (req, res, next) => {
     if (process.env.NODE_ENV === "test") {
       return next();
     }
@@ -150,7 +150,7 @@ const emailSendingRequestRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
   message: "Too many password reset requests. Please wait and try again after a minute.",
-  handler: (req, res) => {
+  handler: (req, res, next) => {
     if (process.env.NODE_ENV === "test") {
       return next();
     }
@@ -231,7 +231,9 @@ exports.resetPassword = async (req, res, next) => {
     const forgotPasswordToken = req.forgotPasswordToken;
 
     if (!email || !password) {
-      return res.status(400).json({ success: false, msg: "Email or Password is missing." });
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
     }
 
     const data = await patchUserPasswordByEmail(email, password);
