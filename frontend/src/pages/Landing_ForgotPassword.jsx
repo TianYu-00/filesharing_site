@@ -70,7 +70,9 @@ function Landing_ForgotPassword() {
         </p>
         <form className="space-y-4" onSubmit={handle_ForgetPassword}>
           <div className="flex flex-col items-start">
-            <label className="block text-sm font-medium text-copy-primary/80">Email</label>
+            <label className="block text-sm font-medium text-copy-primary/80" htmlFor="email">
+              Email
+            </label>
             <input
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black p-2 border"
               type="email"
@@ -78,6 +80,7 @@ function Landing_ForgotPassword() {
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
               required
+              id="email"
             />
           </div>
 
