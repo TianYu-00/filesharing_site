@@ -30,7 +30,7 @@ function MyFiles_DeleteConfirmationModal({
           Cancel
         </button>
         <button
-          className="bg-red-500 font-bold p-2 rounded text-white hover:bg-red-700 transition duration-500 ease-in-out"
+          className="bg-red-800 font-bold p-2 rounded text-white hover:bg-red-700 transition duration-500 ease-in-out"
           onClick={() => {
             handle_FileDelete(currentSelectedFile.id);
           }}
