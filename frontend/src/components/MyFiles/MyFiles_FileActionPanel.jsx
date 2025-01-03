@@ -140,13 +140,14 @@ function MyFiles_FileActionPanel({
         <button
           className="bg-background text-copy-primary hover:bg-background-opp/10 rounded-md mr-4"
           onClick={() => setIsSideBarOpen(!isSideBarOpen)}
+          aria-label="Menu"
         >
           <TbMenu2 className="mx-2" size={25} />
         </button>
 
         {listOfSelectedFile.length > 0 && (
           <button
-            className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
+            className={`p-1 px-4 rounded-md text-white mr-4 bg-cta border-blue-800 hover:bg-cta-active`}
             onClick={() => setListOfSelectedFile([])}
             disabled={listOfSelectedFile.length === 0}
           >
@@ -156,7 +157,7 @@ function MyFiles_FileActionPanel({
 
         {listOfSelectedFile.length > 0 && pageState !== "trash" && (
           <button
-            className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
+            className={`p-1 px-4 rounded-md text-white mr-4 bg-red-800 border-red-800 hover:bg-red-700`}
             onClick={() => handle_TrashManyFiles(true)}
             disabled={listOfSelectedFile.length === 0}
           >
@@ -166,7 +167,7 @@ function MyFiles_FileActionPanel({
 
         {listOfSelectedFile.length > 0 && pageState === "trash" && (
           <button
-            className={`p-1 px-4 rounded-md text-white mr-4 bg-blue-500 border-blue-800 hover:bg-blue-700`}
+            className={`p-1 px-4 rounded-md text-white mr-4 bg-cta border-blue-800 hover:bg-cta-active`}
             onClick={() => handle_RestoreManyFiles(false)}
             disabled={listOfSelectedFile.length === 0}
           >
@@ -176,7 +177,7 @@ function MyFiles_FileActionPanel({
 
         {pageState === "trash" && listOfSelectedFile.length > 0 && (
           <button
-            className={`p-1 px-4 rounded-md text-white mr-4 bg-red-500 border-red-800 hover:bg-red-700`}
+            className={`p-1 px-4 rounded-md text-white mr-4 bg-red-800 border-red-800 hover:bg-red-700`}
             onClick={handle_DeleteManyFiles}
             disabled={listOfSelectedFile.length === 0}
           >
@@ -195,6 +196,7 @@ function MyFiles_FileActionPanel({
             onKeyDown={(e) => {
               if (e.key === "Enter") setSubmitSearchTerm(inputSearchTerm);
             }}
+            aria-label="Search File"
           />
         </div>
       </div>

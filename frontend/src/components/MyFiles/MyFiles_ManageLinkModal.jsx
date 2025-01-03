@@ -130,6 +130,7 @@ function MyFiles_ManageLinkModal({
                       <button
                         className="text-gray-500 hover:text-red-500 text-2xl mr-2"
                         onClick={() => handle_DeleteDownloadLinkById(currentLink.id)}
+                        aria-label="Delete link"
                       >
                         <TbX size={17} strokeWidth={3} />
                       </button>
@@ -153,35 +154,44 @@ function MyFiles_ManageLinkModal({
         <form className="flex flex-col space-y-4 p-1">
           {/* Expires At */}
           <div>
-            <label className="block text-sm font-medium text-copy-primary/80 ml-1">Expires At</label>
+            <label className="block text-sm font-medium text-copy-primary/80 ml-1" htmlFor="expires-at">
+              Expires At
+            </label>
             <input
               type="datetime-local"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
               value={createLinkExpiresAt}
               onChange={(e) => setCreateLinkExpiresAt(e.target.value)}
+              id="expires-at"
             />
           </div>
 
           {/* Download Limit  */}
           <div>
-            <label className="block text-sm font-medium text-copy-primary/80 ml-1">Download Limit</label>
+            <label className="block text-sm font-medium text-copy-primary/80 ml-1" htmlFor="download-limit">
+              Download Limit
+            </label>
             <input
               type="number"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
               value={createLinkDownloadLimit}
               onChange={(e) => setCreateLinkDownloadLimit(e.target.value)}
+              id="download-limit"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-copy-primary/80 ml-1">Link Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80 ml-1" htmlFor="link-password">
+              Download Link Password
+            </label>
             <input
               type="password"
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
               autoComplete="new-password"
               value={createLinkPassword}
               onChange={(e) => setCreateLinkPassword(e.target.value)}
+              id="link-password"
             />
           </div>
 

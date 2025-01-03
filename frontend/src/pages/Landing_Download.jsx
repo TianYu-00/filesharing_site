@@ -234,6 +234,7 @@ function Landing_Download() {
               onClick={copyLinkToClipboard}
               data-tooltip-id="id_link_button"
               data-tooltip-content={linkTooltipContent}
+              aria-label="Copy file download link to clipboard"
             >
               <TbLink className="p-1" size={30} />
             </button>
@@ -256,6 +257,7 @@ function Landing_Download() {
               }}
               data-tooltip-id="id_preview_button"
               data-tooltip-content={previewTooltipContent}
+              aria-label="Preview file"
             >
               <TbEye className="p-1" size={30} />
             </button>

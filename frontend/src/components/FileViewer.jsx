@@ -51,7 +51,7 @@ const FilePreview = ({ previewInfo, onClose }) => {
       <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
         <div className="relative w-full h-full p-6 flex flex-col">
           <div className="flex justify-end">
-            <button onClick={onClose} className="text-gray-400 hover:text-red-500">
+            <button onClick={onClose} className="text-gray-400 hover:text-red-500" aria-label="Close">
               <TbX size={24} />
             </button>
           </div>
@@ -69,7 +69,7 @@ const FilePreview = ({ previewInfo, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
       <div className="relative w-full h-full p-6 flex flex-col">
         <div className="flex justify-end">
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500">
+          <button onClick={onClose} className="text-gray-400 hover:text-red-500" aria-label="Close">
             <TbX size={24} />
           </button>
         </div>

@@ -97,7 +97,9 @@ function Landing_Auth() {
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-copy-primary/80">Username</label>
+              <label className="block text-sm font-medium text-copy-primary/80" htmlFor="username">
+                Username
+              </label>
               <input
                 type="text"
                 placeholder="Username"
@@ -105,11 +107,14 @@ function Landing_Auth() {
                 onChange={(e) => setUsername(e.target.value)}
                 required={!isLogin}
                 autoComplete="username"
+                id="username"
               />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-copy-primary/80">Email</label>
+            <label className="block text-sm font-medium text-copy-primary/80" htmlFor="email">
+              Email
+            </label>
             <input
               type="email"
               placeholder="Email"
@@ -117,11 +122,14 @@ function Landing_Auth() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              id="email"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-copy-primary/80">Password</label>
+            <label className="block text-sm font-medium text-copy-primary/80" htmlFor="password">
+              Password
+            </label>
             <input
               type="password"
               placeholder="Password"
@@ -129,12 +137,15 @@ function Landing_Auth() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
+              id="password"
             />
           </div>
 
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-copy-primary/80">Confirm Password</label>
+              <label className="block text-sm font-medium text-copy-primary/80" htmlFor="confirm-password">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 placeholder="Password"
@@ -142,6 +153,7 @@ function Landing_Auth() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required={!isLogin}
                 autoComplete="new-password"
+                id="confirm-password"
               />
             </div>
           )}

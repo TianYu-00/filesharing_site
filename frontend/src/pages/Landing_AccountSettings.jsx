@@ -103,7 +103,7 @@ function Landing_AccountSettings() {
           <form onSubmit={handleSubmit}>
             <div className="p-4 bg-card rounded-lg">
               {/* User Information */}
-              <p className="flex font-bold text-2xl text-copy-primary">User Information</p>
+              <h2 className="flex font-bold text-2xl text-copy-primary">User Information</h2>
               <p className="flex text-sm text-copy-secondary mb-10">View and update your account details.</p>
               <table className="w-full table-auto">
                 <tbody>
@@ -116,6 +116,7 @@ function Landing_AccountSettings() {
                           disabled
                           value={user?.id || ""}
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
+                          aria-label="User ID"
                         />
                         <TbId className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
@@ -133,6 +134,7 @@ function Landing_AccountSettings() {
                           placeholder="username"
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="off"
+                          aria-label="Username"
                         />
                         <TbUser className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
@@ -150,6 +152,7 @@ function Landing_AccountSettings() {
                           placeholder="email"
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-email"
+                          aria-label="Email"
                         />
                         <TbMail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
@@ -165,6 +168,7 @@ function Landing_AccountSettings() {
                           disabled
                           value={dateFormatter(user?.created_at) || ""}
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
+                          aria-label="Created At"
                         />
                         <TbCalendar className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
@@ -176,7 +180,7 @@ function Landing_AccountSettings() {
 
             {/* Password Management */}
             <div className="p-4 bg-card rounded-lg mt-4">
-              <p className="flex font-bold text-2xl text-copy-primary">Password Management</p>
+              <h2 className="flex font-bold text-2xl text-copy-primary">Password Management</h2>
               <p className="flex text-sm text-copy-secondary mb-10">
                 Update your password here. Password must meet the requirements.
               </p>
@@ -204,6 +208,7 @@ function Landing_AccountSettings() {
                           placeholder="current password"
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
+                          aria-label="Current Password"
                         />
                         <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
@@ -221,6 +226,7 @@ function Landing_AccountSettings() {
                           placeholder="new password"
                           className="pl-8 pr-4 py-2 border rounded-md w-full bg-card border-border"
                           autoComplete="new-password"
+                          aria-label="New Password"
                         />
                         <TbLock className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
                       </div>
