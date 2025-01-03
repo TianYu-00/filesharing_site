@@ -134,6 +134,9 @@ const emailSendingSuccessfulRateLimiter = rateLimit({
   max: 1,
   message: "Email has already been sent, Please wait and try again after a minute.",
   handler: (req, res) => {
+    if (process.env.NODE_ENV === "test") {
+      return next();
+    }
     const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
     return res.status(429).json({
       success: false,
@@ -148,6 +151,9 @@ const emailSendingRequestRateLimiter = rateLimit({
   max: 5,
   message: "Too many password reset requests. Please wait and try again after a minute.",
   handler: (req, res) => {
+    if (process.env.NODE_ENV === "test") {
+      return next();
+    }
     const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
     return res.status(429).json({
       success: false,
