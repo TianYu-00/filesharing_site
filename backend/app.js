@@ -139,6 +139,15 @@ app.use((err, req, res, next) => {
       code: err.code,
     });
   }
+  // MISSING_CREDENTIALS
+  else if (err.code === "MISSING_CREDENTIALS") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "Missing credentials",
+      data: null,
+      code: err.code,
+    });
+  }
 
   // Final
   else {

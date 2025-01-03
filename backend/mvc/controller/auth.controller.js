@@ -33,6 +33,11 @@ exports.testUserTokens = async (req, res, next) => {
 exports.attemptRegister = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
+    }
     const data = await createUser({ username, email, password });
 
     req.user = data;
