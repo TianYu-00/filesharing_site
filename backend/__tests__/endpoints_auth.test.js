@@ -91,16 +91,6 @@ describe("GET api/auth/register", () => {
 });
 
 describe("POST api/auth/login", () => {
-  const tempUserCredentials = {
-    username: "test user",
-    email: "testemail@example.com",
-    password: "password",
-  };
-
-  beforeEach(async () => {
-    await request(app).post("/api/auth/register").send(tempUserCredentials).expect(200);
-  });
-
   test("should return a 400 status code, indicating the user credentials is missing (email)", async () => {
     try {
       const tempUserLoginCredentials = {
@@ -125,10 +115,8 @@ describe("POST api/auth/login", () => {
 
   test("should return a 401 status code, indicating the user credentials is incorrect", async () => {
     try {
-      const tempUserLoginCredentials = {
-        email: "testemail@example.com",
-        password: "wrong_password",
-      };
+      const tempUserLoginCredentials = data.users[0];
+      tempUserLoginCredentials.password = "wrong_password";
       await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(401);
     } catch (error) {
       throw error;
@@ -137,10 +125,7 @@ describe("POST api/auth/login", () => {
 
   test("should return a 200 status code, indicating user login is successful", async () => {
     try {
-      const tempUserLoginCredentials = {
-        email: "testemail@example.com",
-        password: "password",
-      };
+      const tempUserLoginCredentials = data.users[0];
       await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     } catch (error) {
       throw error;
@@ -149,15 +134,9 @@ describe("POST api/auth/login", () => {
 
   test("should return the correct user details", async () => {
     try {
-      const tempUserLoginCredentials = {
-        email: "testemail@example.com",
-        password: "password",
-      };
+      const tempUserLoginCredentials = data.users[0];
       const { body } = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
-      const expected = {
-        username: "test user",
-        email: "testemail@example.com",
-      };
+      const { password, ...expected } = data.users[0];
       expect(body.data).toEqual(expect.objectContaining(expected));
     } catch (error) {
       throw error;
