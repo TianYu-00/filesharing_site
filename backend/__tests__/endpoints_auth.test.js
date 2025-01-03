@@ -295,6 +295,18 @@ describe("POST api/auth/forgot-password", () => {
       throw error;
     }
   });
+
+  test("should return a 200 status code, indicating the token is valid and is correct type", async () => {
+    try {
+      const tempBody = { email: data.users[0].email };
+      const sendEmailResponse = await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
+      const token = sendEmailResponse.body.data.text;
+      const decodedToken = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
+      expect(decodedToken).toHaveProperty("tokenType", "forgot_password");
+    } catch (error) {
+      throw error;
+    }
+  });
 });
 
 /////////////////////////////////////////////////////////////////////////// FORGOT PASSWORD VERIFY
@@ -317,14 +329,41 @@ describe("POST api/auth/forgot-password/verify", () => {
       throw error;
     }
   });
+});
 
-  test("should return a 200 status code, indicating the token is valid and is correct type", async () => {
+/////////////////////////////////////////////////////////////////////////// RESET PASSWORD
+describe("PATCH api/auth/reset-password", () => {
+  test("should return a 400 status code, indicating the token is missing", async () => {
+    try {
+      await request(app).patch("/api/auth/reset-password").expect(400);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  test("should return a 400 status code, indicating the password is missing", async () => {
     try {
       const tempBody = { email: data.users[0].email };
       const sendEmailResponse = await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
       const token = sendEmailResponse.body.data.text;
-      const decodedToken = jwt.verify(token, process.env.JWT_USER_PASSWORD_RESET_SECRET);
-      expect(decodedToken).toHaveProperty("tokenType", "forgot_password");
+      await request(app)
+        .patch("/api/auth/reset-password")
+        .send({ forgotPasswordToken: token, password: "" })
+        .expect(400);
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  test("should return a 200 status code, indicating the password has been changed successfully", async () => {
+    try {
+      const tempBody = { email: data.users[0].email };
+      const sendEmailResponse = await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
+      const token = sendEmailResponse.body.data.text;
+      await request(app)
+        .patch("/api/auth/reset-password")
+        .send({ forgotPasswordToken: token, password: "12345678" })
+        .expect(200);
     } catch (error) {
       throw error;
     }
