@@ -391,3 +391,10 @@ describe("GET api/auth/verify-user-token", () => {
     }
   });
 });
+
+/////////////////////////////////////////////////////////////////////////// BLACKLIST TOKENS
+describe("GET api/auth/blacklist-tokens", () => {
+  test("should return a 200 status code, indicating the list of blacklisted tokens has been fetched", () => {
+    return request(app).get("/api/auth/blacklist-tokens").expect(200);
+  });
+});
