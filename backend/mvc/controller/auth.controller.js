@@ -179,7 +179,12 @@ exports.sendPasswordResetLink = [
 
       const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${forgotPasswordToken}`;
 
-      const textContent = `
+      let textContent;
+
+      if (process.env.NODE_ENV === "test" || isTest) {
+        textContent = `${forgotPasswordToken}`;
+      } else {
+        textContent = `
         Hello,
 
         We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
@@ -197,6 +202,7 @@ exports.sendPasswordResetLink = [
         Thanks,
         The DropBoxer Team
       `;
+      }
 
       emailSendingSuccessfulRateLimiter(req, res, async () => {
         const response = await sendEmail({
@@ -207,7 +213,7 @@ exports.sendPasswordResetLink = [
         });
 
         if (response.success) {
-          res.status(200).json({ success: true, msg: response.message, data: null });
+          res.status(200).json({ success: true, msg: response.message, data: response.data });
         } else {
           res.status(500).json({ success: false, msg: response.message, data: null });
         }

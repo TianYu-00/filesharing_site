@@ -5,7 +5,7 @@ const forgotPasswordTokenChecker = async (req, res, next) => {
   const { forgotPasswordToken } = req.body;
 
   if (!forgotPasswordToken) {
-    return res.status(401).json({ success: false, msg: "Tokens are missing" });
+    return res.status(400).json({ success: false, msg: "Token is missing" });
   }
 
   try {
@@ -22,5 +22,3 @@ const forgotPasswordTokenChecker = async (req, res, next) => {
 };
 
 module.exports = forgotPasswordTokenChecker;
-
-// compareBlackListedToken

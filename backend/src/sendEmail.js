@@ -49,18 +49,22 @@ const sendEmail = async ({
 
     if (isTest || process.env.NODE_ENV === "test") {
       if (response.statusCode === 200) {
-        console.log("Sandbox Mode: Email successfully processed, but not sent.");
-        result = { success: true, message: "Email has been successfully processed in sandbox mode.", data: null };
+        // console.log("Sandbox Mode: Email successfully processed, but not sent.");
+        result = {
+          success: true,
+          message: "Email has been successfully processed in sandbox mode.",
+          data: msg,
+        };
       } else {
-        console.log("Unexpected response in sandbox mode:", response.statusCode);
+        // console.log("Unexpected response in sandbox mode:", response.statusCode);
         result = { success: false, message: "Failed to process email in sandbox mode.", data: null };
       }
     } else {
       if (response.statusCode === 202) {
-        console.log("Email request is accepted.", emailTo);
+        // console.log("Email request is accepted.", emailTo);
         result = { success: true, message: "Email has been sent.", data: null };
       } else {
-        console.log("Unexpected response status:", response.statusCode);
+        // console.log("Unexpected response status:", response.statusCode);
         result = { success: false, message: "Failed to send email.", data: null };
       }
     }
@@ -72,5 +76,3 @@ const sendEmail = async ({
 };
 
 module.exports = sendEmail;
-
-// sendEmail("test@example.com", "Test Email Subject", "Test Email Text", `<strong>Test Email HTML</strong>`, true);
