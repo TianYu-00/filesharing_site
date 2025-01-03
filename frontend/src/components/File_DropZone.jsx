@@ -77,7 +77,14 @@ function FileDropZone({ onFileSelect }) {
           </>
         )}
       </div>
-      <input id="file-input" type="file" multiple onChange={handleFileInputChange} className="hidden" />
+      <input
+        id="file-input"
+        type="file"
+        multiple
+        onChange={handleFileInputChange}
+        className="hidden"
+        aria-label="Select file to upload"
+      />
     </div>
   );
 }
