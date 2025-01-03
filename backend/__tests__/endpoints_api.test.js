@@ -9,7 +9,6 @@ describe("GET api/", () => {
       const { body } = await request(app).get("/invalid-route").expect(404);
       expect(body.msg).toBe("ROUTE NOT FOUND");
     } catch (error) {
-      console.error(error);
       throw error;
     }
   });
@@ -18,7 +17,6 @@ describe("GET api/", () => {
     try {
       await request(app).get("/api").expect(200);
     } catch (error) {
-      console.error(error);
       throw error;
     }
   });
@@ -29,18 +27,16 @@ describe("GET api/test", () => {
     try {
       await request(app).get("/api/test").expect(200);
     } catch (error) {
-      console.error(error);
       throw error;
     }
   });
 
-  test('should return the correct body value"', async () => {
+  test("should return the correct body value", async () => {
     try {
       const expected = { success: true, msg: "Hello World!", data: null };
       const { body } = await request(app).get("/api/test").expect(200);
       expect(body).toEqual(expected);
     } catch (error) {
-      console.error(error);
       throw error;
     }
   });
