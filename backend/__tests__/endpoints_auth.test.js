@@ -56,4 +56,18 @@ describe("GET api/auth/register", () => {
       throw error;
     }
   });
+
+  test("should return a 409 status code, indicating the user already exists", async () => {
+    try {
+      const tempUserCredentials = {
+        username: "test user",
+        email: "testemail@example.com",
+        password: "password",
+      };
+      await request(app).post("/api/auth/register").send(tempUserCredentials).expect(200);
+      await request(app).post("/api/auth/register").send(tempUserCredentials).expect(409);
+    } catch (error) {
+      throw error;
+    }
+  });
 });
