@@ -55,7 +55,12 @@ exports.attemptRegister = async (req, res, next) => {
 
 exports.attemptLogin = async (req, res, next) => {
   try {
-    const { email, password, isRememberMe } = req.body;
+    const { email, password, isRememberMe = false } = req.body;
+    if (!email || !password) {
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
+    }
 
     const data = await authenticateUser({ email, password });
 
