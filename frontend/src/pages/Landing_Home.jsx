@@ -199,6 +199,7 @@ function Home() {
                     <button
                       className="p-2 rounded-md hover:bg-background-opp/10 text-copy-primary"
                       onClick={() => handle_MenuClick(file.id)}
+                      aria-label="File dropdown menu"
                     >
                       <TbDotsVertical size={17} strokeWidth={3} />
                     </button>
