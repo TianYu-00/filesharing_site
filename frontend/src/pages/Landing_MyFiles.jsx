@@ -518,12 +518,13 @@ function Landing_MyFiles() {
             <table className={`table-auto w-full text-left w-full h-fit `}>
               <thead className="border-b-2 border-border bg-card text-copy-primary/80">
                 <tr>
-                  <th className="px-2 py-4 w-8">
+                  <th className="px-2 py-4 w-8" aria-label="Select all files table header">
                     <input
                       type="checkbox"
                       className=""
                       onChange={(e) => handle_FileSelectAll(e.target.checked)}
                       checked={listOfSelectedFile.length === sortedFiles.length && sortedFiles.length > 0}
+                      aria-label="Select all files"
                     />
                   </th>
                   <th className="px-2 py-4 cursor-pointer w-4/6" onClick={() => handle_FileSorting("name")}>
@@ -559,7 +560,7 @@ function Landing_MyFiles() {
                         ))}
                     </div>
                   </th>
-                  <th className="px-2 py-4" />
+                  <th className="px-2 py-4" aria-label="file actions header" />
                 </tr>
               </thead>
 
@@ -578,6 +579,7 @@ function Landing_MyFiles() {
                             checked={listOfSelectedFile.some((selectedFile) => selectedFile.id === file.id)}
                             onChange={(e) => handle_FileSelectedCheckboxChange(file, e.target.checked)}
                             onClick={(e) => e.stopPropagation()}
+                            aria-label="Select file"
                           />
                         </td>
                         <td className="px-2 whitespace-nowrap overflow-hidden truncate max-w-20">
@@ -595,6 +597,7 @@ function Landing_MyFiles() {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, false);
                                   }}
+                                  aria-label="Remove from favourites"
                                 >
                                   <TbStarFilled />
                                 </button>
@@ -605,6 +608,7 @@ function Landing_MyFiles() {
                                     e.stopPropagation();
                                     handle_favouriteState(file.id, true);
                                   }}
+                                  aria-label="Add to favourites"
                                 >
                                   <TbStar />
                                 </button>
@@ -616,6 +620,7 @@ function Landing_MyFiles() {
                                 e.stopPropagation();
                                 handle_FileMenuClick(file.id, e.target);
                               }}
+                              aria-label="File options dropdown menu"
                             >
                               <TbDotsVertical size={17} className="" />
                             </button>

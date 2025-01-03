@@ -21,12 +21,15 @@ function MyFiles_RenameModal({
     >
       <div className="flex flex-col">
         <div className="flex flex-col mb-4">
-          <label className="block text-sm font-medium text-copy-primary/80 ml-1">New Name</label>
+          <label className="block text-sm font-medium text-copy-primary/80 ml-1" htmlFor="new-name">
+            New Name
+          </label>
           <input
             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:outline-none focus:border-border"
             onChange={(e) => setFileRenameString(e.target.value)}
             value={fileRenameString}
             placeholder="Enter new name here"
+            id="new-name"
           />
         </div>
 

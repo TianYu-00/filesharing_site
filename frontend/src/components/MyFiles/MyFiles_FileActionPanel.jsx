@@ -140,6 +140,7 @@ function MyFiles_FileActionPanel({
         <button
           className="bg-background text-copy-primary hover:bg-background-opp/10 rounded-md mr-4"
           onClick={() => setIsSideBarOpen(!isSideBarOpen)}
+          aria-label="Menu"
         >
           <TbMenu2 className="mx-2" size={25} />
         </button>
@@ -195,6 +196,7 @@ function MyFiles_FileActionPanel({
             onKeyDown={(e) => {
               if (e.key === "Enter") setSubmitSearchTerm(inputSearchTerm);
             }}
+            aria-label="Search File"
           />
         </div>
       </div>

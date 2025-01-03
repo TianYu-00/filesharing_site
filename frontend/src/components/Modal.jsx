@@ -12,7 +12,7 @@ const Modal = ({ isOpen, onClose, children, modalTitle }) => {
           <h2 className="text-lg font-bold text-copy-primary whitespace-nowrap overflow-hidden truncate ">
             {modalTitle}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-red-500 text-2xl">
+          <button onClick={onClose} className="text-gray-500 hover:text-red-500 text-2xl" aria-label="Close">
             <TbX size={17} strokeWidth={3} />
           </button>
         </div>
