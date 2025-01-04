@@ -46,6 +46,7 @@ jobs:
       - name: Ensure uploads directory exists
         run: |
           mkdir -p backend/uploads
+          mkdir -p backend/uploads_test
           echo "Uploads directory created."
 
       - name: Install dependencies and run tests
