@@ -10,23 +10,12 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-    env:
-      PGUSER: ${{ secrets.PGUSER }}
-      PGPASSWORD: ${{ secrets.PGPASSWORD }}
-      PGDATABASE: ${{ secrets.PGDATABASE }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-      JWT_USER_PASSWORD_RESET_SECRET: ${{ secrets.JWT_USER_PASSWORD_RESET_SECRET }}
-      JWT_USER_ACCESS_TOKEN_SECRET: ${{ secrets.JWT_USER_ACCESS_TOKEN_SECRET }}
-      JWT_USER_REFRESH_TOKEN_SECRET: ${{ secrets.JWT_USER_REFRESH_TOKEN_SECRET }}
-      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-      SECRET_SENDER_EMAIL: ${{ secrets.SECRET_SENDER_EMAIL }}
-      SECRET_SENDER_REPLY_TO: ${{ secrets.SECRET_SENDER_REPLY_TO }}
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node.js v21
+        uses: actions/setup-node@v3
         with:
           node-version: "21"
 
@@ -54,7 +43,7 @@ jobs:
             sleep 2
           done
 
-      - name: Create uploads directory
+      - name: Ensure uploads directory exists
         run: |
           mkdir -p backend/uploads
           echo "Uploads directory created."
