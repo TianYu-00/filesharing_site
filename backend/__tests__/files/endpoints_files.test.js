@@ -87,7 +87,7 @@ describe("POST /api/files/upload", () => {
     expect(body.msg).toBe("File has been uploaded");
   });
 
-  test("should return 200 status code and contain file details with user id of null", async () => {
+  test("should return 200 status code and contain file details with user id of null (guest upload)", async () => {
     const { body } = await request(app).post("/api/files/upload").attach("file", testFilePath).expect(200);
     expect(body.data).toHaveProperty("file");
     expect(body.data.file).toMatchObject({
@@ -100,7 +100,7 @@ describe("POST /api/files/upload", () => {
     expect(body.data).toHaveProperty("downloadLink");
   });
 
-  test("should return 200 status code and contain file details with user id of x", async () => {
+  test("should return 200 status code and contain file details with user id of x (user upload)", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
