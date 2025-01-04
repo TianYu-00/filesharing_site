@@ -1,9 +1,14 @@
-const { app, request, db, seed, data } = require("../../testIndex");
-afterAll(() => {
+const { app, request, db, seed, data, cleanupFolder } = require("../../testIndex");
+const { testBaseUploadDir, createRelativePath, createFileNameWithSuffix } = require("../../src/pathHandler");
+const path = require("path");
+const testFilePath = path.join(__dirname, "..", "..", "db", "test_data", "test_files", "test123.txt");
+afterAll(async () => {
+  await cleanupFolder.cleanUploadsTestFolder();
   return db.end();
 });
 
 beforeEach(async () => {
+  await cleanupFolder.cleanUploadsTestFolder();
   await seed(data);
 });
 
@@ -65,5 +70,49 @@ describe("GET /api/files/:file_id/info", () => {
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     await request(app).get("/api/files/invalid-id/info").set("Cookie", cookies).expect(400);
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////// FILE UPLOAD
+describe("POST /api/files/upload", () => {
+  test("should return 400 status code, indicating file is missing", async () => {
+    const { body } = await request(app).post("/api/files/upload").expect(400);
+    expect(body.success).toBe(false);
+    expect(body.msg).toBe("File was not provided");
+  });
+
+  test("should return 200 status code, indicating file has been uploaded", async () => {
+    const { body } = await request(app).post("/api/files/upload").attach("file", testFilePath).expect(200);
+    expect(body.success).toBe(true);
+    expect(body.msg).toBe("File has been uploaded");
+  });
+
+  test("should return 200 status code and contain file details with user id of null", async () => {
+    const { body } = await request(app).post("/api/files/upload").attach("file", testFilePath).expect(200);
+    expect(body.data).toHaveProperty("file");
+    expect(body.data.file).toMatchObject({
+      user_id: null,
+    });
+  });
+
+  test("should return 200 status code and contain download link details", async () => {
+    const { body } = await request(app).post("/api/files/upload").attach("file", testFilePath).expect(200);
+    expect(body.data).toHaveProperty("downloadLink");
+  });
+
+  test("should return 200 status code and contain file details with user id of x", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const { body } = await request(app)
+      .post("/api/files/upload")
+      .set("Cookie", cookies)
+      .attach("file", testFilePath)
+      .expect(200);
+    expect(body.data).toHaveProperty("file");
+    expect(body.data.file).toMatchObject({
+      user_id: loginResponse.body.data.id,
+    });
   });
 });

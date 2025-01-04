@@ -2,7 +2,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-const { baseUploadDir, createFileNameWithSuffix } = require("../src/pathHandler");
+const { baseUploadDir, testBaseUploadDir, createFileNameWithSuffix } = require("../src/pathHandler");
 
 const checkUploadDirExist = (dir = baseUploadDir) => {
   if (!fs.existsSync(dir)) {
@@ -13,12 +13,25 @@ const checkUploadDirExist = (dir = baseUploadDir) => {
 const multerStorageConfig = () => {
   return multer.diskStorage({
     destination: (req, file, cb) => {
-      let uploadDir = baseUploadDir;
+      let uploadDir;
+      if (process.env.NODE_ENV === "test") {
+        uploadDir = testBaseUploadDir;
+      } else {
+        uploadDir = baseUploadDir;
+      }
 
       if (req.userId) {
-        uploadDir = path.join(baseUploadDir, String(req.userId));
+        if (process.env.NODE_ENV === "test") {
+          uploadDir = path.join(testBaseUploadDir, String(req.userId));
+        } else {
+          uploadDir = path.join(baseUploadDir, String(req.userId));
+        }
       } else {
-        uploadDir = path.join(baseUploadDir, "guests");
+        if (process.env.NODE_ENV === "test") {
+          uploadDir = path.join(testBaseUploadDir, "guests");
+        } else {
+          uploadDir = path.join(baseUploadDir, "guests");
+        }
       }
       checkUploadDirExist(uploadDir);
       cb(null, uploadDir);

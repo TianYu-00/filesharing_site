@@ -26,7 +26,7 @@ exports.uploadFile = async (req) => {
         return reject({ code: "UPLOAD_ERROR", message: "Error uploading file" });
       }
       if (!req.file) {
-        return reject({ code: "UPLOAD_ERROR", message: "No file uploaded" });
+        return reject({ code: "UPLOAD_ERROR", message: "File was not provided" });
       }
 
       req.file.destination = createRelativePath(req.file.destination);
