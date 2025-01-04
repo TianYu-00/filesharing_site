@@ -110,11 +110,11 @@ async function insertUsers(users) {
   const usersWithHashedPasswords = await Promise.all(
     users.map(async (user) => {
       const hashedPassword = await bcrypt.hash(user.password, 10);
-      return [user.username, user.email, hashedPassword];
+      return [user.username, user.email, hashedPassword, user.role];
     })
   );
 
-  const query = format(`INSERT INTO users (username, email, password) VALUES %L`, usersWithHashedPasswords);
+  const query = format(`INSERT INTO users (username, email, password, role) VALUES %L`, usersWithHashedPasswords);
 
   await db.query(query);
 }
