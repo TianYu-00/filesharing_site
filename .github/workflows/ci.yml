@@ -10,6 +10,17 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    env:
+      PGUSER: ${{ secrets.PGUSER }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      PGDATABASE: ${{ secrets.PGDATABASE }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      JWT_USER_PASSWORD_RESET_SECRET: ${{ secrets.JWT_USER_PASSWORD_RESET_SECRET }}
+      JWT_USER_ACCESS_TOKEN_SECRET: ${{ secrets.JWT_USER_ACCESS_TOKEN_SECRET }}
+      JWT_USER_REFRESH_TOKEN_SECRET: ${{ secrets.JWT_USER_REFRESH_TOKEN_SECRET }}
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      SECRET_SENDER_EMAIL: ${{ secrets.SECRET_SENDER_EMAIL }}
+      SECRET_SENDER_REPLY_TO: ${{ secrets.SECRET_SENDER_REPLY_TO }}
 
     steps:
       - uses: actions/checkout@v2
@@ -17,12 +28,45 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: "21"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Set up environment variables
+        run: |
+          echo "PGUSER=${{ secrets.PGUSER }}" >> $GITHUB_ENV
+          echo "PGPASSWORD=${{ secrets.PGPASSWORD }}" >> $GITHUB_ENV
+          echo "PGDATABASE=${{ secrets.PGDATABASE }}" >> $GITHUB_ENV
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
+          echo "JWT_USER_PASSWORD_RESET_SECRET=${{ secrets.JWT_USER_PASSWORD_RESET_SECRET }}" >> $GITHUB_ENV
+          echo "JWT_USER_ACCESS_TOKEN_SECRET=${{ secrets.JWT_USER_ACCESS_TOKEN_SECRET }}" >> $GITHUB_ENV
+          echo "JWT_USER_REFRESH_TOKEN_SECRET=${{ secrets.JWT_USER_REFRESH_TOKEN_SECRET }}" >> $GITHUB_ENV
+          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
+          echo "SECRET_SENDER_EMAIL=${{ secrets.SECRET_SENDER_EMAIL }}" >> $GITHUB_ENV
+          echo "SECRET_SENDER_REPLY_TO=${{ secrets.SECRET_SENDER_REPLY_TO }}" >> $GITHUB_ENV
+
+      - name: Start PostgreSQL container
+        run: |
+          docker run --name pg-docker -e POSTGRES_USER=${{ secrets.PGUSER }} -e POSTGRES_PASSWORD=${{ secrets.PGPASSWORD }} -e POSTGRES_DB=${{ secrets.PGDATABASE }} -p 5432:5432 -d postgres:latest
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until docker exec pg-docker pg_isready -U ${{ secrets.PGUSER }} -d ${{ secrets.PGDATABASE }}; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+
+      - name: Create uploads directory
+        run: |
+          mkdir -p backend/uploads
+          echo "Uploads directory created."
+
+      - name: Install dependencies and run tests
+        run: |
+          npm install
+          npm test
         working-directory: backend
 
-      - name: Run tests
-        run: npm test
-        working-directory: backend
+      - name: Stop PostgreSQL container
+        run: docker stop pg-docker
+
+      - name: Remove PostgreSQL container
+        run: docker rm pg-docker
