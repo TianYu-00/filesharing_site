@@ -59,6 +59,11 @@ exports.postFile = async (req, res, next) => {
 exports.getFileInfo = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const file = await retrieveFileInfo(file_id);
     res.json({ success: true, msg: "File data has been fetched", data: file });
   } catch (err) {
