@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "start": "nodemon listen.js",
     "setup-db": "psql -f ./db/file_sharing_db.sql",
     "seed": "node db/run_seed.js",
