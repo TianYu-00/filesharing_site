@@ -2,7 +2,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-const { baseUploadDir } = require("../src/pathHandler");
+const { baseUploadDir, createFileNameWithSuffix } = require("../src/pathHandler");
 
 const checkUploadDirExist = (dir = baseUploadDir) => {
   if (!fs.existsSync(dir)) {
@@ -25,8 +25,8 @@ const multerStorageConfig = () => {
     },
 
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      cb(null, `${uniqueSuffix}-${file.originalname}`);
+      const newFileName = createFileNameWithSuffix(file.originalname);
+      cb(null, newFileName);
     },
   });
 };

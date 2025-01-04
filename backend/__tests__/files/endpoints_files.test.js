@@ -23,3 +23,19 @@ describe("GET /api/files", () => {
     await request(app).get("/api/files").set("Cookie", cookies).expect(200);
   });
 });
+
+describe("GET /api/files/:file_id/info", () => {
+  test("should return a 403 status code, indicating users cannot access file info", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+    await request(app).get("/api/files/1/info").set("Cookie", cookies).expect(403);
+  });
+
+  test("should return a 200 status code, indicating an admin successfully retrieves file info", async () => {
+    const tempUserLoginCredentials = data.users[1];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+    await request(app).get("/api/files/1/info").set("Cookie", cookies).expect(200);
+  });
+});

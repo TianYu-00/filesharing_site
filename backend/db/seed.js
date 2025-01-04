@@ -3,10 +3,17 @@ const format = require("pg-format");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const {
+  baseUploadDir,
+  testBaseUploadDir,
+  createRelativePath,
+  createFileNameWithSuffix,
+} = require("../src/pathHandler");
 
 async function createTables({ users }) {
   try {
     await cleanUploadsFolder();
+    await cleanUploadsTestFolder();
 
     await db.query("DROP TABLE IF EXISTS blacklisted_tokens CASCADE;");
     await db.query("DROP TABLE IF EXISTS file_download_link CASCADE;");
@@ -19,6 +26,7 @@ async function createTables({ users }) {
     await createTokenBlacklistTable();
 
     await insertUsers(users);
+    await insertFiles(1);
 
     // console.log("Tables successfully seeded.");
   } catch (err) {
@@ -88,19 +96,34 @@ async function createTokenBlacklistTable() {
 }
 
 async function cleanUploadsFolder() {
-  const uploadsDir = path.join(__dirname, "../uploads");
   try {
-    const files = await fs.promises.readdir(uploadsDir, { withFileTypes: true });
+    const files = await fs.promises.readdir(baseUploadDir, { withFileTypes: true });
 
     for (const file of files) {
-      const fullPath = path.join(uploadsDir, file.name);
+      const fullPath = path.join(baseUploadDir, file.name);
       if (file.isDirectory()) {
         await fs.promises.rm(fullPath, { recursive: true, force: true });
       } else {
         await fs.promises.unlink(fullPath);
       }
     }
-    // console.log("Uploads directory cleared.");
+  } catch (err) {
+    console.error(`Error clearing uploads directory: ${err}`);
+  }
+}
+
+async function cleanUploadsTestFolder() {
+  try {
+    const files = await fs.promises.readdir(testBaseUploadDir, { withFileTypes: true });
+
+    for (const file of files) {
+      const fullPath = path.join(testBaseUploadDir, file.name);
+      if (file.isDirectory()) {
+        await fs.promises.rm(fullPath, { recursive: true, force: true });
+      } else {
+        await fs.promises.unlink(fullPath);
+      }
+    }
   } catch (err) {
     console.error(`Error clearing uploads directory: ${err}`);
   }
@@ -117,6 +140,64 @@ async function insertUsers(users) {
   const query = format(`INSERT INTO users (username, email, password, role) VALUES %L`, usersWithHashedPasswords);
 
   await db.query(query);
+}
+
+async function insertFiles(userId = null) {
+  const seedFilesDir = path.join(__dirname, "test_data", "test_files");
+  const userDir = userId ? `${userId}` : "guest";
+  const testUploadsDir = path.join(testBaseUploadDir, userDir);
+
+  try {
+    await fs.promises.mkdir(testUploadsDir, { recursive: true });
+
+    const files = await fs.promises.readdir(seedFilesDir, { withFileTypes: true });
+
+    for (const file of files) {
+      if (!file.isFile()) continue;
+
+      const fileName = createFileNameWithSuffix(file.name);
+      const sourcePath = path.join(seedFilesDir, file.name);
+      const destinationPath = path.join(testUploadsDir, fileName);
+
+      await fs.promises.copyFile(sourcePath, destinationPath);
+
+      const stats = await fs.promises.stat(destinationPath);
+      const filteredDestination = createRelativePath(testUploadsDir);
+      const filteredPath = createRelativePath(destinationPath);
+
+      const fileInfo = {
+        fieldname: "file",
+        originalname: file.name,
+        encoding: "7bit",
+        mimetype: "application/octet-stream",
+        destination: filteredDestination,
+        filename: fileName,
+        path: filteredPath,
+        size: stats.size,
+        user_id: userId,
+      };
+
+      await db.query(
+        `
+          INSERT INTO file_info (fieldname, originalname, encoding, mimetype, destination, filename, path, size, user_id)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `,
+        [
+          fileInfo.fieldname,
+          fileInfo.originalname,
+          fileInfo.encoding,
+          fileInfo.mimetype,
+          fileInfo.destination,
+          fileInfo.filename,
+          fileInfo.path,
+          fileInfo.size,
+          fileInfo.user_id,
+        ]
+      );
+    }
+  } catch (err) {
+    console.error("Error seeding files:", err);
+  }
 }
 
 module.exports = createTables;
