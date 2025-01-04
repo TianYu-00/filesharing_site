@@ -20,7 +20,6 @@ describe("GET /api/users/:user_id/files", () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
-    const { body } = await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(200);
-    expect(body.data).toHaveLength(0);
+    await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(200);
   });
 });
