@@ -1,7 +1,10 @@
 const { app, request, db, seed, data, cleanupFolder } = require("../../testIndex");
 const { testBaseUploadDir, createRelativePath, createFileNameWithSuffix } = require("../../src/pathHandler");
 const path = require("path");
-const testFilePath = path.join(__dirname, "..", "..", "db", "test_data", "test_files", "test123.txt");
+const fs = require("fs");
+const testFileName = "test123.txt";
+const testFilePath = path.join(__dirname, "..", "..", "db", "test_data", "test_files", testFileName);
+
 afterAll(async () => {
   await cleanupFolder.cleanUploadsTestFolder();
   return db.end();
@@ -114,5 +117,25 @@ describe("POST /api/files/upload", () => {
     expect(body.data.file).toMatchObject({
       user_id: loginResponse.body.data.id,
     });
+  });
+
+  test("should be able to detect the file in uploads directory when successful (guest)", async () => {
+    const { body } = await request(app).post("/api/files/upload").attach("file", testFilePath).expect(200);
+    const fileDirectory = path.join(testBaseUploadDir, "guests", body.data.file.filename);
+    expect(fs.existsSync(fileDirectory)).toBe(true);
+  });
+
+  test("should be able to detect the file in uploads directory when successful (user)", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const { body } = await request(app)
+      .post("/api/files/upload")
+      .set("Cookie", cookies)
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileDirectory = path.join(testBaseUploadDir, body.data.file.user_id.toString(), body.data.file.filename);
+    expect(fs.existsSync(fileDirectory)).toBe(true);
   });
 });
