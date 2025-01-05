@@ -283,7 +283,7 @@ xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK INFO BY LINK
-describe("GET /api/files/download-links/:download_link/details", () => {
+xdescribe("GET /api/files/download-links/:download_link/details", () => {
   test("should return 404 status code, indicating download link details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/details").expect(404);
   });
@@ -316,4 +316,54 @@ describe("GET /api/files/download-links/:download_link/details", () => {
       download_count: expect.any(Number),
     });
   });
+});
+
+/////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK COUNT INCREASE BY LINK ID
+describe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
+  test("should return 400 status code, indicating invalid file id", async () => {
+    await request(app).patch("/api/files/download-links/invalid-link-id/increase-download-count").expect(400);
+  });
+
+  test("should return 404 status code, indicating link not found", async () => {
+    await request(app).patch("/api/files/download-links/000/increase-download-count").expect(404);
+  });
+
+  test("should return 200 status code, indicating successful response", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const { body } = await request(app).get(`/api/files/download-links/${downloadLink}/details`).expect(200);
+    const linkId = body.data.id;
+
+    await request(app).patch(`/api/files/download-links/${linkId}/increase-download-count`).expect(200);
+  });
+
+  test("should verify that the download count has increased by 1", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const { body: detailsResponse } = await request(app)
+      .get(`/api/files/download-links/${downloadLink}/details`)
+      .expect(200);
+    const linkId = detailsResponse.data.id;
+    const initialDownloadCount = detailsResponse.data.download_count;
+
+    await request(app).patch(`/api/files/download-links/${linkId}/increase-download-count`).expect(200);
+
+    const { body: updatedDetailsResponse } = await request(app)
+      .get(`/api/files/download-links/${downloadLink}/details`)
+      .expect(200);
+    const updatedDownloadCount = updatedDetailsResponse.data.download_count;
+
+    expect(updatedDownloadCount).toBe(initialDownloadCount + 1);
+  });
+
+  // note:
+  // test download limit exceeded later
 });

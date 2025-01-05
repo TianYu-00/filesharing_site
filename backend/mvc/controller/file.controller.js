@@ -239,6 +239,11 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
 exports.updateDownloadLinkCount = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const data = await patchDownloadLinkLimitCount(link_id);
     res.json({ success: true, msg: "Download link counter increased", data: data });
   } catch (err) {
