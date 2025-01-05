@@ -25,7 +25,7 @@ fileRouter.delete(
   userTokenChecker,
   isLoggedInChecker,
   fileController.removeDownloadLinkByLinkId
-);
+); // tested
 fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFileById);
 fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById);
 fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById);

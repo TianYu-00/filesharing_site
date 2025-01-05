@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILES
-xdescribe("GET /api/files", () => {
+describe("GET /api/files", () => {
   test("should return a 403 status code, indicating users cannot access the list of all users", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -33,7 +33,7 @@ xdescribe("GET /api/files", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO
-xdescribe("GET /api/files/:file_id/info", () => {
+describe("GET /api/files/:file_id/info", () => {
   test("should return a 403 status code, indicating users cannot access file info", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -78,7 +78,7 @@ xdescribe("GET /api/files/:file_id/info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE UPLOAD
-xdescribe("POST /api/files/upload", () => {
+describe("POST /api/files/upload", () => {
   test("should return 400 status code, indicating file is missing", async () => {
     const { body } = await request(app).post("/api/files/upload").expect(400);
     expect(body.success).toBe(false);
@@ -142,7 +142,7 @@ xdescribe("POST /api/files/upload", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE DOWNLOAD
-xdescribe("GET /api/files/:file_id/download", () => {
+describe("GET /api/files/:file_id/download", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).get("/api/files/invalid-id/download").expect(400);
   });
@@ -214,7 +214,7 @@ xdescribe("GET /api/files/:file_id/download", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
+describe("GET /api/files/download-links/:download_link/file-info", () => {
   test("should return 404 status code, indicating file details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/file-info").expect(404);
   });
@@ -283,7 +283,7 @@ xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/details", () => {
+describe("GET /api/files/download-links/:download_link/details", () => {
   test("should return 404 status code, indicating download link details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/details").expect(404);
   });
@@ -319,7 +319,7 @@ xdescribe("GET /api/files/download-links/:download_link/details", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK COUNT INCREASE BY LINK ID
-xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
+describe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).patch("/api/files/download-links/invalid-link-id/increase-download-count").expect(400);
   });
@@ -382,7 +382,7 @@ xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", ()
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINKS BY FILE ID
-xdescribe("GET /api/files/:file_id/download-links", () => {
+describe("GET /api/files/:file_id/download-links", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).get("/api/files/1/download-links").expect(401);
   });
@@ -411,7 +411,7 @@ xdescribe("GET /api/files/:file_id/download-links", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK CREATION BY FILE ID
-xdescribe("POST /api/files/:file_id/download-link", () => {
+describe("POST /api/files/:file_id/download-link", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).post("/api/files/1/download-link").expect(401);
   });
@@ -483,7 +483,7 @@ xdescribe("POST /api/files/:file_id/download-link", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// VALIDATE DOWNLOAD LINK PASSWORD
-xdescribe("POST /api/files/download-links/:link_id/validate-password", () => {
+describe("POST /api/files/download-links/:link_id/validate-password", () => {
   test("should return 400 status code, indicating invalid link id", async () => {
     await request(app).post("/api/files/download-links/invalid-link-id/validate-password").expect(400);
   });
