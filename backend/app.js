@@ -60,7 +60,7 @@ app.use((err, req, res, next) => {
   }
   // LIMIT_EXCEEDED
   else if (err.code === "LIMIT_EXCEEDED") {
-    res.status(500).send({
+    res.status(403).send({
       success: false,
       msg: err.message || "Download limit as exceeded",
       data: null,
@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
   }
   // "PASSWORD_NOT_FOUND"
   else if (err.code === "PASSWORD_NOT_FOUND") {
-    res.status(500).send({
+    res.status(404).send({
       success: false,
       msg: err.message || "Password not found",
       data: null,

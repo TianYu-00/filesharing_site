@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILES
-xdescribe("GET /api/files", () => {
+describe("GET /api/files", () => {
   test("should return a 403 status code, indicating users cannot access the list of all users", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -33,7 +33,7 @@ xdescribe("GET /api/files", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO
-xdescribe("GET /api/files/:file_id/info", () => {
+describe("GET /api/files/:file_id/info", () => {
   test("should return a 403 status code, indicating users cannot access file info", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -78,7 +78,7 @@ xdescribe("GET /api/files/:file_id/info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE UPLOAD
-xdescribe("POST /api/files/upload", () => {
+describe("POST /api/files/upload", () => {
   test("should return 400 status code, indicating file is missing", async () => {
     const { body } = await request(app).post("/api/files/upload").expect(400);
     expect(body.success).toBe(false);
@@ -142,7 +142,7 @@ xdescribe("POST /api/files/upload", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE DOWNLOAD
-xdescribe("GET /api/files/:file_id/download", () => {
+describe("GET /api/files/:file_id/download", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).get("/api/files/invalid-id/download").expect(400);
   });
@@ -214,7 +214,7 @@ xdescribe("GET /api/files/:file_id/download", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
+describe("GET /api/files/download-links/:download_link/file-info", () => {
   test("should return 404 status code, indicating file details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/file-info").expect(404);
   });
@@ -283,7 +283,7 @@ xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/details", () => {
+describe("GET /api/files/download-links/:download_link/details", () => {
   test("should return 404 status code, indicating download link details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/details").expect(404);
   });
@@ -319,7 +319,7 @@ xdescribe("GET /api/files/download-links/:download_link/details", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK COUNT INCREASE BY LINK ID
-xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
+describe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).patch("/api/files/download-links/invalid-link-id/increase-download-count").expect(400);
   });
@@ -364,8 +364,21 @@ xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", ()
     expect(updatedDownloadCount).toBe(initialDownloadCount + 1);
   });
 
-  // note:
-  // test download limit exceeded later
+  test("should return 403 status code, indicating download limit exceeded", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const bodyData = {
+      download_limit: 1,
+    };
+
+    await request(app).post("/api/files/1/download-link").send(bodyData).set("Cookie", cookies).expect(200);
+    // increase 1
+    await request(app).patch(`/api/files/download-links/1/increase-download-count`).expect(200);
+    // since we set the limit to 1 and we already increased the download count by 1, the next increase should fail
+    await request(app).patch(`/api/files/download-links/1/increase-download-count`).expect(403);
+  });
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINKS BY FILE ID
@@ -395,4 +408,79 @@ describe("GET /api/files/:file_id/download-links", () => {
 
     await request(app).get("/api/files/1/download-links").set("Cookie", cookies).expect(200);
   });
+});
+
+/////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK CREATION BY FILE ID
+describe("POST /api/files/:file_id/download-link", () => {
+  test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
+    await request(app).post("/api/files/1/download-link").expect(401);
+  });
+
+  test("should return 403 status code, indicating forbidden access (logged in but not the owner)", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const newUploadId = uploadResponse.data.file.id;
+
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    await request(app).post(`/api/files/${newUploadId}/download-link`).set("Cookie", cookies).expect(403);
+  });
+
+  test("should return 200 status code, indicating successful response", async () => {
+    const tempUserLoginCredentials = data.users[1];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    await request(app).post("/api/files/1/download-link").set("Cookie", cookies).expect(200);
+  });
+
+  test("should return 200 status code and contain download link details", async () => {
+    const tempUserLoginCredentials = data.users[1];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const { body } = await request(app).post("/api/files/1/download-link").set("Cookie", cookies).expect(200);
+    expect(body.data).toMatchObject({
+      id: expect.any(Number),
+      file_id: expect.any(Number),
+      download_url: expect.any(String),
+      created_at: expect.any(String),
+      expires_at: null,
+      download_count: expect.any(Number),
+      download_limit: null,
+    });
+  });
+
+  test("should return 200 status code and contain download link details with expires_at, download_limit", async () => {
+    const tempUserLoginCredentials = data.users[1];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+    const newDateNow = new Date().toISOString();
+    const bodyData = {
+      expires_at: newDateNow,
+      download_limit: 5,
+    };
+
+    const { body } = await request(app)
+      .post("/api/files/1/download-link")
+      .set("Cookie", cookies)
+      .send(bodyData)
+      .expect(200);
+    expect(body.data).toMatchObject({
+      id: expect.any(Number),
+      file_id: expect.any(Number),
+      download_url: expect.any(String),
+      created_at: expect.any(String),
+      expires_at: newDateNow,
+      download_count: 0,
+      download_limit: 5,
+    });
+  });
+
+  // note:
+  // validate password later
 });
