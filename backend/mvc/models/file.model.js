@@ -413,7 +413,7 @@ exports.deleteManyFilesByFileIds = async (files) => {
     const fileIds = files.map((file) => file.id);
 
     for (const file of files) {
-      const filePath = path.join(baseUploadDir, file.path);
+      const filePath = fetchFullUploadPath(file.path);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       } else {

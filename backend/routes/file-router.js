@@ -11,7 +11,7 @@ fileRouter.get("/", userTokenChecker, isLoggedInChecker, checkAdminRole, fileCon
 fileRouter.get("/:file_id/info", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getFileInfo); // tested
 
 // Protected routes
-fileRouter.delete("/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
+fileRouter.delete("/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile); // tested
 fileRouter.patch("/:file_id/rename", userTokenChecker, isLoggedInChecker, fileController.renameFileById); // tested
 fileRouter.get("/:file_id/download-links", userTokenChecker, isLoggedInChecker, fileController.getDownloadLinks); // tested
 fileRouter.post(

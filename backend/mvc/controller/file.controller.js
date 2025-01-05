@@ -304,11 +304,9 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
     }
     const loggedInUserId = req.userData.id;
     const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
-
     if (!checkResult) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
-
     const data = await deleteManyFilesByFileIds(files);
 
     res.json({ success: true, msg: "Files has been deleted", data: data });
