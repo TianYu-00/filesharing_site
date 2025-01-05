@@ -124,8 +124,8 @@ exports.retrieveFile = async (file_id, res) => {
 exports.retrievePreviewFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, file.path);
-    const outputPath = path.join(baseUploadDir, "preview");
+    const filePath = fetchFullUploadPath(file.path);
+    const outputPath = fetchFullUploadPath("preview");
     const pdfFilePath = path.join(outputPath, `${file.filename}.pdf`);
 
     const pdfFriendlyExtensions = [".docx", ".doc", ".txt", ".ppt", ".pptx"];
@@ -495,6 +495,10 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
 
     if (!linkInfo.password) {
       return true;
+    }
+
+    if (!password) {
+      return Promise.reject({ code: "PASSWORD_REQUIRED", message: "Password is required" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, linkInfo.password);

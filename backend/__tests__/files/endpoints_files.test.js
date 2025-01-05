@@ -21,7 +21,7 @@ beforeEach(async () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILES
-xdescribe("GET /api/files", () => {
+describe("GET /api/files", () => {
   test("should return a 403 status code, indicating users cannot access the list of all users", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -38,7 +38,7 @@ xdescribe("GET /api/files", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO
-xdescribe("GET /api/files/:file_id/info", () => {
+describe("GET /api/files/:file_id/info", () => {
   test("should return a 403 status code, indicating users cannot access file info", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -83,7 +83,7 @@ xdescribe("GET /api/files/:file_id/info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE UPLOAD
-xdescribe("POST /api/files/upload", () => {
+describe("POST /api/files/upload", () => {
   test("should return 400 status code, indicating file is missing", async () => {
     const { body } = await request(app).post("/api/files/upload").expect(400);
     expect(body.success).toBe(false);
@@ -147,7 +147,7 @@ xdescribe("POST /api/files/upload", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE DOWNLOAD
-xdescribe("GET /api/files/:file_id/download", () => {
+describe("GET /api/files/:file_id/download", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).get("/api/files/invalid-id/download").expect(400);
   });
@@ -213,13 +213,10 @@ xdescribe("GET /api/files/:file_id/download", () => {
 
     await request(app).get(`/api/files/${fileId}/download`).set("Cookie", cookies).expect(200);
   });
-
-  // note:
-  // test download link password later
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
+describe("GET /api/files/download-links/:download_link/file-info", () => {
   test("should return 404 status code, indicating file details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/file-info").expect(404);
   });
@@ -288,7 +285,7 @@ xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK INFO BY LINK
-xdescribe("GET /api/files/download-links/:download_link/details", () => {
+describe("GET /api/files/download-links/:download_link/details", () => {
   test("should return 404 status code, indicating download link details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/details").expect(404);
   });
@@ -324,7 +321,7 @@ xdescribe("GET /api/files/download-links/:download_link/details", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK COUNT INCREASE BY LINK ID
-xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
+describe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).patch("/api/files/download-links/invalid-link-id/increase-download-count").expect(400);
   });
@@ -387,7 +384,7 @@ xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", ()
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINKS BY FILE ID
-xdescribe("GET /api/files/:file_id/download-links", () => {
+describe("GET /api/files/:file_id/download-links", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).get("/api/files/1/download-links").expect(401);
   });
@@ -416,7 +413,7 @@ xdescribe("GET /api/files/:file_id/download-links", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK CREATION BY FILE ID
-xdescribe("POST /api/files/:file_id/download-link", () => {
+describe("POST /api/files/:file_id/download-link", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).post("/api/files/1/download-link").expect(401);
   });
@@ -488,7 +485,7 @@ xdescribe("POST /api/files/:file_id/download-link", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// VALIDATE DOWNLOAD LINK PASSWORD
-xdescribe("POST /api/files/download-links/:link_id/validate-password", () => {
+describe("POST /api/files/download-links/:link_id/validate-password", () => {
   test("should return 400 status code, indicating invalid link id", async () => {
     await request(app).post("/api/files/download-links/invalid-link-id/validate-password").expect(400);
   });
@@ -547,7 +544,7 @@ xdescribe("POST /api/files/download-links/:link_id/validate-password", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// REMOVE DOWNLOAD LINK BY LINK ID
-xdescribe("DELETE /api/files/download-links/:link_id", () => {
+describe("DELETE /api/files/download-links/:link_id", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).delete(`/api/files/download-links/1`).expect(401);
   });
@@ -621,7 +618,7 @@ xdescribe("DELETE /api/files/download-links/:link_id", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE RENAME
-xdescribe("PATCH /api/files/:file_id/rename", () => {
+describe("PATCH /api/files/:file_id/rename", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).patch(`/api/files/1/rename`).send({ newFileName: "newName" }).expect(401);
   });
@@ -671,7 +668,7 @@ xdescribe("PATCH /api/files/:file_id/rename", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE FAVOURITE
-xdescribe("PATCH /api/files/:file_id/favourite", () => {
+describe("PATCH /api/files/:file_id/favourite", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).patch(`/api/files/1/favourite`).send({ favourite: false }).expect(401);
   });
@@ -721,7 +718,7 @@ xdescribe("PATCH /api/files/:file_id/favourite", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE TRASH
-xdescribe("PATCH /api/files/:file_id/trash", () => {
+describe("PATCH /api/files/:file_id/trash", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).patch(`/api/files/1/trash`).send({ trash: false }).expect(401);
   });
@@ -771,7 +768,7 @@ xdescribe("PATCH /api/files/:file_id/trash", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE TRASH MANY
-xdescribe("PATCH /api/files/trash-many/files", () => {
+describe("PATCH /api/files/trash-many/files", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).patch(`/api/files/trash-many/files`).expect(401);
   });
@@ -874,7 +871,7 @@ xdescribe("PATCH /api/files/trash-many/files", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE DELETE
-xdescribe("DELETE /api/files/:file_id", () => {
+describe("DELETE /api/files/:file_id", () => {
   test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
     await request(app).delete(`/api/files/1`).expect(401);
   });
@@ -1057,4 +1054,146 @@ describe("DELETE /api/files/delete-many/files", () => {
       expect(fileExists).toBe(false);
     });
   });
+});
+
+/////////////////////////////////////////////////////////////////////////// FILE PREVIEW
+describe("GET /api/files/:file_id/preview", () => {
+  test("should return 400 status code, indicating invalid file id", async () => {
+    await request(app).get("/api/files/invalid-file-id/preview").expect(400);
+  });
+
+  test("should return 404 status code, indicating file not found", async () => {
+    await request(app).get("/api/files/0/preview").expect(404);
+  });
+
+  test(
+    "should allow the file owner to preview the file without a link",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+
+      const { body: uploadResponse } = await request(app)
+        .post("/api/files/upload")
+        .set("Cookie", cookies)
+        .attach("file", testFilePath)
+        .expect(200);
+      const fileId = uploadResponse.data.file.id;
+
+      await request(app).get(`/api/files/${fileId}/preview`).set("Cookie", cookies).expect(200);
+    },
+    15 * 1000
+  );
+
+  test(
+    "should allow the user to preview the file with a link query",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const { body: uploadResponse } = await request(app)
+        .post("/api/files/upload")
+        .set("Cookie", cookies)
+        .attach("file", testFilePath)
+        .expect(200);
+      const fileId = uploadResponse.data.file.id;
+      const fileLink = uploadResponse.data.downloadLink.download_url;
+
+      await request(app).get(`/api/files/${fileId}/preview?link=${fileLink}`).expect(200);
+    },
+    15 * 1000
+  );
+
+  test(
+    "should allow the user to preview the protected file with a link query and password",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const tempPassword = "12345";
+      const bodyData = { password: tempPassword };
+
+      const { body } = await request(app)
+        .post("/api/files/1/download-link")
+        .set("Cookie", cookies)
+        .send(bodyData)
+        .expect(200);
+      // console.log(body);
+      const fileId = body.data.file_id;
+      const fileLink = body.data.download_url;
+
+      await request(app).get(`/api/files/${fileId}/preview?link=${fileLink}&password=${tempPassword}`).expect(200);
+    },
+    15 * 1000
+  );
+
+  test(
+    "should not allow the user to preview the protected file when password is incorrect",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const tempPassword = "12345";
+      const bodyData = { password: tempPassword };
+
+      const { body } = await request(app)
+        .post("/api/files/1/download-link")
+        .set("Cookie", cookies)
+        .send(bodyData)
+        .expect(200);
+      // console.log(body);
+      const fileId = body.data.file_id;
+      const fileLink = body.data.download_url;
+      const incorrect_password = "x1x1x1";
+
+      await request(app)
+        .get(`/api/files/${fileId}/preview?link=${fileLink}&password=${incorrect_password}`)
+        .expect(403);
+    },
+    15 * 1000
+  );
+
+  test(
+    "should not allow the user to preview the protected file when password is missing",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const tempPassword = "12345";
+      const bodyData = { password: tempPassword };
+
+      const { body } = await request(app)
+        .post("/api/files/1/download-link")
+        .set("Cookie", cookies)
+        .send(bodyData)
+        .expect(200);
+      // console.log(body);
+      const fileId = body.data.file_id;
+      const fileLink = body.data.download_url;
+
+      await request(app).get(`/api/files/${fileId}/preview?link=${fileLink}`).expect(401);
+    },
+    15 * 1000
+  );
+
+  test(
+    "should not allow the user to preview the protected file when link is missing",
+    async () => {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const tempPassword = "12345";
+      const bodyData = { password: tempPassword };
+
+      const { body } = await request(app)
+        .post("/api/files/1/download-link")
+        .set("Cookie", cookies)
+        .send(bodyData)
+        .expect(200);
+      const fileId = body.data.file_id;
+
+      await request(app).get(`/api/files/${fileId}/preview?password=${tempPassword}`).expect(400);
+    },
+    15 * 1000
+  );
 });

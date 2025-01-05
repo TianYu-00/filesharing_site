@@ -26,12 +26,12 @@ fileRouter.delete(
   isLoggedInChecker,
   fileController.removeDownloadLinkByLinkId
 ); // tested
-fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFileById);
+fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFileById); // tested
 fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById); // tested
 fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById); // tested
 fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile); //tested
 fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById); // tested
-fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
+fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo); // tested
 
 // Public routes
 fileRouter.post("/upload", fileController.postFile); // tested
