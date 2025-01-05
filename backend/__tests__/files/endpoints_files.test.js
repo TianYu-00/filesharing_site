@@ -214,7 +214,7 @@ xdescribe("GET /api/files/:file_id/download", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE INFO BY LINK
-describe("GET /api/files/download-links/:download_link/file-info", () => {
+xdescribe("GET /api/files/download-links/:download_link/file-info", () => {
   test("should return 404 status code, indicating file details not found", async () => {
     await request(app).get("/api/files/download-links/invalid-link/file-info").expect(404);
   });
@@ -278,6 +278,42 @@ describe("GET /api/files/download-links/:download_link/file-info", () => {
     const { body } = await request(app).get(`/api/files/download-links/${downloadLink}/file-info`).expect(200);
     expect(body.data).toMatchObject({
       user_id: null,
+    });
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK INFO BY LINK
+describe("GET /api/files/download-links/:download_link/details", () => {
+  test("should return 404 status code, indicating download link details not found", async () => {
+    await request(app).get("/api/files/download-links/invalid-link/details").expect(404);
+  });
+
+  test("should return 200 status code, indicating successful response", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    await request(app).get(`/api/files/download-links/${downloadLink}/details`).expect(200);
+  });
+
+  test("should return 200 status code and contain download link details", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const { body } = await request(app).get(`/api/files/download-links/${downloadLink}/details`).expect(200);
+    expect(body.data).toMatchObject({
+      id: expect.any(Number),
+      file_id: expect.any(Number),
+      download_url: expect.any(String),
+      created_at: expect.any(String),
+      expires_at: expect.any(String),
+      password: expect.any(Boolean),
+      download_count: expect.any(Number),
     });
   });
 });

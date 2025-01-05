@@ -102,7 +102,7 @@ exports.getFile = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Invalid link or password" });
     }
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -141,7 +141,7 @@ exports.deleteFile = async (req, res, next) => {
     await deleteFile(file_id);
     res.json({ success: true, msg: "File has been deleted", data: null });
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -175,7 +175,7 @@ exports.renameFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "Files changed successfully", data: data });
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -196,7 +196,7 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
     const data = await createDownloadLink(file_id, expires_at, password, download_limit);
     res.json({ success: true, msg: "Download link created successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -217,7 +217,7 @@ exports.removeDownloadLinkByLinkId = async (req, res, next) => {
     const data = await deleteDownloadLink(link_id);
     res.json({ success: true, msg: "Download link has been deleted", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -228,13 +228,9 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
     const downloadLink = req.params.download_link;
     const linkInfo = await retrieveDownloadLinkInfo(downloadLink);
 
-    if (!linkInfo) {
-      return res.status(404).json({ success: false, msg: "Download link not found" });
-    }
-
     res.json({ success: true, msg: "Download link info has been fetched", data: linkInfo });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -246,7 +242,7 @@ exports.updateDownloadLinkCount = async (req, res, next) => {
     const data = await patchDownloadLinkLimitCount(link_id);
     res.json({ success: true, msg: "Download link counter increased", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -260,7 +256,7 @@ exports.validateDownloadLinkPassword = async (req, res, next) => {
 
     res.json({ success: true, msg: "Password validated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -280,7 +276,7 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
 
     res.json({ success: true, msg: "Files has been deleted", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -305,7 +301,7 @@ exports.favouriteFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "File has been updated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -330,7 +326,7 @@ exports.trashFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "File has been updated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -350,7 +346,7 @@ exports.trashManyFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "Files has been trashed", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -379,7 +375,7 @@ exports.previewFileById = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Invalid link or password" });
     }
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };

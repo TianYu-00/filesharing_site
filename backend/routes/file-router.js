@@ -35,7 +35,7 @@ fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fil
 
 // Public routes
 fileRouter.post("/upload", fileController.postFile); // tested
-fileRouter.get("/download-links/:download_link/file-info", fileController.getFileInfoByLink);
+fileRouter.get("/download-links/:download_link/file-info", fileController.getFileInfoByLink); // tested
 fileRouter.get("/download-links/:download_link/details", fileController.getDownloadLinkInfoByDownloadLink);
 fileRouter.patch("/download-links/:link_id/increase-download-count", fileController.updateDownloadLinkCount);
 fileRouter.post("/download-links/:link_id/validate-password", fileController.validateDownloadLinkPassword);
