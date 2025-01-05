@@ -433,7 +433,7 @@ describe("POST /api/files/:file_id/download-link", () => {
   });
 
   test("should return 200 status code, indicating successful response", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
 
@@ -441,7 +441,7 @@ describe("POST /api/files/:file_id/download-link", () => {
   });
 
   test("should return 200 status code and contain download link details", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
 
@@ -458,7 +458,7 @@ describe("POST /api/files/:file_id/download-link", () => {
   });
 
   test("should return 200 status code and contain download link details with expires_at, download_limit", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     const newDateNow = new Date().toISOString();
@@ -495,7 +495,7 @@ describe("POST /api/files/download-links/:link_id/validate-password", () => {
   });
 
   test("should return 404 status code, indicating password is missing", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     const bodyData = {
@@ -508,7 +508,7 @@ describe("POST /api/files/download-links/:link_id/validate-password", () => {
   });
 
   test("should return 200 status code, indicating successful response and password is correct", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     const bodyData = {
@@ -526,7 +526,7 @@ describe("POST /api/files/download-links/:link_id/validate-password", () => {
   });
 
   test("should return 401 status code, indicating unauthorized due to incorrect password", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     const bodyData = {
