@@ -1,5 +1,5 @@
 # File Sharing Project (DropBoxer) API Endpoints Documentation
-
+---
 ## API
 - **GET** `/api`  
   - **Description**: Fetch API Endpoints Documentation.
@@ -10,6 +10,40 @@
   - **Permission**: All.
 
 ---
+## Auth
+- **GET** `/api/auth/blacklist-tokens`  
+  - **Description**: Fetch a list of all blacklisted tokens.
+  - **Permission**: Admin only.
+
+- **GET** `/api/auth/verify-user-token`  
+  - **Description**: Validate login state and user tokens (access & refresh).
+  - **Permission**: User & Admin.
+
+- **POST** `/api/auth/register`  
+  - **Description**: Create the user.
+  - **Permission**: All.
+
+- **POST** `/api/auth/login`  
+  - **Description**: Log in the user.
+  - **Permission**: All.
+
+- **POST** `/api/auth/logout`  
+  - **Description**: Log out the user.
+  - **Permission**: All.
+
+- **POST** `/api/auth/forgot-password`  
+  - **Description**: Request a password reset link.
+  - **Permission**: All.
+
+- **POST** `/api/auth/forgot-password/verify`  
+  - **Description**: Verify forgot password token.
+  - **Permission**: All.
+  
+- **PATCH** `/api/auth/reset-password`  
+  - **Description**: Reset user password.
+  - **Permission**: All.
+---
+
 
 ## Users
 - **GET** `/api/users`  
@@ -34,99 +68,81 @@
   - **Description**: Fetch a list of all files.
   - **Permission**: Admin only.
 
-- **GET** `/api/files/info/:file_id`  
-  - **Description**: Fetch a specific file by file id.
+- **GET** `/api/files/:file_id/info`  
+  - **Description**: Fetch a specific file info by file id.
   - **Permission**: Admin only.
 
-- **DELETE** `/api/files/delete-file-by-file-id/:file_id`  
-  - **Description**: Delete a specific file by file id.
-  - **Permission**: User & Admin.
+- **DELETE** `/api/files/:file_id`  
+  - **Description**: Delete a specific file completely by file id.
+  - **Permission**: User.
 
-- **PATCH** `/api/files/rename-file-by-file-id/:file_id`  
+- **PATCH** `/api/files/:file_id/rename`  
   - **Description**: Rename a specific file by file id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
-- **GET** `/api/files/download-link-by-file-id/:file_id`  
+- **GET** `/api/files/:file_id/download-links`  
   - **Description**: Fetch a list of download links by file id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
-- **POST** `/api/files/create-download-link-by-file-id/:file_id`  
-  - **Description**: Create a download links by file id.
-  - **Permission**: User & Admin.
+- **POST** `/api/files/:file_id/download-link`  
+  - **Description**: Create a download link by file id.
+  - **Permission**: User.
 
-- **DELETE** `/api/files/remove-download-link-by-link-id/:link_id`  
+- **DELETE** `/api/files/download-links/:link_id`  
   - **Description**: Delete a specific download link by link id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
-- **DELETE** `/api/files/remove-many-files-by-body-file-info`  
-  - **Description**: Delete a list of files by file info (file_info object).
-  - **Permission**: User & Admin.
+- **GET** `/api/files/:file_id/preview`  
+  - **Description**: Preview a specific file by link id.
+  - **Permission**: All.
 
-- **PATCH** `/api/files/update-favourite-file-by-file-id/:file_id`  
+- **PATCH** `/api/files/:file_id/favourite`  
   - **Description**: Update a specific file favourite state by file id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
-- **PATCH** `/api/files/update-trash-file-by-file-id/:file_id`  
+- **PATCH** `/api/files/:file_id/trash`  
   - **Description**: Update a specific file trash state by file id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
-- **GET** `/api/files/download-file-by-id/:file_id`  
+- **GET** `/api/files/:file_id/download`  
   - **Description**: Download the file by file id.
   - **Permission**: All.
 
-- **POST** `/api/files/file-upload`  
-  - **Description**: Upload the file.
+- **GET** `/api/files/:file_id/download`  
+  - **Description**: Download the file by file id.
   - **Permission**: All.
 
-- **GET** `/api/files/file-info-by-link/:download_link`  
+- **PATCH** `/api/files/trash-many/files`  
+  - **Description**: Update many file trash state.
+  - **Permission**: User.
+
+- **DELETE** `/api/files/delete-many/files`  
+  - **Description**: Delete many file completely.
+  - **Permission**: User.
+
+- **POST** `/api/files/upload`  
+  - **Description**: Upload files.
+  - **Permission**: All.
+
+- **GET** `/api/files/download-links/:download_link/file-info`  
   - **Description**: Get a specific file info by download link.
   - **Permission**: All.
 
-- **GET** `/api/files/download-link-info-by-link/:download_link`  
+- **GET** `/api/files/download-links/:download_link/details`  
   - **Description**: Get a specific download link info by download link.
   - **Permission**: All.
 
-- **PATCH** `/api/files/increase-download-count-by-link-id/:link_id`  
+- **PATCH** `/api/files/download-links/:link_id/increase-download-count`  
   - **Description**: Increase download count by link id.
   - **Permission**: All.
 
-- **POST** `/api/files/validate-download-password-by-link-id/:link_id`  
+- **POST** `/api/files/download-links/:link_id/validate-password`  
   - **Description**: Validate the password protected download link by link id.
   - **Permission**: All.
----
 
-## Auth
-- **GET** `/api/auth`  
-  - **Description**: Fetch a list of all blacklisted tokens.
-  - **Permission**: Admin only.
 
-- **GET** `/api/auth/test`  
-  - **Description**: Validate login state and user tokens (access & refresh).
-  - **Permission**: User & Admin.
 
-- **POST** `/api/auth/test-forgot-password-token`  
-  - **Description**: Verify forgot password token.
-  - **Permission**: All.
 
-- **POST** `/api/auth/register`  
-  - **Description**: Create the user.
-  - **Permission**: All.
-
-- **POST** `/api/auth/login`  
-  - **Description**: Log in the user.
-  - **Permission**: All.
-
-- **POST** `/api/auth/logout`  
-  - **Description**: Log out the user.
-  - **Permission**: All.
-
-- **POST** `/api/auth/forgot-password`  
-  - **Description**: Request a password reset link.
-  - **Permission**: All.
-  
-- **PATCH** `/reset-password`  
-  - **Description**: Reset user password.
-  - **Permission**: All.
 
 
 
