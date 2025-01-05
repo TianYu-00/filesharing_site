@@ -12,7 +12,7 @@ fileRouter.get("/:file_id/info", userTokenChecker, isLoggedInChecker, checkAdmin
 
 // Protected routes
 fileRouter.delete("/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
-fileRouter.patch("/:file_id/rename", userTokenChecker, isLoggedInChecker, fileController.renameFileById);
+fileRouter.patch("/:file_id/rename", userTokenChecker, isLoggedInChecker, fileController.renameFileById); // tested
 fileRouter.get("/:file_id/download-links", userTokenChecker, isLoggedInChecker, fileController.getDownloadLinks); // tested
 fileRouter.post(
   "/:file_id/download-link",

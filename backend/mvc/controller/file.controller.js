@@ -311,11 +311,16 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
 exports.favouriteFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
