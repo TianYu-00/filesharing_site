@@ -130,11 +130,17 @@ exports.getDownloadLinks = async (req, res, next) => {
 exports.deleteFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
+
     const user_id = req.userData.id;
 
     const file = await retrieveFileInfo(file_id);
 
-    if (file.user_id !== user_id && req.userData.role !== "admin") {
+    if (file.user_id !== user_id) {
       return res.status(403).json({ success: false, msg: "Access denied", data: null });
     }
 
@@ -291,11 +297,16 @@ exports.validateDownloadLinkPassword = async (req, res, next) => {
 exports.removeManyFilesByFileInfo = async (req, res, next) => {
   try {
     const { files } = req.body;
+    if (files.length <= 0) {
+      const error = new Error("Invalid body");
+      error.code = "INVALID_BODY";
+      return next(error);
+    }
     const loggedInUserId = req.userData.id;
     const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
 
     if (!checkResult) {
-      res.json({ success: false, msg: "Access denied", data: null });
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
     const data = await deleteManyFilesByFileIds(files);

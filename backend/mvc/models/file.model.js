@@ -203,7 +203,7 @@ exports.retrieveDownloadLinks = async (file_id) => {
 exports.deleteFile = async (file_id) => {
   try {
     const fileInfo = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, fileInfo.path);
+    const filePath = fetchFullUploadPath(fileInfo.path);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

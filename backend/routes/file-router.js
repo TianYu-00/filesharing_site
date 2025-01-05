@@ -30,7 +30,7 @@ fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFile
 fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById); // tested
 fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById); // tested
 fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile); //tested
-fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
+fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById); // tested
 fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
 
 // Public routes
