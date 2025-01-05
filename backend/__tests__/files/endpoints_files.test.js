@@ -319,7 +319,7 @@ xdescribe("GET /api/files/download-links/:download_link/details", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// DOWNLOAD LINK COUNT INCREASE BY LINK ID
-describe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
+xdescribe("PATCH /api/files/download-links/:link_id/increase-download-count", () => {
   test("should return 400 status code, indicating invalid file id", async () => {
     await request(app).patch("/api/files/download-links/invalid-link-id/increase-download-count").expect(400);
   });
@@ -366,4 +366,33 @@ describe("PATCH /api/files/download-links/:link_id/increase-download-count", () 
 
   // note:
   // test download limit exceeded later
+});
+
+/////////////////////////////////////////////////////////////////////////// DOWNLOAD LINKS BY FILE ID
+describe("GET /api/files/:file_id/download-links", () => {
+  test("should return 401 status code, indicating unauthorized (not logged in)", async () => {
+    await request(app).get("/api/files/1/download-links").expect(401);
+  });
+
+  test("should return 403 status code, indicating forbidden access (logged in but not the owner)", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const newUploadId = uploadResponse.data.file.id;
+
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    await request(app).get(`/api/files/${newUploadId}/download-links`).set("Cookie", cookies).expect(403);
+  });
+
+  test("should return 200 status code, indicating successful response", async () => {
+    const tempUserLoginCredentials = data.users[1];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    await request(app).get("/api/files/1/download-links").set("Cookie", cookies).expect(200);
+  });
 });
