@@ -12,7 +12,7 @@ authRouter.get("/verify-user-token", userTokenChecker, isLoggedInChecker, authCo
 // Authentication
 authRouter.post("/register", authController.attemptRegister);
 authRouter.post("/login", authController.attemptLogin);
-authRouter.post("/logout", authController.attemptLogout);
+authRouter.post("/logout", userTokenChecker, isLoggedInChecker, authController.attemptLogout);
 
 // User Password management
 authRouter.post("/forgot-password", authController.sendPasswordResetLink);

@@ -33,6 +33,11 @@ exports.testUserTokens = async (req, res, next) => {
 exports.attemptRegister = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
+    }
     const data = await createUser({ username, email, password });
 
     req.user = data;
@@ -50,7 +55,12 @@ exports.attemptRegister = async (req, res, next) => {
 
 exports.attemptLogin = async (req, res, next) => {
   try {
-    const { email, password, isRememberMe } = req.body;
+    const { email, password, isRememberMe = false } = req.body;
+    if (!email || !password) {
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
+    }
 
     const data = await authenticateUser({ email, password });
 
@@ -123,7 +133,10 @@ const emailSendingSuccessfulRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 1,
   message: "Email has already been sent, Please wait and try again after a minute.",
-  handler: (req, res) => {
+  handler: (req, res, next) => {
+    if (process.env.NODE_ENV === "test") {
+      return next();
+    }
     const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
     return res.status(429).json({
       success: false,
@@ -137,7 +150,10 @@ const emailSendingRequestRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
   message: "Too many password reset requests. Please wait and try again after a minute.",
-  handler: (req, res) => {
+  handler: (req, res, next) => {
+    if (process.env.NODE_ENV === "test") {
+      return next();
+    }
     const coolDown = Math.ceil((req.rateLimit.resetTime - new Date()) / 1000);
     return res.status(429).json({
       success: false,
@@ -151,14 +167,24 @@ exports.sendPasswordResetLink = [
   emailSendingRequestRateLimiter,
   async (req, res, next) => {
     try {
-      const { email } = req.body;
+      const { email, isTest } = req.body;
+      if (!email) {
+        const error = new Error("Missing credentials");
+        error.code = "MISSING_CREDENTIALS";
+        return next(error);
+      }
       const user = await getUserByEmail(email);
 
       const forgotPasswordToken = await createForgotPasswordToken(email);
 
       const resetLink = `${process.env.FRONTEND_URL}/password-reset-confirm?token=${forgotPasswordToken}`;
 
-      const textContent = `
+      let textContent;
+
+      if (process.env.NODE_ENV === "test" || isTest) {
+        textContent = `${forgotPasswordToken}`;
+      } else {
+        textContent = `
         Hello,
 
         We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
@@ -176,12 +202,18 @@ exports.sendPasswordResetLink = [
         Thanks,
         The DropBoxer Team
       `;
+      }
 
       emailSendingSuccessfulRateLimiter(req, res, async () => {
-        const response = await sendEmail(email, "DropBoxer Password Reset", textContent);
+        const response = await sendEmail({
+          emailTo: email,
+          emailSubject: "DropBoxer Password Reset",
+          emailText: textContent,
+          isTest: isTest,
+        });
 
         if (response.success) {
-          res.status(200).json({ success: true, msg: response.message, data: null });
+          res.status(200).json({ success: true, msg: response.message, data: response.data });
         } else {
           res.status(500).json({ success: false, msg: response.message, data: null });
         }
@@ -199,7 +231,9 @@ exports.resetPassword = async (req, res, next) => {
     const forgotPasswordToken = req.forgotPasswordToken;
 
     if (!email || !password) {
-      return res.status(400).json({ success: false, msg: "Email or Password is missing." });
+      const error = new Error("Missing credentials");
+      error.code = "MISSING_CREDENTIALS";
+      return next(error);
     }
 
     const data = await patchUserPasswordByEmail(email, password);

@@ -10,7 +10,14 @@ require("dotenv").config({
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTest = false, isAllowReplyTo = false) => {
+const sendEmail = async ({
+  emailTo,
+  emailSubject,
+  emailText,
+  emailHtml = "",
+  isTest = false,
+  isAllowReplyTo = false,
+}) => {
   try {
     const msg = {
       to: emailTo,
@@ -19,7 +26,7 @@ const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTes
       text: emailText,
       mail_settings: {
         sandbox_mode: {
-          enable: isTest,
+          enable: process.env.NODE_ENV === "test" || isTest,
         },
       },
     };
@@ -40,20 +47,24 @@ const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTes
       data: null,
     };
 
-    if (isTest) {
+    if (isTest || process.env.NODE_ENV === "test") {
       if (response.statusCode === 200) {
-        console.log("Sandbox Mode: Email successfully processed, but not sent.");
-        result = { success: true, message: "Email has been successfully processed in sandbox mode.", data: null };
+        // console.log("Sandbox Mode: Email successfully processed, but not sent.");
+        result = {
+          success: true,
+          message: "Email has been successfully processed in sandbox mode.",
+          data: msg,
+        };
       } else {
-        console.log("Unexpected response in sandbox mode:", response.statusCode);
+        // console.log("Unexpected response in sandbox mode:", response.statusCode);
         result = { success: false, message: "Failed to process email in sandbox mode.", data: null };
       }
     } else {
       if (response.statusCode === 202) {
-        console.log("Email request is accepted.", emailTo);
+        // console.log("Email request is accepted.", emailTo);
         result = { success: true, message: "Email has been sent.", data: null };
       } else {
-        console.log("Unexpected response status:", response.statusCode);
+        // console.log("Unexpected response status:", response.statusCode);
         result = { success: false, message: "Failed to send email.", data: null };
       }
     }
@@ -65,5 +76,3 @@ const sendEmail = async (emailTo, emailSubject, emailText, emailHtml = "", isTes
 };
 
 module.exports = sendEmail;
-
-// sendEmail("test@example.com", "Test Email Subject", "Test Email Text", `<strong>Test Email HTML</strong>`, true);

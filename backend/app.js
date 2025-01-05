@@ -60,7 +60,7 @@ app.use((err, req, res, next) => {
   }
   // LIMIT_EXCEEDED
   else if (err.code === "LIMIT_EXCEEDED") {
-    res.status(500).send({
+    res.status(403).send({
       success: false,
       msg: err.message || "Download limit as exceeded",
       data: null,
@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
   }
   // "PASSWORD_NOT_FOUND"
   else if (err.code === "PASSWORD_NOT_FOUND") {
-    res.status(500).send({
+    res.status(404).send({
       success: false,
       msg: err.message || "Password not found",
       data: null,
@@ -135,6 +135,33 @@ app.use((err, req, res, next) => {
     res.status(409).send({
       success: false,
       msg: "Data already exists.",
+      data: null,
+      code: err.code,
+    });
+  }
+  // MISSING_CREDENTIALS
+  else if (err.code === "MISSING_CREDENTIALS") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "Missing credentials",
+      data: null,
+      code: err.code,
+    });
+  }
+  // INVALID_ID
+  else if (err.code === "INVALID_ID") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "Invalid ID",
+      data: null,
+      code: err.code,
+    });
+  }
+  // INVALID_BODY
+  else if (err.code === "INVALID_BODY") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "Invalid body",
       data: null,
       code: err.code,
     });

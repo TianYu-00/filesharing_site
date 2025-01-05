@@ -26,7 +26,7 @@ exports.uploadFile = async (req) => {
         return reject({ code: "UPLOAD_ERROR", message: "Error uploading file" });
       }
       if (!req.file) {
-        return reject({ code: "UPLOAD_ERROR", message: "No file uploaded" });
+        return reject({ code: "UPLOAD_ERROR", message: "File was not provided" });
       }
 
       req.file.destination = createRelativePath(req.file.destination);
@@ -106,7 +106,7 @@ exports.retrieveFileInfo = async (file_id) => {
 exports.retrieveFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, file.path);
+    const filePath = fetchFullUploadPath(file.path);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ success: false, msg: "File not found", data: null });
     }
@@ -124,8 +124,8 @@ exports.retrieveFile = async (file_id, res) => {
 exports.retrievePreviewFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, file.path);
-    const outputPath = path.join(baseUploadDir, "preview");
+    const filePath = fetchFullUploadPath(file.path);
+    const outputPath = fetchFullUploadPath("preview");
     const pdfFilePath = path.join(outputPath, `${file.filename}.pdf`);
 
     const pdfFriendlyExtensions = [".docx", ".doc", ".txt", ".ppt", ".pptx"];
@@ -203,7 +203,7 @@ exports.retrieveDownloadLinks = async (file_id) => {
 exports.deleteFile = async (file_id) => {
   try {
     const fileInfo = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, fileInfo.path);
+    const filePath = fetchFullUploadPath(fileInfo.path);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -245,7 +245,7 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
 
       return sanitizedFileInfo;
     } else {
-      return null;
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
     }
   } catch (err) {
     console.error(err);
@@ -413,7 +413,7 @@ exports.deleteManyFilesByFileIds = async (files) => {
     const fileIds = files.map((file) => file.id);
 
     for (const file of files) {
-      const filePath = path.join(baseUploadDir, file.path);
+      const filePath = fetchFullUploadPath(file.path);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       } else {
@@ -497,6 +497,10 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
       return true;
     }
 
+    if (!password) {
+      return Promise.reject({ code: "PASSWORD_REQUIRED", message: "Password is required" });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, linkInfo.password);
 
     return isPasswordValid;
@@ -509,16 +513,13 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
 exports.checkAllFilesBelongToUser = async (files, user_id) => {
   try {
     const fileIds = files.map((file) => file.id);
-    const query = "SELECT * FROM file_info WHERE id = ANY($1)";
-    const fileInfos = await db.query(query, [fileIds]);
 
-    for (const fileInfo of fileInfos.rows) {
-      if (fileInfo.user_id !== user_id) {
-        return false;
-      }
-    }
+    const query = "SELECT id FROM file_info WHERE id = ANY($1) AND user_id = $2";
+    const result = await db.query(query, [fileIds, user_id]);
 
-    return true;
+    const allFilesBelong = result.rows.length === fileIds.length;
+
+    return allFilesBelong;
   } catch (err) {
     console.error(err);
     return false;

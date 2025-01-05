@@ -59,6 +59,11 @@ exports.postFile = async (req, res, next) => {
 exports.getFileInfo = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const file = await retrieveFileInfo(file_id);
     res.json({ success: true, msg: "File data has been fetched", data: file });
   } catch (err) {
@@ -70,6 +75,12 @@ exports.getFileInfo = async (req, res, next) => {
 exports.getFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
+
     const fileInfo = await retrieveFileInfo(file_id);
     const loggedInUserId = req.userData?.id;
 
@@ -91,7 +102,7 @@ exports.getFile = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Invalid link or password" });
     }
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -119,18 +130,24 @@ exports.getDownloadLinks = async (req, res, next) => {
 exports.deleteFile = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
+
     const user_id = req.userData.id;
 
     const file = await retrieveFileInfo(file_id);
 
-    if (file.user_id !== user_id && req.userData.role !== "admin") {
+    if (file.user_id !== user_id) {
       return res.status(403).json({ success: false, msg: "Access denied", data: null });
     }
 
     await deleteFile(file_id);
     res.json({ success: true, msg: "File has been deleted", data: null });
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -140,10 +157,6 @@ exports.getFileInfoByLink = async (req, res, next) => {
   try {
     const downloadLink = req.params.download_link;
     const fileInfo = await retrieveFileInfoByLink(downloadLink);
-
-    if (!fileInfo) {
-      return res.status(404).json({ success: false, msg: "File not found", data: null });
-    }
 
     res.json({ success: true, msg: "File information retrieved", data: fileInfo });
   } catch (err) {
@@ -155,11 +168,16 @@ exports.getFileInfoByLink = async (req, res, next) => {
 exports.renameFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid file id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -168,7 +186,7 @@ exports.renameFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "Files changed successfully", data: data });
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -181,7 +199,7 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -189,7 +207,7 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
     const data = await createDownloadLink(file_id, expires_at, password, download_limit);
     res.json({ success: true, msg: "Download link created successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -198,6 +216,11 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
 exports.removeDownloadLinkByLinkId = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
 
     const { user_id } = await retrieveFileInfoByDownloadLinkId(link_id);
 
@@ -210,7 +233,7 @@ exports.removeDownloadLinkByLinkId = async (req, res, next) => {
     const data = await deleteDownloadLink(link_id);
     res.json({ success: true, msg: "Download link has been deleted", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -221,13 +244,9 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
     const downloadLink = req.params.download_link;
     const linkInfo = await retrieveDownloadLinkInfo(downloadLink);
 
-    if (!linkInfo) {
-      return res.status(404).json({ success: false, msg: "Download link not found" });
-    }
-
     res.json({ success: true, msg: "Download link info has been fetched", data: linkInfo });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -236,10 +255,15 @@ exports.getDownloadLinkInfoByDownloadLink = async (req, res, next) => {
 exports.updateDownloadLinkCount = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const data = await patchDownloadLinkLimitCount(link_id);
     res.json({ success: true, msg: "Download link counter increased", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -248,12 +272,23 @@ exports.updateDownloadLinkCount = async (req, res, next) => {
 exports.validateDownloadLinkPassword = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
+
     const { password } = req.body;
+    if (!password) {
+      const error = new Error("Password missing");
+      error.code = "PASSWORD_NOT_FOUND";
+      return next(error);
+    }
     const data = await validateDownloadPassword(link_id, password);
 
     res.json({ success: true, msg: "Password validated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -262,18 +297,21 @@ exports.validateDownloadLinkPassword = async (req, res, next) => {
 exports.removeManyFilesByFileInfo = async (req, res, next) => {
   try {
     const { files } = req.body;
+    if (files.length <= 0) {
+      const error = new Error("Invalid body");
+      error.code = "INVALID_BODY";
+      return next(error);
+    }
     const loggedInUserId = req.userData.id;
     const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
-
     if (!checkResult) {
-      res.json({ success: false, msg: "Access denied", data: null });
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
-
     const data = await deleteManyFilesByFileIds(files);
 
     res.json({ success: true, msg: "Files has been deleted", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -282,11 +320,16 @@ exports.removeManyFilesByFileInfo = async (req, res, next) => {
 exports.favouriteFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -298,7 +341,7 @@ exports.favouriteFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "File has been updated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -307,11 +350,16 @@ exports.favouriteFileById = async (req, res, next) => {
 exports.trashFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const fileInfo = await retrieveFileInfo(file_id);
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -323,7 +371,7 @@ exports.trashFileById = async (req, res, next) => {
 
     res.json({ success: true, msg: "File has been updated successfully", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -332,18 +380,25 @@ exports.trashFileById = async (req, res, next) => {
 exports.trashManyFileById = async (req, res, next) => {
   try {
     const { files, trash } = req.body;
+    if (files.length <= 0 || trash === undefined) {
+      const error = new Error("Invalid body");
+      error.code = "INVALID_BODY";
+      return next(error);
+    }
+
     const loggedInUserId = req.userData.id;
+    // console.log(files);
     const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
 
     if (!checkResult) {
-      res.json({ success: false, msg: "Access denied", data: null });
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
     const data = await updateManyTrashFilesByFilesAndTrashState(files, trash);
 
     res.json({ success: true, msg: "Files has been trashed", data: data });
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     next(err);
   }
 };
@@ -351,6 +406,11 @@ exports.trashManyFileById = async (req, res, next) => {
 exports.previewFileById = async (req, res, next) => {
   try {
     const file_id = req.params.file_id;
+    if (isNaN(Number(file_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
     const fileInfo = await retrieveFileInfo(file_id);
     const loggedInUserId = req.userData?.id;
 
@@ -372,7 +432,7 @@ exports.previewFileById = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Invalid link or password" });
     }
   } catch (err) {
-    console.log(err);
+    // console.error(err);
     next(err);
   }
 };
