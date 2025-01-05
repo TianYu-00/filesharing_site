@@ -256,7 +256,18 @@ exports.updateDownloadLinkCount = async (req, res, next) => {
 exports.validateDownloadLinkPassword = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
+
     const { password } = req.body;
+    if (!password) {
+      const error = new Error("Password missing");
+      error.code = "PASSWORD_NOT_FOUND";
+      return next(error);
+    }
     const data = await validateDownloadPassword(link_id, password);
 
     res.json({ success: true, msg: "Password validated successfully", data: data });

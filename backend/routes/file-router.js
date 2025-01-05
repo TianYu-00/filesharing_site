@@ -19,7 +19,7 @@ fileRouter.post(
   userTokenChecker,
   isLoggedInChecker,
   fileController.createDownloadLinkByFileId
-);
+); // tested
 fileRouter.delete(
   "/download-links/:link_id",
   userTokenChecker,
