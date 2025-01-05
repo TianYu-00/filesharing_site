@@ -21,6 +21,6 @@ describe("GET /api/users", () => {
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     const { body } = await request(app).get("/api/users").set("Cookie", cookies).expect(200);
-    expect(body.data).toHaveLength(2);
+    expect(body.data).toHaveLength(3);
   });
 });
