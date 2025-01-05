@@ -205,6 +205,11 @@ exports.createDownloadLinkByFileId = async (req, res, next) => {
 exports.removeDownloadLinkByLinkId = async (req, res, next) => {
   try {
     const link_id = req.params.link_id;
+    if (isNaN(Number(link_id))) {
+      const error = new Error("Invalid link id");
+      error.code = "INVALID_ID";
+      return next(error);
+    }
 
     const { user_id } = await retrieveFileInfoByDownloadLinkId(link_id);
 

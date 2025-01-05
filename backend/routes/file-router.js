@@ -38,6 +38,6 @@ fileRouter.post("/upload", fileController.postFile); // tested
 fileRouter.get("/download-links/:download_link/file-info", fileController.getFileInfoByLink); // tested
 fileRouter.get("/download-links/:download_link/details", fileController.getDownloadLinkInfoByDownloadLink); // tested
 fileRouter.patch("/download-links/:link_id/increase-download-count", fileController.updateDownloadLinkCount); // tested
-fileRouter.post("/download-links/:link_id/validate-password", fileController.validateDownloadLinkPassword);
+fileRouter.post("/download-links/:link_id/validate-password", fileController.validateDownloadLinkPassword); // tested
 
 module.exports = fileRouter;
