@@ -82,7 +82,6 @@ npm run seed
 npm start
 ```
 
-
 ## Frontend 
 1) Navigate to frontend directory and install the packages
 ```
@@ -94,4 +93,18 @@ npm install
 ```
 npm run dev
 ```
+
+## Testing
+1) Navigate to backend if you have not already
+      ```
+        cd backend
+      ```
+2) Install the dependencies if you have not already
+      ```
+        npm install
+      ```
+3) Run the tests
+      ```
+        npm test
+      ```
 
