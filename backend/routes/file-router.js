@@ -27,7 +27,7 @@ fileRouter.delete(
   fileController.removeDownloadLinkByLinkId
 ); // tested
 fileRouter.get("/:file_id/preview", userTokenChecker, fileController.previewFileById);
-fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById);
+fileRouter.patch("/:file_id/favourite", userTokenChecker, isLoggedInChecker, fileController.favouriteFileById); // tested
 fileRouter.patch("/:file_id/trash", userTokenChecker, isLoggedInChecker, fileController.trashFileById);
 fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile); //tested
 fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
