@@ -509,16 +509,13 @@ exports.validateDownloadLinkAndPassword = async (download_link, password) => {
 exports.checkAllFilesBelongToUser = async (files, user_id) => {
   try {
     const fileIds = files.map((file) => file.id);
-    const query = "SELECT * FROM file_info WHERE id = ANY($1)";
-    const fileInfos = await db.query(query, [fileIds]);
 
-    for (const fileInfo of fileInfos.rows) {
-      if (fileInfo.user_id !== user_id) {
-        return false;
-      }
-    }
+    const query = "SELECT id FROM file_info WHERE id = ANY($1) AND user_id = $2";
+    const result = await db.query(query, [fileIds, user_id]);
 
-    return true;
+    const allFilesBelong = result.rows.length === fileIds.length;
+
+    return allFilesBelong;
   } catch (err) {
     console.error(err);
     return false;
