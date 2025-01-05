@@ -152,10 +152,6 @@ exports.getFileInfoByLink = async (req, res, next) => {
     const downloadLink = req.params.download_link;
     const fileInfo = await retrieveFileInfoByLink(downloadLink);
 
-    if (!fileInfo) {
-      return res.status(404).json({ success: false, msg: "File not found", data: null });
-    }
-
     res.json({ success: true, msg: "File information retrieved", data: fileInfo });
   } catch (err) {
     next(err);

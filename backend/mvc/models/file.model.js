@@ -245,7 +245,7 @@ exports.retrieveFileInfoByLink = async (downloadLink) => {
 
       return sanitizedFileInfo;
     } else {
-      return null;
+      return Promise.reject({ code: "FILE_NOT_FOUND", message: "File not found" });
     }
   } catch (err) {
     console.error(err);
