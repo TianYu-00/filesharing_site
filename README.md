@@ -10,6 +10,8 @@ Dropboxer also includes secure login and registration through JWT, bcrypt, and H
 
 [Getting started](https://github.com/TianYu-00/filesharing_site?tab=readme-ov-file#getting-started) | [Backend](https://github.com/TianYu-00/filesharing_site?tab=readme-ov-file#backend) | [Frontend](https://github.com/TianYu-00/filesharing_site?tab=readme-ov-file#frontend)
 
+[![CI](https://github.com/TianYu-00/filesharing_site/actions/workflows/ci.yml/badge.svg)](https://github.com/TianYu-00/filesharing_site/actions/workflows/ci.yml)
+
 ![image](https://github.com/user-attachments/assets/cc915ffa-4439-43e0-bd5d-23daecac261f)
 </div>
 
