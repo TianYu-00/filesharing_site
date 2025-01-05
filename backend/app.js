@@ -157,6 +157,15 @@ app.use((err, req, res, next) => {
       code: err.code,
     });
   }
+  // INVALID_BODY
+  else if (err.code === "INVALID_BODY") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "Invalid body",
+      data: null,
+      code: err.code,
+    });
+  }
 
   // Final
   else {

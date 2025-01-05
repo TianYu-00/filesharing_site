@@ -371,11 +371,18 @@ exports.trashFileById = async (req, res, next) => {
 exports.trashManyFileById = async (req, res, next) => {
   try {
     const { files, trash } = req.body;
+    if (files.length <= 0 || trash === undefined) {
+      const error = new Error("Invalid body");
+      error.code = "INVALID_BODY";
+      return next(error);
+    }
+
     const loggedInUserId = req.userData.id;
+    // console.log(files);
     const checkResult = await checkAllFilesBelongToUser(files, loggedInUserId);
 
     if (!checkResult) {
-      res.json({ success: false, msg: "Access denied", data: null });
+      return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
     const data = await updateManyTrashFilesByFilesAndTrashState(files, trash);
