@@ -106,7 +106,7 @@ exports.retrieveFileInfo = async (file_id) => {
 exports.retrieveFile = async (file_id, res) => {
   try {
     const file = await exports.retrieveFileInfo(file_id);
-    const filePath = path.join(baseUploadDir, file.path);
+    const filePath = fetchFullUploadPath(file.path);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ success: false, msg: "File not found", data: null });
     }

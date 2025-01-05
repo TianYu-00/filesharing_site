@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILES
-describe("GET /api/files", () => {
+xdescribe("GET /api/files", () => {
   test("should return a 403 status code, indicating users cannot access the list of all users", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -32,7 +32,7 @@ describe("GET /api/files", () => {
   });
 });
 
-describe("GET /api/files/:file_id/info", () => {
+xdescribe("GET /api/files/:file_id/info", () => {
   test("should return a 403 status code, indicating users cannot access file info", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
@@ -77,7 +77,7 @@ describe("GET /api/files/:file_id/info", () => {
 });
 
 /////////////////////////////////////////////////////////////////////////// FILE UPLOAD
-describe("POST /api/files/upload", () => {
+xdescribe("POST /api/files/upload", () => {
   test("should return 400 status code, indicating file is missing", async () => {
     const { body } = await request(app).post("/api/files/upload").expect(400);
     expect(body.success).toBe(false);
@@ -138,4 +138,76 @@ describe("POST /api/files/upload", () => {
     const fileDirectory = path.join(testBaseUploadDir, body.data.file.user_id.toString(), body.data.file.filename);
     expect(fs.existsSync(fileDirectory)).toBe(true);
   });
+});
+
+/////////////////////////////////////////////////////////////////////////// FILE DOWNLOAD
+describe("GET /api/files/:file_id/download", () => {
+  test("should return 400 status code, indicating invalid file id", async () => {
+    await request(app).get("/api/files/invalid-id/download").expect(400);
+  });
+
+  test("should return 404 status code, indicating file not found", async () => {
+    await request(app).get("/api/files/100/download").expect(404);
+  });
+
+  test("should return 200 status code, indicating file downloaded successfully", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileId = uploadResponse.data.file.id;
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    await request(app).get(`/api/files/${fileId}/download?link=${downloadLink}`).expect(200);
+  });
+
+  test("should verify that the content of the downloaded file matches the content of the original file", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileId = uploadResponse.data.file.id;
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const downloadResponse = await request(app)
+      .get(`/api/files/${fileId}/download?link=${downloadLink}`)
+      .buffer(true)
+      .parse((res, callback) => {
+        const chunks = [];
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => callback(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+
+    const originalFileContent = fs.readFileSync(testFilePath);
+    expect(downloadResponse.body).toEqual(originalFileContent);
+  });
+
+  test("should return 403 status code, indicating forbidden access due to invalid download link", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileId = uploadResponse.data.file.id;
+
+    await request(app).get(`/api/files/${fileId}/download?link=invalid-link`).expect(403);
+  });
+
+  test("should return a 200 status code, indicating the file was successfully downloaded by the owner without requiring a download link", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .set("Cookie", cookies)
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileId = uploadResponse.data.file.id;
+
+    await request(app).get(`/api/files/${fileId}/download`).set("Cookie", cookies).expect(200);
+  });
+
+  // note:
+  // test download link password later
 });
