@@ -40,14 +40,7 @@ describe("DELETE /api/files/delete-many/files", () => {
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
     await request(app).post("/api/files/upload").set("Cookie", cookies).attach("file", testFilePath).expect(200);
-    const { body: filesResponse } = await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(200);
-    const listOfFiles = filesResponse.data;
-
-    await request(app)
-      .delete(`/api/files/delete-many/files`)
-      .send({ files: listOfFiles })
-      .set("Cookie", cookies)
-      .expect(403);
+    await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(403);
   });
 
   test("should return 403 status code, indicating some files do not belong to the user", async () => {

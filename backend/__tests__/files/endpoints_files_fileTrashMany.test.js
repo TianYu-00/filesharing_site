@@ -48,16 +48,7 @@ describe("PATCH /api/files/trash-many/files", () => {
     const tempUserLoginCredentials = data.users[1];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
-    const { body: filesResponse } = await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(200);
-
-    const listOfFiles = filesResponse.data;
-    const newTrashState = true;
-
-    await request(app)
-      .patch(`/api/files/trash-many/files`)
-      .send({ files: listOfFiles, trash: newTrashState })
-      .set("Cookie", cookies)
-      .expect(403);
+    await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(403);
   });
 
   test("should return 403 status code, indicating some files do not belong to the user", async () => {
