@@ -417,7 +417,7 @@ exports.deleteManyFilesByFileIds = async (files) => {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       } else {
-        console.warn(`File not found: ${filePath}`);
+        // console.warn(`File not found: ${filePath}`);
       }
     }
 
