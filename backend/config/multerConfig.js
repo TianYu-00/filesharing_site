@@ -40,6 +40,37 @@ const multerStorageConfig = () => {
     filename: (req, file, cb) => {
       const newFileName = createFileNameWithSuffix(file.originalname);
       cb(null, newFileName);
+      req.on("aborted", () => {
+        let uploadDir;
+        if (process.env.NODE_ENV === "test") {
+          uploadDir = testBaseUploadDir;
+        } else {
+          uploadDir = baseUploadDir;
+        }
+
+        if (req.userId) {
+          if (process.env.NODE_ENV === "test") {
+            uploadDir = path.join(testBaseUploadDir, String(req.userId), newFileName);
+          } else {
+            uploadDir = path.join(baseUploadDir, String(req.userId), newFileName);
+          }
+        } else {
+          if (process.env.NODE_ENV === "test") {
+            uploadDir = path.join(testBaseUploadDir, "guests", newFileName);
+          } else {
+            uploadDir = path.join(baseUploadDir, "guests", newFileName);
+          }
+        }
+        file.stream.on("end", () => {
+          fs.unlink(uploadDir, (err) => {
+            // console.log(uploadDir);
+            if (err) {
+              throw err;
+            }
+          });
+        });
+        file.stream.emit("end");
+      });
     },
   });
 };
