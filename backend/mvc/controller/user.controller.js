@@ -35,7 +35,7 @@ exports.editUserById = async (req, res, next) => {
     const user_id = req.params.user_id;
     const loggedInUserId = req.userData.id.toString();
 
-    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -103,7 +103,7 @@ exports.fetchAllFilesBelongToUserId = async (req, res, next) => {
     const user_id = req.params.user_id;
     const loggedInUserId = req.userData.id.toString();
 
-    if (user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 

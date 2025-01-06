@@ -56,11 +56,11 @@
 
 - **PATCH** `/api/users/:user_id`  
   - **Description**: Edit a specific user by user id.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 
 - **GET** `/api/users/:user_id/files`  
   - **Description**: Fetch all files that belong to the specific user.
-  - **Permission**: User & Admin.
+  - **Permission**: User.
 ---
 
 ## Files
