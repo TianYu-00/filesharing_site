@@ -51,6 +51,16 @@ describe("POST api/auth/login", () => {
     }
   });
 
+  test("should return success = true", async () => {
+    try {
+      const tempUserLoginCredentials = data.users[0];
+      const { body } = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      expect(body.success).toBe(true);
+    } catch (error) {
+      throw error;
+    }
+  });
+
   test("should return the correct user details", async () => {
     try {
       const tempUserLoginCredentials = data.users[0];

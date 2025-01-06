@@ -89,6 +89,22 @@ describe("DELETE /api/files/delete-many/files", () => {
       .expect(200);
   });
 
+  test("should return success = true", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+    const { body: filesResponse } = await request(app).get("/api/users/1/files").set("Cookie", cookies).expect(200);
+
+    const listOfFiles = filesResponse.data;
+
+    const { body } = await request(app)
+      .delete(`/api/files/delete-many/files`)
+      .send({ files: listOfFiles })
+      .set("Cookie", cookies)
+      .expect(200);
+    expect(body.success).toBe(true);
+  });
+
   test("should verify the files has been removed from database", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);

@@ -27,4 +27,15 @@ describe("POST api/auth/forgot-password/verify", () => {
       throw error;
     }
   });
+
+  test("should return success = true", async () => {
+    const tempBody = { email: data.users[0].email };
+    const sendEmailResponse = await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
+    const token = sendEmailResponse.body.data.text;
+    const { body } = await request(app)
+      .post("/api/auth/forgot-password/verify")
+      .send({ forgotPasswordToken: token })
+      .expect(200);
+    expect(body.success).toBe(true);
+  });
 });

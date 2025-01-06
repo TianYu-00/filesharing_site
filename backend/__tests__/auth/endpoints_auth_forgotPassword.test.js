@@ -37,6 +37,12 @@ describe("POST api/auth/forgot-password", () => {
     }
   });
 
+  test("should return success = true", async () => {
+    const tempBody = { email: data.users[0].email };
+    const { body } = await request(app).post("/api/auth/forgot-password").send(tempBody);
+    expect(body.success).toBe(true);
+  });
+
   test("should return a 200 status code, indicating the token is valid and is correct type", async () => {
     try {
       const tempBody = { email: data.users[0].email };

@@ -29,6 +29,17 @@ describe("GET /api/files/download-links/:download_link/details", () => {
     await request(app).get(`/api/files/download-links/${downloadLink}/details`).expect(200);
   });
 
+  test("should return should return success = true", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const { body } = await request(app).get(`/api/files/download-links/${downloadLink}/details`).expect(200);
+    expect(body.success).toBe(true);
+  });
+
   test("should return 200 status code and contain download link details", async () => {
     const { body: uploadResponse } = await request(app)
       .post("/api/files/upload")

@@ -100,5 +100,6 @@ describe("PATCH /api/files/trash-many/files", () => {
 
     const allFilesHaveNewTrashState = body.data.every((file) => file.trash === newTrashState);
     expect(allFilesHaveNewTrashState).toBe(true);
+    expect(body.success).toBe(true);
   });
 });

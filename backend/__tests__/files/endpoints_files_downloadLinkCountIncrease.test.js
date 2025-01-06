@@ -36,6 +36,25 @@ describe("PATCH /api/files/download-links/:link_id/increase-download-count", () 
     await request(app).patch(`/api/files/download-links/${linkId}/increase-download-count`).expect(200);
   });
 
+  test("should return success = true", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    const { body: linkDetailsResponse } = await request(app)
+      .get(`/api/files/download-links/${downloadLink}/details`)
+      .expect(200);
+    const linkId = linkDetailsResponse.data.id;
+
+    const { body } = await request(app)
+      .patch(`/api/files/download-links/${linkId}/increase-download-count`)
+      .expect(200);
+
+    expect(body.success).toBe(true);
+  });
+
   test("should verify that the download count has increased by 1", async () => {
     const { body: uploadResponse } = await request(app)
       .post("/api/files/upload")
