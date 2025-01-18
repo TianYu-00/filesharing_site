@@ -106,7 +106,7 @@ function Home() {
           }));
           // toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
-          toast.error(`Failed to upload: ${file.name}. ${error.response.data.msg}`);
+          toast.error(`Failed to upload: ${file.name}. ${error.response?.data?.msg || error.response?.data}`);
         }
       }
 
