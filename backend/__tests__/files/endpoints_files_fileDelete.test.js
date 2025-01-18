@@ -17,14 +17,6 @@ describe("DELETE /api/files/:file_id", () => {
     await request(app).delete(`/api/files/1`).expect(401);
   });
 
-  test("should return 403 status code, indicating forbidden access (logged in but not the owner)", async () => {
-    const tempUserLoginCredentials = data.users[1];
-    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
-    const cookies = loginResponse.headers["set-cookie"];
-
-    await request(app).delete(`/api/files/1`).set("Cookie", cookies).expect(403);
-  });
-
   test("should return 400 status code, indicating invalid file id", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);

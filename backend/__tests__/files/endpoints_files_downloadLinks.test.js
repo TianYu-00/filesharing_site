@@ -34,7 +34,7 @@ describe("GET /api/files/:file_id/download-links", () => {
   });
 
   test("should return 200 status code, indicating successful response", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
 
@@ -42,7 +42,7 @@ describe("GET /api/files/:file_id/download-links", () => {
   });
 
   test("should return success = true", async () => {
-    const tempUserLoginCredentials = data.users[1];
+    const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
     const cookies = loginResponse.headers["set-cookie"];
 
