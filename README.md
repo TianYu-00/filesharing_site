@@ -14,7 +14,9 @@ Dropboxer also includes secure login and registration through JWT, bcrypt, and H
 
 ![image](https://github.com/user-attachments/assets/cc915ffa-4439-43e0-bd5d-23daecac261f)
 
-https://dropboxer-tianyu.vercel.app
+|                   **Frontend**                  |                                                                 **Backend**                                                                |
+|:-----------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------:|
+| _[Vercel](https://dropboxer-tianyu.vercel.app)_ | _[Railway](https://railway.com/project/d358b6ec-77c4-48df-9035-3a564c6870f4?environmentId=80ed0cfa-41be-45ae-9a7e-b5418a672fa7) (Private)_ |
 
 </div>
 
