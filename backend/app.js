@@ -9,7 +9,7 @@ const corsConfigOptions = {
   credentials: true,
 };
 // Middlewares
-app.use(cors());
+app.use(cors(corsConfigOptions));
 app.use(cookieParser());
 app.use(express.json());
 
