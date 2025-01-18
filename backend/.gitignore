@@ -1,2 +1,3 @@
-uploads
-uploads_test
+/uploads/*
+/uploads_test/*
+.vercel

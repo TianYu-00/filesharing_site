@@ -26,6 +26,16 @@ function Home() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [reselectButtonToolTipContent, setReselectButtonToolTipContent] = useState("Upload more files");
 
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    const tempNote =
+      process.env.NODE_ENV === "production"
+        ? "Note: This hosted project is for testing and experimentation purposes only. Data will be cleared after each deployment or if inactive for a period of time."
+        : "";
+    setNote(`${tempNote}`);
+  }, []);
+
   useEffect(() => {
     // console.log(user);
   }, [user]);
@@ -96,7 +106,7 @@ function Home() {
           }));
           // toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
-          toast.error(`Failed to upload ${file.name}`);
+          toast.error(`Failed to upload: ${file.name}. ${error.response?.data?.msg || error.response?.data}`);
         }
       }
 
@@ -291,6 +301,7 @@ function Home() {
           />
         </>
       )}
+      <p className="pt-10 text-copy-secondary text-xs">{note}</p>
     </Page_BoilerPlate>
   );
 }

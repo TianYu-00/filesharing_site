@@ -1,8 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TbCloudUpload } from "react-icons/tb";
 import { toast } from "react-toastify";
 
 function FileDropZone({ onFileSelect }) {
+  const [fileSizeLimitText, setFileSizeLimitText] = useState("");
+  const fileSizeLimit = process.env.NODE_ENV === "production" ? 1 * 1024 * 1024 : 10 * 1024 * 1024;
+
+  useEffect(() => {
+    const fileSizeLimitMessage = process.env.NODE_ENV === "production" ? "Max 1MB per file" : "Max 10MB per file";
+    setFileSizeLimitText(`${fileSizeLimitMessage}`);
+  }, []);
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (event) => {
@@ -26,6 +34,12 @@ function FileDropZone({ onFileSelect }) {
       return;
     }
 
+    const oversizedFile = droppedFiles.find((file) => file.size > fileSizeLimit);
+    if (oversizedFile) {
+      toast.error(`"${oversizedFile.name}" exceeds the size limit of ${fileSizeLimit / (1024 * 1024)}MB.`);
+      return;
+    }
+
     if (droppedFiles.length > 0) {
       onFileSelect(droppedFiles);
     }
@@ -42,6 +56,13 @@ function FileDropZone({ onFileSelect }) {
 
   const handleFileInputChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
+
+    const oversizedFile = selectedFiles.find((file) => file.size > fileSizeLimit);
+    if (oversizedFile) {
+      toast.error(`"${oversizedFile.name}" exceeds the size limit of ${fileSizeLimit / (1024 * 1024)}MB.`);
+      return;
+    }
+
     if (selectedFiles.length > 0) {
       onFileSelect(selectedFiles);
     }
@@ -76,6 +97,8 @@ function FileDropZone({ onFileSelect }) {
             </button>
           </>
         )}
+
+        <p className="pt-4 text-sm text-copy-secondary">{fileSizeLimitText}</p>
       </div>
       <input
         id="file-input"

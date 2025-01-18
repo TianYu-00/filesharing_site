@@ -75,6 +75,8 @@ const multerStorageConfig = () => {
   });
 };
 
-const upload = multer({ storage: multerStorageConfig() });
+const fileSizeLimit = process.env.NODE_ENV === "production" ? 1 * 1024 * 1024 : 10 * 1024 * 1024;
 
-module.exports = { upload, checkUploadDirExist };
+const upload = multer({ storage: multerStorageConfig(), limits: { fileSize: fileSizeLimit } });
+
+module.exports = { upload, checkUploadDirExist, fileSizeLimit };
