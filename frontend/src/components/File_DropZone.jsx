@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TbCloudUpload } from "react-icons/tb";
 import { toast } from "react-toastify";
 
 function FileDropZone({ onFileSelect }) {
+  const [fileSizeLimitText, setFileSizeLimitText] = useState("");
+
+  useEffect(() => {
+    const fileSizeLimit = process.env.NODE_ENV === "production" ? "max 1mb per file" : "max 10mb per file";
+    setFileSizeLimitText(`${fileSizeLimit}`);
+  }, []);
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (event) => {
@@ -76,6 +83,8 @@ function FileDropZone({ onFileSelect }) {
             </button>
           </>
         )}
+
+        <p className="pt-4">{fileSizeLimitText}</p>
       </div>
       <input
         id="file-input"

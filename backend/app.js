@@ -166,6 +166,15 @@ app.use((err, req, res, next) => {
       code: err.code,
     });
   }
+  // FILE_SIZE_LIMIT_EXCEEDED
+  else if (err.code === "FILE_SIZE_LIMIT_EXCEEDED") {
+    res.status(400).send({
+      success: false,
+      msg: err.message || "File size exceeded",
+      data: null,
+      code: err.code,
+    });
+  }
 
   // Final
   else {

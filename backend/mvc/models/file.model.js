@@ -1,4 +1,4 @@
-const { upload, checkUploadDirExist } = require("../../config/multerConfig");
+const { upload, checkUploadDirExist, fileSizeLimit } = require("../../config/multerConfig");
 const db = require("../../db/connection");
 const path = require("path");
 const fs = require("fs");
@@ -23,6 +23,9 @@ exports.uploadFile = async (req) => {
     upload.single("file")(req, {}, async (err) => {
       if (err) {
         // console.log(err);
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return reject({ code: "FILE_SIZE_LIMIT_EXCEEDED", message: "File size limit exceeded" });
+        }
         return reject({ code: "UPLOAD_ERROR", message: "Error uploading file" });
       }
       if (!req.file) {
