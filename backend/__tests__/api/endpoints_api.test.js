@@ -20,4 +20,13 @@ describe("GET api/", () => {
       throw error;
     }
   });
+
+  test("should return html content", async () => {
+    try {
+      const response = await request(app).get("/api").expect(200);
+      expect(response.header["content-type"]).toMatch("text/html");
+    } catch (error) {
+      throw error;
+    }
+  });
 });

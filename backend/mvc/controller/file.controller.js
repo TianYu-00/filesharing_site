@@ -115,7 +115,7 @@ exports.getDownloadLinks = async (req, res, next) => {
 
     const loggedInUserId = req.userData.id;
 
-    if (fileInfo.user_id !== loggedInUserId && req.userData.role !== "admin") {
+    if (fileInfo.user_id !== loggedInUserId) {
       return res.status(403).json({ success: false, msg: "Access denied" });
     }
 
@@ -140,7 +140,7 @@ exports.deleteFile = async (req, res, next) => {
 
     const file = await retrieveFileInfo(file_id);
 
-    if (file.user_id !== user_id) {
+    if (file.user_id !== user_id && req.userData.role !== "admin") {
       return res.status(403).json({ success: false, msg: "Access denied", data: null });
     }
 

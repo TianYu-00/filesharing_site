@@ -74,7 +74,7 @@
 
 - **DELETE** `/api/files/:file_id`  
   - **Description**: Delete a specific file completely by file id.
-  - **Permission**: User.
+  - **Permission**: User & Admin.
 
 - **PATCH** `/api/files/:file_id/rename`  
   - **Description**: Rename a specific file by file id.
@@ -103,10 +103,6 @@
 - **PATCH** `/api/files/:file_id/trash`  
   - **Description**: Update a specific file trash state by file id.
   - **Permission**: User.
-
-- **GET** `/api/files/:file_id/download`  
-  - **Description**: Download the file by file id.
-  - **Permission**: All.
 
 - **GET** `/api/files/:file_id/download`  
   - **Description**: Download the file by file id.

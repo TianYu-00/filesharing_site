@@ -27,4 +27,16 @@ describe("GET api/auth/verify-user-token", () => {
       throw error;
     }
   });
+
+  test("should return success = true", async () => {
+    try {
+      const tempUserLoginCredentials = data.users[0];
+      const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+      const cookies = loginResponse.headers["set-cookie"];
+      const { body } = await request(app).get("/api/auth/verify-user-token").set("Cookie", cookies).expect(200);
+      expect(body.success).toBe(true);
+    } catch (error) {
+      throw error;
+    }
+  });
 });

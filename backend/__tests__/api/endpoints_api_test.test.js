@@ -12,6 +12,11 @@ describe("GET api/test", () => {
     }
   });
 
+  test("should return success = true", async () => {
+    const { body } = await request(app).get("/api/test");
+    expect(body.success).toBe(true);
+  });
+
   test("should return the correct body value", async () => {
     try {
       const expected = { success: true, msg: "Hello World!", data: null };

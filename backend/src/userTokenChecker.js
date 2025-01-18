@@ -46,25 +46,3 @@ const userTokenChecker = async (req, res, next) => {
 };
 
 module.exports = userTokenChecker;
-
-/*
-
-Thought process:
-
-- get access token from cookie 
-- get refresh token from cookie
-- check to see if they are exist
-- error if any tokens are missing
-
-- verify access token to see if its valid
-- if its valid go next
-- else
-- check refresh token to see if its valid
-- if its valid fetch user data from database with userId (from refresh token)
-- create the new access token
-- create the cookie for it
-- go next
-- else
-- respond back to reject
-
-*/

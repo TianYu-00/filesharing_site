@@ -41,6 +41,15 @@ describe("POST /api/files/:file_id/download-link", () => {
     await request(app).post("/api/files/1/download-link").set("Cookie", cookies).expect(200);
   });
 
+  test("should return success = true", async () => {
+    const tempUserLoginCredentials = data.users[0];
+    const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);
+    const cookies = loginResponse.headers["set-cookie"];
+
+    const { body } = await request(app).post("/api/files/1/download-link").set("Cookie", cookies).expect(200);
+    expect(body.success).toBe(true);
+  });
+
   test("should return 200 status code and contain download link details", async () => {
     const tempUserLoginCredentials = data.users[0];
     const loginResponse = await request(app).post("/api/auth/login").send(tempUserLoginCredentials).expect(200);

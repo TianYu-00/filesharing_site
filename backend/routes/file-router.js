@@ -6,11 +6,9 @@ const checkAdminRole = require("../src/checkAdminRole");
 const userTokenChecker = require("../src/userTokenChecker");
 const isLoggedInChecker = require("../src/isLoggedInChecker");
 
-// Admin only
 fileRouter.get("/", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getAllFilesInfo);
 fileRouter.get("/:file_id/info", userTokenChecker, isLoggedInChecker, checkAdminRole, fileController.getFileInfo);
 
-// Protected routes
 fileRouter.delete("/:file_id", userTokenChecker, isLoggedInChecker, fileController.deleteFile);
 fileRouter.patch("/:file_id/rename", userTokenChecker, isLoggedInChecker, fileController.renameFileById);
 fileRouter.get("/:file_id/download-links", userTokenChecker, isLoggedInChecker, fileController.getDownloadLinks);
@@ -33,7 +31,6 @@ fileRouter.get("/:file_id/download", userTokenChecker, fileController.getFile);
 fileRouter.patch("/trash-many/files", userTokenChecker, isLoggedInChecker, fileController.trashManyFileById);
 fileRouter.delete("/delete-many/files", userTokenChecker, isLoggedInChecker, fileController.removeManyFilesByFileInfo);
 
-// Public routes
 fileRouter.post("/upload", fileController.postFile);
 fileRouter.get("/download-links/:download_link/file-info", fileController.getFileInfoByLink);
 fileRouter.get("/download-links/:download_link/details", fileController.getDownloadLinkInfoByDownloadLink);

@@ -44,4 +44,19 @@ describe("PATCH api/auth/reset-password", () => {
       throw error;
     }
   });
+
+  test("should return success = true", async () => {
+    try {
+      const tempBody = { email: data.users[0].email };
+      const sendEmailResponse = await request(app).post("/api/auth/forgot-password").send(tempBody).expect(200);
+      const token = sendEmailResponse.body.data.text;
+      const { body } = await request(app)
+        .patch("/api/auth/reset-password")
+        .send({ forgotPasswordToken: token, password: "12345678" })
+        .expect(200);
+      expect(body.success).toBe(true);
+    } catch (error) {
+      throw error;
+    }
+  });
 });

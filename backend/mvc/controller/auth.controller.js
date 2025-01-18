@@ -185,21 +185,16 @@ exports.sendPasswordResetLink = [
         textContent = `${forgotPasswordToken}`;
       } else {
         textContent = `
-        Hello,
+        Hello ${user.username},
 
-        We received a request to reset the password for your DropBoxer account. Please use the following link to reset your password:
-
+        We received a request to reset the password for your DropBoxer account. Please click the link below to reset your password:
         ${resetLink}
 
-        The link will expire in 15 minutes.
+        The link will expire in 15 minutes. If you didn’t request a password reset, you can safely ignore this email.
 
-        If you did not request a password reset, please ignore this email.
+        Please note: This is an automated email, and replies are not monitored. If you need assistance, our support team is here to help.
 
-        Please note: This is an automated message. Do not reply to this email as it won't be monitored.
-
-        If you have any issues, feel free to contact our support team.
-
-        Thanks,
+        Thank you,
         The DropBoxer Team
       `;
       }

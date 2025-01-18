@@ -35,6 +35,17 @@ describe("GET /api/files/:file_id/download", () => {
     await request(app).get(`/api/files/${fileId}/download?link=${downloadLink}`).expect(200);
   });
 
+  test("should return success = true", async () => {
+    const { body: uploadResponse } = await request(app)
+      .post("/api/files/upload")
+      .attach("file", testFilePath)
+      .expect(200);
+    const fileId = uploadResponse.data.file.id;
+    const downloadLink = uploadResponse.data.downloadLink.download_url;
+
+    await request(app).get(`/api/files/${fileId}/download?link=${downloadLink}`).expect(200);
+  });
+
   test("should verify that the content of the downloaded file matches the content of the original file", async () => {
     const { body: uploadResponse } = await request(app)
       .post("/api/files/upload")
