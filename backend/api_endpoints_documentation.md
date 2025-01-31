@@ -9,6 +9,10 @@
   - **Description**: Test API call.
   - **Permission**: All.
 
+- **GET** `/api/health-check`  
+  - **Description**: Checks the connectivity and health status of the database.
+  - **Permission**: All.
+
 ---
 ## Auth
 - **GET** `/api/auth/blacklist-tokens`  
