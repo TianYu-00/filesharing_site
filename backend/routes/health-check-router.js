@@ -4,8 +4,8 @@ const healthCheckRouter = express.Router();
 const rateLimit = require("express-rate-limit");
 
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  limit: 5,
+  windowMs: 1 * 10 * 1000,
+  limit: 100,
   message: { success: false, message: "Too many requests, please try again later." },
 });
 
